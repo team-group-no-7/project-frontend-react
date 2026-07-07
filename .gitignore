@@ -15,7 +15,7 @@ pids
 *.pid
 *.seed
 *.pid.lock
-UI/
+/UI/
 Module-and-Design.txt
 *.mmd
 
