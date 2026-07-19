@@ -1,3 +1,4 @@
+import Login from "./components/Login-Page/Login";
 
 
 function App() {
@@ -5,7 +6,7 @@ function App() {
 
   return (
     <div className="App">
-
+      <Login />
     </div>
   );
 }
