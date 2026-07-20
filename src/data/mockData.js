@@ -102,3 +102,96 @@ export const DOUBT_SESSIONS = [
     jitsi_room_name: ""
   }
 ];
+
+// CATEGORIES Table: id, name, description
+export const CATEGORIES = [
+  { id: 0, name: "All Categories" },
+  { id: 1, name: "Java" },
+  { id: 2, name: "DSA" },
+  { id: 3, name: "Web Dev" },
+  { id: 4, name: "System Design" },
+  { id: 5, name: "SQL & DB" }
+];
+
+// MARKETPLACE_CONTENTS: Full catalog items mapping to CONTENTS table with creator JOIN info
+export const MARKETPLACE_CONTENTS = [
+  {
+    id: 11,
+    title: "Complete Java Spring Boot Guide",
+    description: "Master Spring Boot monolithic & microservices backend architecture with real-world project examples.",
+    price: 599.00,
+    category_id: 1, // Java
+    category_name: "Java",
+    creator_name: "Rohan Verma",
+    rating: 4.8,
+    learners_count: 1420,
+    type: "Notes & Code",
+    preview_text: "Chapter 1: Introduction to Spring Boot, Spring Core Annotations, Dependency Injection, and REST Controllers setup."
+  },
+  {
+    id: 12,
+    title: "Data Structures & Algorithms Cheat Sheets",
+    description: "Fast-track interview revision notes covering Trees, Graphs, Dynamic Programming, and Array patterns.",
+    price: 199.00,
+    category_id: 2, // DSA
+    category_name: "DSA",
+    creator_name: "Priya Sharma",
+    rating: 4.9,
+    learners_count: 2890,
+    type: "Cheat Sheet PDF",
+    preview_text: "Section 1: Quick space & time complexity formulas, Two-Pointer technique algorithms, and binary search templates."
+  },
+  {
+    id: 21,
+    title: "React 19 & Next.js Modern Web Dev",
+    description: "Learn component lifecycle, hooks, state management, and Tailwind CSS responsive design mechanics.",
+    price: 299.00,
+    category_id: 3, // Web Dev
+    category_name: "Web Dev",
+    creator_name: "Arjun Mehta",
+    rating: 4.7,
+    learners_count: 950,
+    type: "Interactive Guide",
+    preview_text: "Lesson 1: Understanding React Fiber, UseState vs UseReducer hooks, and custom hook creation patterns."
+  },
+  {
+    id: 22,
+    title: "System Design Essentials for Beginners",
+    description: "High Level & Low Level System Design fundamentals: Load balancers, caching, database sharding, and queues.",
+    price: 0.00, // Free content
+    category_id: 4, // System Design
+    category_name: "System Design",
+    creator_name: "Arjun Mehta",
+    rating: 4.6,
+    learners_count: 3400,
+    type: "Free Handbook",
+    preview_text: "Chapter 1: Scalability basics, Horizontal vs Vertical scaling, and CDN cache invalidation strategies."
+  },
+  {
+    id: 31,
+    title: "Mastering SQL & Database Indexing",
+    description: "Comprehensive guide to complex joins, subqueries, B-Tree indexes, and MySQL query performance tuning.",
+    price: 349.00,
+    category_id: 5, // SQL & DB
+    category_name: "SQL & DB",
+    creator_name: "Neha Gupta",
+    rating: 4.8,
+    learners_count: 1120,
+    type: "SQL Handbook",
+    preview_text: "Module 1: Inner vs Outer joins, Aggregations with Group By, and Index execution plan analysis using EXPLAIN."
+  },
+  {
+    id: 32,
+    title: "Java Microservices with Docker & Kubernetes",
+    description: "Containerize your Spring Boot services and deploy them with Docker Compose & K8s cluster configurations.",
+    price: 799.00,
+    category_id: 1, // Java
+    category_name: "Java",
+    creator_name: "Rohan Verma",
+    rating: 4.9,
+    learners_count: 860,
+    type: "Video & Notes",
+    preview_text: "Part 1: Writing efficient Dockerfiles for Spring Boot apps, multi-stage builds, and K8s Deployment manifests."
+  }
+];
+
