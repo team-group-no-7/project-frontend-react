@@ -1,6 +1,6 @@
 export default function AuthFooter() {
     return (
-        <footer className="login-footer">
+        <footer className="Auth-footer">
 
             <p>© 2026 LearnHub. All rights reserved.</p>
 

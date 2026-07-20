@@ -1,6 +1,6 @@
 function AuthDivider() {
     return (
-        <div className="divider">
+        <div className="Auth-divider">
             <span className="line"></span>
 
             <span className="divider-text">

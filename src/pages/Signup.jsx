@@ -1,24 +1,14 @@
+import AuthDivider from "../components/AuthDivider";
+import AuthFooter from "../components/AuthFooter";
+import AuthHeader from "../components/AuthHeader";
+import OAuthGoogle from "../components/oAuthGoogle";
 import "../styles/Signup.css";
 
 function Signup() {
     return (
         <div className="signup-container">
 
-            <header className="signup-header">
-
-                <div className="logo">
-                    <img src="" alt="LearnHub Logo" />
-                    <span>LearnHub</span>
-                </div>
-
-                <nav className="header-nav">
-                    <span>
-                        Already have an account?
-                        <a href="/Login"> Log In</a>
-                    </span>
-                </nav>
-
-            </header>
+            <AuthHeader />
 
             <main className="signup-main">
 
@@ -87,43 +77,15 @@ function Signup() {
 
                     </form>
 
-                    <div className="divider">
+                    <AuthDivider />
 
-                        <span className="line"></span>
-
-                        <span className="divider-text">
-                            OR
-                        </span>
-
-                        <span className="line"></span>
-
-                    </div>
-
-                    <div className="oauth-container">
-
-                        <button
-                            className="google-btn"
-                            type="button"
-                        >
-                            Continue with Google
-                        </button>
-
-                    </div>
+                    <OAuthGoogle />
 
                 </div>
 
             </main>
 
-            <footer className="signup-footer">
-
-                <p>© 2026 LearnHub. All rights reserved.</p>
-
-                <div className="footer-links">
-                    <a href="/privacy">Privacy Policy</a>
-                    <a href="/terms">Terms of Service</a>
-                </div>
-
-            </footer>
+            <AuthFooter />
 
         </div>
     );

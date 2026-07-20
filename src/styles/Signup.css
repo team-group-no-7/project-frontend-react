@@ -18,7 +18,7 @@
 
 /* ---------- Header ---------- */
 
-.signup-header {
+.Auth-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -28,6 +28,10 @@
     background: #fff;
 
     border-bottom: 1px solid #e5e7eb;
+}
+
+.Auth-header a {
+    text-decoration: none;
 }
 
 .logo {
@@ -171,7 +175,7 @@
 
 /* ---------- Divider ---------- */
 
-.divider {
+.Auth-divider {
 
     display: flex;
 
@@ -224,7 +228,7 @@
 
 /* ---------- Footer ---------- */
 
-.signup-footer {
+.Auth-footer {
 
     display: flex;
 
@@ -264,8 +268,8 @@
 
 @media(max-width:768px) {
 
-    .signup-header,
-    .signup-footer {
+    .Auth-header,
+    .Auth-footer {
 
         flex-direction: column;
 
