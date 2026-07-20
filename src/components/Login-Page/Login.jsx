@@ -5,7 +5,7 @@ function Login() {
                 <div>
                     <img src="" alt="Logo" />
                     <span>LearnHub</span>
-                </div> 
+                </div>
 
                 <nav>
                     <span>Don't Have an account?<a href="/Signup">Sign up</a></span>
@@ -20,7 +20,7 @@ function Login() {
                     <form className="login-form">
                         <div>
                             <label htmlFor="email">Email Address:</label>
-                            <input type="email" id="email"></input>
+                            <input type="email" id="email" required></input>
                         </div>
                         <div>
                             <label htmlFor="password">Password:</label>
@@ -30,20 +30,27 @@ function Login() {
                         <button type="submit">Log in</button>
                     </form>
 
-                    <div>
-                        <div className="divider">
-                            <span className="line"></span>
-                            <span className="divider-text">or</span>
-                            <span className="line"></span>
-                        </div>
-                        <div className="oauth-container">
-                            <button type="button" > {/* onClick={handleGoogleLogin} */}
-                                Continue with Google
-                            </button>
-                        </div>
+                    <div className="divider">
+                        <span className="line"></span>
+                        <span className="divider-text">or</span>
+                        <span className="line"></span>
                     </div>
+                    <div className="oauth-container">
+                        <button type="button" > {/* onClick={handleGoogleLogin} */}
+                            Continue with Google
+                        </button>
+                    </div>
+
                 </div>
             </main>
+
+            <footer>
+                <p>&copy; 2026 LearnHub. All rights reserved.</p>
+                <div className="footer-links">
+                    <a href="/privacy">Privacy Policy</a>
+                    <a href="/terms">Terms of Service</a>
+                </div>
+            </footer>
         </div>
     );
 }

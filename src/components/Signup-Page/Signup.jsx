@@ -21,7 +21,7 @@ function Signup() {
                         <form className="signup-form">
                             <div>
                                 <label htmlFor="fullName">Full Name:</label>
-                                <input type="text" id="fullName"></input>
+                                <input type="text" id="fullName" required></input>
                             </div>
 
                             <div>
@@ -31,7 +31,7 @@ function Signup() {
 
                             <div>
                                 <label htmlFor="password">Password:</label>
-                                <input type="password" id="password"></input>
+                                <input type="password" id="password" required></input>
                             </div>
 
                             <div>
@@ -42,20 +42,25 @@ function Signup() {
                             <button type="submit">Create Account</button>
                         </form>
 
-                        <div>
-                            <div className="divider">
-                                <span className="line"></span>
-                                <span className="divider-text">or</span>
-                                <span className="line"></span>
-                            </div>
-                            <div className="oauth-container">
-                                <button type="button" > {/* onClick={handleGoogleLogin} */}
-                                    Continue with Google
-                                </button>
-                            </div>
+                        <div className="divider">
+                            <span className="line"></span>
+                            <span className="divider-text">or</span>
+                            <span className="line"></span>
+                        </div>
+                        <div className="oauth-container">
+                            <button type="button" > {/* onClick={handleGoogleLogin} */}
+                                Continue with Google
+                            </button>
                         </div>
                     </div>
                 </main>
+                <footer>
+                    <p>&copy; 2026 LearnHub. All rights reserved.</p>
+                    <div className="footer-links">
+                        <a href="/privacy">Privacy Policy</a>
+                        <a href="/terms">Terms of Service</a>
+                    </div>
+                </footer>
             </div>
         </>
     );
