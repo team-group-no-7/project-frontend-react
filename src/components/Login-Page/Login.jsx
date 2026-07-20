@@ -5,15 +5,15 @@ function Login() {
                 <div>
                     <img src="" alt="Logo" />
                     <span>LearnHub</span>
-                </div> {/* Correctly closed the inner div */}
+                </div> 
 
                 <nav>
-                    <a href="/Signup">Don't Have an account? Sign up</a>
+                    <span>Don't Have an account?<a href="/Signup">Sign up</a></span>
                 </nav>
             </header>
 
             <main className="login-main">
-                <article className="login-box">
+                <div className="login-box">
                     <h1>Welcome back!</h1>
                     <p>Login to continue your learning journey.</p>
 
@@ -42,7 +42,7 @@ function Login() {
                             </button>
                         </div>
                     </div>
-                </article>
+                </div>
             </main>
         </div>
     );
