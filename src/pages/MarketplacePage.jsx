@@ -62,7 +62,7 @@ export default function MarketplacePage({ onNavigateToProfile }) {
   const handleBuyContent = (item) => {
     setPreviewItem(null); // Close modal
     setPurchaseNotification(`Successfully unlocked "${item.title}"! It has been added to your Library.`);
-    
+
     // Auto hide notification after 5 seconds
     setTimeout(() => {
       setPurchaseNotification("");
@@ -71,13 +71,10 @@ export default function MarketplacePage({ onNavigateToProfile }) {
 
   return (
     <div className="min-h-screen bg-[#F8F7FF] dark:bg-[#0b0a14] text-[#1A1A2E] dark:text-[#f3f4f6]">
-      
+
       {/* Hero Header Section */}
       <section className="bg-gradient-to-r from-indigo-900 via-indigo-800 to-purple-900 text-white py-12 px-6 shadow-md">
         <div className="max-w-6xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-xs font-semibold text-indigo-200 border border-white/10">
-            <Sparkles className="h-3.5 w-3.5 text-amber-300" /> Module 2: Content Marketplace
-          </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
             Discover Verified Learning Resources
           </h1>
@@ -107,7 +104,7 @@ export default function MarketplacePage({ onNavigateToProfile }) {
 
         {/* Search Bar & Controls Row */}
         <div className="bg-white dark:bg-[#121124] border border-gray-200 dark:border-gray-800 p-4 rounded-2xl shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
-          
+
           {/* Real-time Search Input */}
           <div className="relative w-full md:w-96">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -153,11 +150,10 @@ export default function MarketplacePage({ onNavigateToProfile }) {
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
-                  isSelected
-                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/20"
-                    : "bg-white dark:bg-[#121124] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-800 hover:border-indigo-400 hover:text-indigo-600"
-                }`}
+                className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 ${isSelected
+                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/20"
+                  : "bg-white dark:bg-[#121124] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-800 hover:border-indigo-400 hover:text-indigo-600"
+                  }`}
               >
                 {cat.name}
               </button>
