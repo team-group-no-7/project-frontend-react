@@ -17,6 +17,10 @@ import DoubtWorkspacePage from './pages/DoubtWorkspacePage';
 import CreatorNoticeboardPage from './pages/CreatorNoticeboardPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import ProfilePage from './pages/ProfilePage';
+import CreatorProfilePage from './pages/CreatorProfilePage';
+import UnifiedContentViewerPage from './pages/UnifiedContentViewerPage';
+import PurchaseHistoryPage from './pages/PurchaseHistoryPage';
+import NotificationCenter from './components/NotificationCenter';
 import { Button } from './components/ui/button';
 import { INITIAL_USER } from './data/mockData';
 
@@ -216,8 +220,9 @@ function App() {
 
           </nav>
 
-          {/* Auth Action */}
+          {/* Auth Action & Notification Center */}
           <div className="flex items-center gap-2">
+            <NotificationCenter />
             {isLoggedIn ? (
               <Button
                 size="sm"
@@ -335,6 +340,25 @@ function App() {
 
         {currentPage === 'profile' && (
           <ProfilePage />
+        )}
+
+        {currentPage === 'creator-profile' && (
+          <CreatorProfilePage
+            onBack={() => setCurrentPage('marketplace')}
+            onBookSession={() => setCurrentPage('doubts')}
+          />
+        )}
+
+        {currentPage === 'reader' && (
+          <UnifiedContentViewerPage
+            onBack={() => setCurrentPage('library')}
+          />
+        )}
+
+        {currentPage === 'history' && (
+          <PurchaseHistoryPage
+            onBack={() => setCurrentPage('library')}
+          />
         )}
       </div>
 

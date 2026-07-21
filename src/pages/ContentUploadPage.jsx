@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { UploadCloud, FileText, CheckCircle, AlertCircle, ArrowLeft, DollarSign, Tag, Info } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { UploadCloud, FileText, CheckCircle, AlertCircle, ArrowLeft, DollarSign, Tag, Info, Edit3, Eye } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,14 +10,13 @@ import { Badge } from "@/components/ui/badge";
 import { CATEGORIES } from "@/data/mockData";
 
 /**
- * ContentUploadPage Component (Module 2 - Part 2: Content Upload Form Page)
- * Dedicated workspace for Creators to upload notes, cheat sheets, or guides.
- * 
- * Props:
- *  - onUploadSuccess: Callback function called when content is published
- *  - onCancel: Callback function to return back to catalog/dashboard
+ * ContentUploadPage Component (Module 3: Unified Content Studio)
+ * Multi-format publishing workspace supporting both PDF file uploads & Inline Rich Text / Markdown articles.
  */
 export default function ContentUploadPage({ onUploadSuccess, onCancel }) {
+  // Publishing Mode State: 'PDF' vs 'ARTICLE'
+  const [publishingMode, setPublishingMode] = useState("PDF");
+  
   // Form input states
   const [title, setTitle] = useState("");
   const [categoryId, setCategoryId] = useState("1"); // Default Java
@@ -27,6 +26,10 @@ export default function ContentUploadPage({ onUploadSuccess, onCancel }) {
   const [type, setType] = useState("Notes & PDF");
   const [previewText, setPreviewText] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
+
+  // Markdown Article content state
+  const [articleContent, setArticleContent] = useState("# Getting Started with Spring Boot\n\nWrite your technical guide here using Markdown syntax...\n\n### Code Example:\n```java\n@RestController\npublic class HelloController {\n}\n```");
+  const [articleTab, setArticleTab] = useState("WRITE"); // 'WRITE' vs 'PREVIEW'
 
   // UI feedback states
   const [errorMsg, setErrorMsg] = useState("");
@@ -44,36 +47,35 @@ export default function ContentUploadPage({ onUploadSuccess, onCancel }) {
     e.preventDefault();
     setErrorMsg("");
 
-    // Validation 1: Title check
     if (!title.trim()) {
       setErrorMsg("Please enter a content title.");
       return;
     }
 
-    // Validation 2: Description check
     if (!description.trim() || description.length < 10) {
       setErrorMsg("Description must be at least 10 characters long.");
       return;
     }
 
-    // Validation 3: File check
-    if (!selectedFile) {
+    if (publishingMode === "PDF" && !selectedFile) {
       setErrorMsg("Please select a PDF or document file to upload.");
       return;
     }
 
-    // Validation 4: Price check if paid
+    if (publishingMode === "ARTICLE" && !articleContent.trim()) {
+      setErrorMsg("Please write some article content before publishing.");
+      return;
+    }
+
     const numericPrice = priceType === "free" ? 0 : parseFloat(price);
     if (priceType === "paid" && (isNaN(numericPrice) || numericPrice <= 0)) {
       setErrorMsg("Please enter a valid price greater than ₹0.");
       return;
     }
 
-    // Simulate API upload delay
     setIsSubmitting(true);
 
     setTimeout(() => {
-      // Construct new content object mapping to CONTENTS table schema
       const newContent = {
         id: Date.now(),
         title: title.trim(),
@@ -81,13 +83,13 @@ export default function ContentUploadPage({ onUploadSuccess, onCancel }) {
         price: numericPrice,
         category_id: parseInt(categoryId),
         category_name: CATEGORIES.find(c => c.id === parseInt(categoryId))?.name || "General",
-        creator_name: "Arjun Mehta", // Current user
-        rating: 5.0, // Initial rating
+        creator_name: "Arjun Mehta",
+        rating: 5.0,
         learners_count: 0,
-        type: type,
+        type: publishingMode === "ARTICLE" ? "Markdown Article" : type,
         preview_text: previewText.trim() || description.substring(0, 80) + "...",
-        fileName: selectedFile.name,
-        fileSize: (selectedFile.size / 1024 / 1024).toFixed(2) + " MB",
+        fileName: publishingMode === "PDF" ? selectedFile?.name : "article.md",
+        articleContent: publishingMode === "ARTICLE" ? articleContent : null,
         uploaded_at: new Date().toISOString()
       };
 
@@ -95,7 +97,7 @@ export default function ContentUploadPage({ onUploadSuccess, onCancel }) {
       if (onUploadSuccess) {
         onUploadSuccess(newContent);
       }
-    }, 1000);
+    }, 800);
   };
 
   return (
@@ -112,7 +114,7 @@ export default function ContentUploadPage({ onUploadSuccess, onCancel }) {
             <ArrowLeft className="h-4 w-4" /> Back to Dashboard
           </Button>
           <Badge variant="outline" className="bg-amber-50 text-amber-600 border-amber-300 dark:bg-amber-950/30 dark:text-amber-400">
-            Creator Workspace
+            Content Studio Workspace
           </Badge>
         </div>
 
@@ -120,16 +122,41 @@ export default function ContentUploadPage({ onUploadSuccess, onCancel }) {
         <Card className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#121124] shadow-md rounded-2xl overflow-hidden">
           <CardHeader className="bg-gradient-to-r from-indigo-900 to-purple-900 text-white p-6">
             <CardTitle className="text-xl font-extrabold flex items-center gap-2">
-              <UploadCloud className="h-6 w-6 text-amber-300" /> Publish New Learning Resource
+              <UploadCloud className="h-6 w-6 text-amber-300" /> Publish Learning Content
             </CardTitle>
             <CardDescription className="text-indigo-200 text-xs">
-              Fill in the metadata to make your study notes, cheat sheets, or code accessible to learners.
+              Choose to upload a PDF document or write an inline Markdown article.
             </CardDescription>
+
+            {/* Content Format Toggle Tabs */}
+            <div className="flex bg-white/10 p-1 rounded-xl border border-white/10 w-fit mt-3">
+              <button
+                type="button"
+                onClick={() => setPublishingMode("PDF")}
+                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  publishingMode === "PDF"
+                    ? "bg-white text-indigo-900 shadow-sm"
+                    : "text-indigo-200 hover:text-white"
+                }`}
+              >
+                📄 Upload PDF / Document
+              </button>
+              <button
+                type="button"
+                onClick={() => setPublishingMode("ARTICLE")}
+                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  publishingMode === "ARTICLE"
+                    ? "bg-white text-indigo-900 shadow-sm"
+                    : "text-indigo-200 hover:text-white"
+                }`}
+              >
+                ✍️ Write Article (Markdown)
+              </button>
+            </div>
           </CardHeader>
 
           <CardContent className="p-6 space-y-6">
             
-            {/* Error Banner */}
             {errorMsg && (
               <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 text-red-600 dark:text-red-400 text-xs flex items-center gap-2">
                 <AlertCircle className="h-4 w-4 shrink-0" />
@@ -139,7 +166,7 @@ export default function ContentUploadPage({ onUploadSuccess, onCancel }) {
 
             <form onSubmit={handleSubmit} className="space-y-6">
               
-              {/* 1. Title Input */}
+              {/* Title */}
               <div className="space-y-2">
                 <Label htmlFor="c-title" className="text-xs font-bold uppercase text-gray-700 dark:text-gray-300">
                   Resource Title *
@@ -153,10 +180,8 @@ export default function ContentUploadPage({ onUploadSuccess, onCancel }) {
                 />
               </div>
 
-              {/* 2. Category & Content Type Row */}
+              {/* Category & Content Type */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                
-                {/* Category Dropdown */}
                 <div className="space-y-2">
                   <Label htmlFor="c-category" className="text-xs font-bold uppercase text-gray-700 dark:text-gray-300">
                     Category *
@@ -175,7 +200,6 @@ export default function ContentUploadPage({ onUploadSuccess, onCancel }) {
                   </select>
                 </div>
 
-                {/* Content Type */}
                 <div className="space-y-2">
                   <Label htmlFor="c-type" className="text-xs font-bold uppercase text-gray-700 dark:text-gray-300">
                     Resource Type
@@ -188,14 +212,87 @@ export default function ContentUploadPage({ onUploadSuccess, onCancel }) {
                   >
                     <option value="Notes & PDF">Notes & PDF Document</option>
                     <option value="Cheat Sheet PDF">Cheat Sheet PDF</option>
+                    <option value="Markdown Article">Markdown Article</option>
                     <option value="Code Repository">Code Walkthrough & Repository</option>
-                    <option value="Interactive Guide">Interactive Guide</option>
                   </select>
                 </div>
-
               </div>
 
-              {/* 3. Description Textarea */}
+              {/* Format Specific Input (PDF Upload vs Markdown Editor) */}
+              {publishingMode === "PDF" ? (
+                <div className="space-y-2">
+                  <Label className="text-xs font-bold uppercase text-gray-700 dark:text-gray-300">
+                    Upload PDF Document / File *
+                  </Label>
+                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-indigo-500 p-6 rounded-xl text-center cursor-pointer transition bg-gray-50/30 dark:bg-black/10">
+                    <input
+                      type="file"
+                      id="file-upload"
+                      accept=".pdf,.doc,.docx,.zip"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                    <label htmlFor="file-upload" className="cursor-pointer space-y-2 block">
+                      <FileText className="h-8 w-8 text-indigo-500 mx-auto" />
+                      {selectedFile ? (
+                        <div>
+                          <p className="text-sm font-bold text-gray-900 dark:text-white">{selectedFile.name}</p>
+                          <p className="text-xs text-gray-500">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                        </div>
+                      ) : (
+                        <div>
+                          <p className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">Click to select PDF file</p>
+                          <p className="text-[11px] text-gray-400">Supports PDF, DOCX up to 25MB</p>
+                        </div>
+                      )}
+                    </label>
+                  </div>
+                </div>
+              ) : (
+                /* Markdown Article Editor */
+                <div className="space-y-2 border border-gray-200 dark:border-gray-800 rounded-xl p-4 bg-gray-50/50 dark:bg-black/20">
+                  <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-2">
+                    <Label className="text-xs font-bold uppercase text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                      <Edit3 className="h-3.5 w-3.5 text-indigo-600" /> Article Content Editor (Markdown)
+                    </Label>
+                    <div className="flex bg-gray-200 dark:bg-gray-800 p-0.5 rounded-lg text-xs">
+                      <button
+                        type="button"
+                        onClick={() => setArticleTab("WRITE")}
+                        className={`px-2.5 py-1 rounded-md font-bold ${articleTab === "WRITE" ? "bg-white dark:bg-black text-indigo-600" : "text-gray-500"}`}
+                      >
+                        Write
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setArticleTab("PREVIEW")}
+                        className={`px-2.5 py-1 rounded-md font-bold ${articleTab === "PREVIEW" ? "bg-white dark:bg-black text-indigo-600" : "text-gray-500"}`}
+                      >
+                        Preview
+                      </button>
+                    </div>
+                  </div>
+
+                  {articleTab === "WRITE" ? (
+                    <textarea
+                      rows={8}
+                      value={articleContent}
+                      onChange={(e) => setArticleContent(e.target.value)}
+                      placeholder="# Title\n\nWrite your technical article body here..."
+                      className="w-full bg-white dark:bg-[#121124] border border-gray-200 dark:border-gray-800 rounded-lg p-3 text-xs font-mono text-gray-900 dark:text-white focus:outline-none"
+                    />
+                  ) : (
+                    <div className="p-4 bg-white dark:bg-[#121124] border border-gray-200 dark:border-gray-800 rounded-lg min-h-[160px] text-xs space-y-2">
+                      <p className="font-bold text-gray-500 text-[10px] uppercase">Markdown Preview:</p>
+                      <pre className="whitespace-pre-wrap font-mono text-xs text-gray-800 dark:text-gray-200">
+                        {articleContent}
+                      </pre>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Description */}
               <div className="space-y-2">
                 <Label htmlFor="c-desc" className="text-xs font-bold uppercase text-gray-700 dark:text-gray-300">
                   Full Description *
@@ -210,7 +307,7 @@ export default function ContentUploadPage({ onUploadSuccess, onCancel }) {
                 />
               </div>
 
-              {/* 4. Pricing Model */}
+              {/* Pricing */}
               <div className="space-y-3 p-4 bg-gray-50 dark:bg-gray-900/40 rounded-xl border border-gray-200 dark:border-gray-800">
                 <Label className="text-xs font-bold uppercase text-gray-700 dark:text-gray-300 flex items-center gap-1">
                   <DollarSign className="h-4 w-4 text-emerald-500" /> Pricing Model
@@ -256,50 +353,6 @@ export default function ContentUploadPage({ onUploadSuccess, onCancel }) {
                     />
                   </div>
                 )}
-              </div>
-
-              {/* 5. Multipart File Upload Section */}
-              <div className="space-y-2">
-                <Label className="text-xs font-bold uppercase text-gray-700 dark:text-gray-300">
-                  Upload PDF Document / File *
-                </Label>
-                <div className="border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-indigo-500 p-6 rounded-xl text-center cursor-pointer transition bg-gray-50/30 dark:bg-black/10">
-                  <input
-                    type="file"
-                    id="file-upload"
-                    accept=".pdf,.doc,.docx,.zip"
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                  <label htmlFor="file-upload" className="cursor-pointer space-y-2 block">
-                    <FileText className="h-8 w-8 text-indigo-500 mx-auto" />
-                    {selectedFile ? (
-                      <div>
-                        <p className="text-sm font-bold text-gray-900 dark:text-white">{selectedFile.name}</p>
-                        <p className="text-xs text-gray-500">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
-                      </div>
-                    ) : (
-                      <div>
-                        <p className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">Click to select PDF or document</p>
-                        <p className="text-[11px] text-gray-400">Supports PDF, DOC, DOCX up to 25MB</p>
-                      </div>
-                    )}
-                  </label>
-                </div>
-              </div>
-
-              {/* 6. Sample Preview Snippet */}
-              <div className="space-y-2">
-                <Label htmlFor="c-preview" className="text-xs font-bold uppercase text-gray-700 dark:text-gray-300 flex items-center gap-1">
-                  <Info className="h-3.5 w-3.5 text-indigo-500" /> Sample Preview Snippet (Optional)
-                </Label>
-                <Input
-                  id="c-preview"
-                  placeholder="e.g. Chapter 1: Introduction to annotations and config setup..."
-                  value={previewText}
-                  onChange={(e) => setPreviewText(e.target.value)}
-                  className="bg-gray-50/50 dark:bg-black/20 text-xs"
-                />
               </div>
 
               {/* Action Buttons */}
