@@ -1,0 +1,67 @@
+export const resources = [
+  {
+    id: 1,
+    category: "NOTES",
+    title: "Data Structures and Algorithms Notes",
+    author: "John Doe",
+    avatar: "https://i.pravatar.cc/100?img=12",
+    rating: 4.8,
+    reviews: 120,
+    price: "₹149",
+    image:
+      "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600",
+    badgeColor: "bg-blue-100 text-blue-700",
+  },
+  {
+    id: 2,
+    category: "ARTICLE",
+    title: "System Design Complete Guide",
+    author: "Alex Morgan",
+    avatar: "https://i.pravatar.cc/100?img=32",
+    rating: 4.9,
+    reviews: 91,
+    price: "Free",
+    image:
+      "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600",
+    badgeColor: "bg-green-100 text-green-700",
+  },
+  {
+    id: 3,
+    category: "PROJECT",
+    title: "MERN Stack Project Guide",
+    author: "Sam Wilson",
+    avatar: "https://i.pravatar.cc/100?img=15",
+    rating: 4.7,
+    reviews: 76,
+    price: "₹199",
+    image:
+      "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600",
+    badgeColor: "bg-purple-100 text-purple-700",
+  },
+  {
+    id: 4,
+    category: "STUDY GUIDE",
+    title: "Operating System Study Guide",
+    author: "Priya Sharma",
+    avatar: "https://i.pravatar.cc/100?img=47",
+    rating: 4.8,
+    reviews: 64,
+    price: "₹149",
+    image:
+      "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=600",
+    badgeColor: "bg-orange-100 text-orange-700",
+  },
+  {
+    id: 5,
+    category: "INTERVIEW",
+    title: "TCS NQT Interview Experience",
+    author: "Neha Patel",
+    avatar: "https://i.pravatar.cc/100?img=5",
+    rating: 4.6,
+    reviews: 53,
+    price: "₹99",
+    image:
+      "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=600",
+    badgeColor: "bg-pink-100 text-pink-700",
+  },
+];
