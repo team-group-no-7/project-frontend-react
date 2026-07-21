@@ -69,23 +69,26 @@ export default function ContentManagementGrid({ onOpenUploadForm }) {
   const totalDownloads = contentsList.reduce((sum, item) => sum + (item.downloads || 0), 0);
 
   return (
-    <div className="min-h-screen bg-[#F8F7FF] dark:bg-[#0b0a14] py-8 px-6 space-y-6">
-      <div className="max-w-6xl mx-auto space-y-6">
-        
-        {/* Header & Main Upload CTA */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+    <div className="min-h-screen bg-[#F8F7FF] dark:bg-[#0b0a14] py-8 px-6 sm:px-10 lg:px-14 w-full">
+      <div className="w-full space-y-6">
+
+        {/* Header & Main Upload CTA Banner */}
+        <div className="bg-white dark:bg-[#121124] border border-gray-200 dark:border-gray-800 p-6 sm:p-8 rounded-3xl shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 w-full">
+          <div className="space-y-2 max-w-3xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 text-xs font-bold">
+              <Layers className="h-3.5 w-3.5" /> Creator Content Management
+            </div>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-snug">
               Content Management Workspace
             </h1>
-            <p className="text-xs text-gray-500 mt-1">
-              Manage your published notes, status tracking, price metadata, and uploads.
+            <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 font-medium leading-relaxed">
+              Manage your published technical notes, status tracking, pricing metadata, and active catalog items.
             </p>
           </div>
 
           <Button
             onClick={onOpenUploadForm}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs gap-2 px-5 py-2.5 shadow-sm"
+            className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs gap-2 px-6 py-3 shadow-md rounded-xl shrink-0"
           >
             <Plus className="h-4 w-4" /> Upload New Content
           </Button>
@@ -100,7 +103,7 @@ export default function ContentManagementGrid({ onOpenUploadForm }) {
 
         {/* Creator Metrics Summary Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          
+
           <Card className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#121124] p-5">
             <div className="flex items-center justify-between">
               <div>
@@ -143,7 +146,7 @@ export default function ContentManagementGrid({ onOpenUploadForm }) {
 
         {/* Content Management Table Card */}
         <Card className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#121124] shadow-sm rounded-2xl overflow-hidden">
-          
+
           {/* Table Search Header */}
           <CardHeader className="border-b border-gray-100 dark:border-gray-800 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
@@ -167,7 +170,7 @@ export default function ContentManagementGrid({ onOpenUploadForm }) {
           {/* Table Body */}
           <CardContent className="p-0 overflow-x-auto">
             <table className="w-full text-left text-xs">
-              
+
               {/* Table Head */}
               <thead className="bg-gray-50/80 dark:bg-gray-900/60 border-b border-gray-100 dark:border-gray-800 text-gray-500 uppercase font-semibold">
                 <tr>
@@ -185,7 +188,7 @@ export default function ContentManagementGrid({ onOpenUploadForm }) {
                 {filteredContents.length > 0 ? (
                   filteredContents.map((item) => (
                     <tr key={item.id} className="hover:bg-gray-50/50 dark:hover:bg-black/20 transition-colors">
-                      
+
                       {/* Title & Description */}
                       <td className="py-4 px-5">
                         <div className="font-semibold text-gray-900 dark:text-white text-sm">

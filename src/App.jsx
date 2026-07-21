@@ -30,8 +30,8 @@ function App() {
   return (
     <div className="min-h-screen flex flex-col font-sans">
       {/* Top Application Header Navbar */}
-      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#121124]/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 px-6 py-3 shadow-xs">
-        <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
+      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#121124]/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 px-4 sm:px-8 lg:px-12 py-3 shadow-xs">
+        <div className="w-full flex items-center justify-between gap-4">
           
           {/* Brand Logo & Title */}
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => setCurrentPage('marketplace')}>
