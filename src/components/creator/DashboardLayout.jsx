@@ -1,15 +1,16 @@
-import React from 'react';
-import Sidebar from './Sidebar';
-import TopNavbar from './TopNavbar';
+import React from 'react'
+import Sidebar from './Sidebar'
+import TopNavbar from './TopNavbar'
 
-export default function DashboardLayout({ children }) {
+export default function DashboardLayout({ children, title }) {
     return (
-        <div className="min-h-screen bg-gray-50 text-sm">
+        <div className="min-h-screen bg-slate-50 text-slate-800">
             <div className="flex">
                 <Sidebar />
-                <div className="flex-1 p-6 md:p-8 lg:p-10">
-                    <TopNavbar />
-                    <main className="mt-6">{children}</main>
+
+                <div className="flex-1 min-h-screen">
+                    <TopNavbar title={title} />
+                    <main className="p-6">{children}</main>
                 </div>
             </div>
         </div>

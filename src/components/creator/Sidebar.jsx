@@ -1,40 +1,39 @@
-import React from 'react';
-import SidebarItem from './SidebarItem';
-import { faTachometerAlt, faPenNib, faFolderOpen, faChartBar, faWallet, faVideo, faUsers, faUser, faCog } from '@fortawesome/free-solid-svg-icons';
+import React from 'react'
+import SidebarItem from './SidebarItem'
+import { BookOpen, Home, PenTool, FolderOpen, BarChart2, IndianRupee, Video, Users, User, Settings } from 'lucide-react';
+
+const items = [
+    ['/', Home, 'Creator Dashboard'],
+    ['/content-studio', PenTool, 'Content Studio'],
+    ['/my-resources', FolderOpen, 'My Resources'],
+    ['/analytics', BarChart2, 'Analytics'],
+    ['/earnings', IndianRupee, 'Earnings'],
+    ['/live-sessions', Video, 'Live Sessions'],
+    ['/community', Users, 'Community'],
+    ['/profile', User, 'Profile'],
+    ['/settings', Settings, 'Settings'],
+]
 
 export default function Sidebar() {
-    const items = [
-        { to: '/', label: 'Creator Dashboard', icon: faTachometerAlt },
-        { to: '/content-studio', label: 'Content Studio', icon: faPenNib },
-        { to: '/my-resources', label: 'My Resources', icon: faFolderOpen },
-        { to: '/analytics', label: 'Analytics', icon: faChartBar },
-        { to: '/earnings', label: 'Earnings', icon: faWallet },
-        { to: '/live-sessions', label: 'Live Sessions', icon: faVideo },
-        { to: '/community', label: 'Community', icon: faUsers },
-        { to: '/profile', label: 'Profile', icon: faUser },
-        { to: '/settings', label: 'Settings', icon: faCog },
-    ];
-
     return (
-        <aside className="w-72 bg-purple-50 min-h-screen p-5 flex flex-col">
-            <div className="mb-6 px-2 flex items-center gap-3">
-                <div className="w-9 h-9 bg-gradient-to-br from-purple-600 to-purple-400 rounded-md shadow-sm flex items-center justify-center text-white font-bold">LM</div>
-                <div className="text-purple-700 font-semibold text-lg">LearnMint</div>
+        <aside className="w-64 bg-white border-r border-slate-100 min-h-screen px-4 py-6 sticky top-0">
+            <div className="mb-8 flex items-center gap-3 px-2">
+                <BookOpen size={26} color="#2563eb" />
+                <div>
+                    <div className="text-2xl font-semibold">LearnHub</div>
+                    {/* <div className="text-xs text-slate-400">Creator</div> */}
+                </div>
             </div>
 
-            <nav className="flex flex-col gap-2">
-                {items.map((it) => (
-                    <SidebarItem key={it.to} to={it.to} icon={it.icon} label={it.label} />
+            <nav className="flex flex-col gap-1">
+                {items.map(([to, icon, label]) => (
+                    <SidebarItem key={to} to={to} icon={icon}>
+                        {label}
+                    </SidebarItem>
                 ))}
             </nav>
 
-            <div className="mt-auto p-2">
-                <div className="bg-gradient-to-b from-purple-50 to-white border border-purple-100 rounded-xl p-4 text-sm shadow-sm">
-                    <div className="font-medium text-purple-700">Upgrade to Pro</div>
-                    <p className="text-xs text-gray-500 mt-2">Unlock advanced analytics, custom branding, and more.</p>
-                    <button className="mt-3 w-full bg-purple-600 text-white text-sm py-2 rounded-md">Upgrade Now →</button>
-                </div>
-            </div>
+            {/* Upgrade card removed per request */}
         </aside>
     )
 }
