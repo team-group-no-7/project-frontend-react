@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { ShoppingBag, UploadCloud, LayoutGrid, User } from 'lucide-react';
+import { ShoppingBag, UploadCloud, LayoutGrid, User, Sparkles } from 'lucide-react';
 
 // Import Module Pages
 import MarketplacePage from './pages/MarketplacePage';
 import ContentUploadPage from './pages/ContentUploadPage';
 import ContentManagementGrid from './pages/ContentManagementGrid';
 import ProfilePage from './pages/ProfilePage';
+import CreatorProfilePage from './pages/CreatorProfilePage';
 import { Button } from './components/ui/button';
 
 /**
@@ -13,13 +14,21 @@ import { Button } from './components/ui/button';
  * Beginner-Friendly Main Navigation Orchestrator for LearnHub.
  * Allows switching between:
  *  - Marketplace Catalog
+ *  - Public Creator Profile
  *  - Content Upload Form
  *  - Content Management Grid
  *  - User Profile
  */
 function App() {
-  // Navigation state: 'marketplace' | 'upload' | 'manage' | 'profile'
+  // Navigation state: 'marketplace' | 'upload' | 'manage' | 'profile' | 'creator-profile'
   const [currentPage, setCurrentPage] = useState('marketplace');
+  const [selectedCreatorId, setSelectedCreatorId] = useState(202);
+
+  // Switch view to public creator profile
+  const handleOpenCreatorProfile = (id = 202) => {
+    setSelectedCreatorId(id);
+    setCurrentPage('creator-profile');
+  };
 
   // Callback when a creator successfully uploads new content
   const handleUploadSuccess = (newContent) => {
@@ -65,7 +74,21 @@ function App() {
               <ShoppingBag className="h-3.5 w-3.5" /> Marketplace
             </Button>
 
-            {/* 2. Upload Form */}
+            {/* 2. Public Creator Profile */}
+            <Button
+              size="sm"
+              variant={currentPage === 'creator-profile' ? 'default' : 'ghost'}
+              onClick={() => handleOpenCreatorProfile(202)}
+              className={`gap-1.5 text-xs font-semibold rounded-lg transition-all ${
+                currentPage === 'creator-profile'
+                  ? 'bg-indigo-600 text-white shadow-xs'
+                  : 'text-gray-600 dark:text-gray-300 hover:text-indigo-600'
+              }`}
+            >
+              <Sparkles className="h-3.5 w-3.5" /> Creator Profile
+            </Button>
+
+            {/* 3. Upload Form */}
             <Button
               size="sm"
               variant={currentPage === 'upload' ? 'default' : 'ghost'}
@@ -79,7 +102,7 @@ function App() {
               <UploadCloud className="h-3.5 w-3.5" /> Publish Content
             </Button>
 
-            {/* 3. Creator Management Grid */}
+            {/* 4. Creator Management Grid */}
             <Button
               size="sm"
               variant={currentPage === 'manage' ? 'default' : 'ghost'}
@@ -93,7 +116,7 @@ function App() {
               <LayoutGrid className="h-3.5 w-3.5" /> Management Grid
             </Button>
 
-            {/* 4. Profile */}
+            {/* 5. User Account Profile */}
             <Button
               size="sm"
               variant={currentPage === 'profile' ? 'default' : 'ghost'}
@@ -104,7 +127,7 @@ function App() {
                   : 'text-gray-600 dark:text-gray-300 hover:text-indigo-600'
               }`}
             >
-              <User className="h-3.5 w-3.5" /> Profile
+              <User className="h-3.5 w-3.5" /> My Account
             </Button>
 
           </nav>
@@ -115,7 +138,18 @@ function App() {
       {/* View Router */}
       <div className="flex-1">
         {currentPage === 'marketplace' && (
-          <MarketplacePage onNavigateToProfile={() => setCurrentPage('profile')} />
+          <MarketplacePage
+            onNavigateToProfile={() => setCurrentPage('profile')}
+            onOpenCreatorProfile={(id) => handleOpenCreatorProfile(id)}
+          />
+        )}
+
+        {currentPage === 'creator-profile' && (
+          <CreatorProfilePage
+            creatorId={selectedCreatorId}
+            onBack={() => setCurrentPage('marketplace')}
+            onSelectCreator={(id) => setSelectedCreatorId(id)}
+          />
         )}
         
         {currentPage === 'upload' && (

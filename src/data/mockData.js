@@ -8,6 +8,164 @@ export const INITIAL_USER = {
   role: "LEARNER" // enum role ("LEARNER", "CREATOR", "ADMIN")
 };
 
+// CREATORS Table: Public profiles for top technical content publishers
+export const CREATORS = [
+  {
+    id: 202,
+    name: "Rohan Verma",
+    headline: "Staff Backend Engineer & Spring Boot Architect",
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+    coverImage: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&auto=format&fit=crop&q=80",
+    bio: "Ex-Amazon Senior Backend Engineer with 8+ years experience designing distributed Java microservices and high-throughput transaction systems. Passionate about empowering engineers with production-ready guides.",
+    location: "Bengaluru, India",
+    joinedDate: "March 2025",
+    rating: 4.85,
+    totalReviews: 236,
+    totalStudents: 3140,
+    followersCount: 1250,
+    publishedCount: 3,
+    expertise: ["Java", "Spring Boot", "Microservices", "Docker", "Kubernetes", "PostgreSQL"],
+    socials: {
+      github: "https://github.com",
+      linkedin: "https://linkedin.com",
+      twitter: "https://twitter.com",
+      website: "https://rohanverma.dev"
+    },
+    achievements: [
+      { id: 1, title: "Top Rated Author 2026", desc: "Maintained > 4.8 rating across 3000+ learners", icon: "Award" },
+      { id: 2, title: "Spring Boot Master", desc: "Published 3 bestseller Java resources", icon: "Zap" },
+      { id: 3, title: "100+ Doubt Sessions", desc: "Resolved 100+ live architecture queries", icon: "CheckCircle2" }
+    ],
+    reviews: [
+      {
+        id: 1,
+        studentName: "Aakash Roy",
+        avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80",
+        rating: 5,
+        date: "2 days ago",
+        comment: "Rohan's Spring Boot microservices guide is hands down the best practical resource I have ever purchased. Step-by-step code samples saved me weeks of struggle!"
+      },
+      {
+        id: 2,
+        studentName: "Sneha Kapur",
+        avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80",
+        rating: 5,
+        date: "1 week ago",
+        comment: "Booked a 30-min doubt session with Rohan for transaction isolation levels. He explained real-world DB locking mechanisms so clearly. Worth every rupee!"
+      }
+    ]
+  },
+  {
+    id: 101,
+    name: "Arjun Mehta",
+    headline: "Fullstack Architect & Systems Designer",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+    coverImage: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1200&auto=format&fit=crop&q=80",
+    bio: "Senior Fullstack Specialist specializing in React 19, Next.js, Node.js, and Low-Level System Design. Creator of LearnHub's popular Web Dev & LLD series.",
+    location: "Mumbai, India",
+    joinedDate: "January 2025",
+    rating: 4.78,
+    totalReviews: 625,
+    totalStudents: 6520,
+    followersCount: 2840,
+    publishedCount: 4,
+    expertise: ["React 19", "Next.js", "Node.js", "System Design", "LLD", "Design Patterns"],
+    socials: {
+      github: "https://github.com",
+      linkedin: "https://linkedin.com",
+      twitter: "https://twitter.com",
+      website: "https://arjunmehta.tech"
+    },
+    achievements: [
+      { id: 1, title: "Platform Pioneer", desc: "First 1000+ learner creator on LearnHub", icon: "Award" },
+      { id: 2, title: "System Design Lead", desc: "Top downloaded System Design Handbook", icon: "Zap" },
+      { id: 3, title: "Community Star", desc: "Over 500+ positive learner reviews", icon: "CheckCircle2" }
+    ],
+    reviews: [
+      {
+        id: 1,
+        studentName: "Karan Joshi",
+        avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=100&auto=format&fit=crop&q=80",
+        rating: 5,
+        date: "3 days ago",
+        comment: "Arjun's LLD Design Patterns guide cleared all my interview doubts regarding Strategy vs State patterns!"
+      }
+    ]
+  },
+  {
+    id: 203,
+    name: "Priya Sharma",
+    headline: "Competitive Programmer & DSA Specialist",
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
+    coverImage: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1200&auto=format&fit=crop&q=80",
+    bio: "Candidate Master on Codeforces and LeetCode Top 0.5%. Author of high-impact DSA Cheat Sheets and Dynamic Programming Masterclass notes.",
+    location: "Delhi, India",
+    joinedDate: "February 2025",
+    rating: 4.88,
+    totalReviews: 534,
+    totalStudents: 5160,
+    followersCount: 3100,
+    publishedCount: 3,
+    expertise: ["DSA", "Dynamic Programming", "Graphs", "LeetCode", "C++"],
+    socials: {
+      github: "https://github.com",
+      linkedin: "https://linkedin.com",
+      twitter: "https://twitter.com"
+    },
+    achievements: [
+      { id: 1, title: "LeetCode Top 0.5%", desc: "Solved 1800+ algorithmic problems", icon: "Award" },
+      { id: 2, title: "Bestseller DSA", desc: "Over 2800+ downloads for DSA Cheat Sheet", icon: "Zap" }
+    ],
+    reviews: [
+      {
+        id: 1,
+        studentName: "Manish Kumar",
+        avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80",
+        rating: 5,
+        date: "5 days ago",
+        comment: "The Dynamic Programming state transition diagrams in Priya's notes made DP so much easier to visualize."
+      }
+    ]
+  },
+  {
+    id: 204,
+    name: "Vikram Malhotra",
+    headline: "DevOps Lead & Cloud Solutions Architect",
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
+    coverImage: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200&auto=format&fit=crop&q=80",
+    bio: "Certified AWS Solutions Architect Professional with 10+ years experience building CI/CD pipelines, Kubernetes clusters, and cloud-native infrastructure.",
+    location: "Pune, India",
+    joinedDate: "April 2025",
+    rating: 4.92,
+    totalReviews: 410,
+    totalStudents: 4880,
+    followersCount: 2150,
+    publishedCount: 2,
+    expertise: ["DevOps", "Docker", "Kubernetes", "AWS", "CI/CD", "Terraform"],
+    socials: {
+      github: "https://github.com",
+      linkedin: "https://linkedin.com",
+      twitter: "https://twitter.com",
+      website: "https://vikrammalhotra.cloud"
+    },
+    achievements: [
+      { id: 1, title: "AWS Community Hero", desc: "Top DevOps author with 4800+ students", icon: "Award" },
+      { id: 2, title: "K8s Architect", desc: "Published Kubernetes roadmap & Helm guides", icon: "Zap" }
+    ],
+    reviews: [
+      {
+        id: 1,
+        studentName: "Deepak Patel",
+        avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80",
+        rating: 5,
+        date: "4 days ago",
+        comment: "Vikram's Docker and K8s roadmap gave me exact hands-on steps needed to pass my DevOps interview!"
+      }
+    ]
+  }
+];
+
+
 // PURCHASES Joined with CONTENTS Table
 // PURCHASES: id, user_id, content_id, amount_paid, payment_status, transaction_id, purchased_at
 // CONTENTS: id, title, description, price, category_id, creator_id
@@ -47,7 +205,7 @@ export const PURCHASED_CONTENTS = [
       description: "Fast revision guide for placements.",
       price: 199.00,
       category_id: 2, // CATEGORIES.id (e.g. DSA)
-      creator_id: 202
+      creator_id: 203
     }
   }
 ];
@@ -144,7 +302,7 @@ export const MARKETPLACE_CONTENTS = [
     price: 199.00,
     category_id: 2,
     category_name: "DSA",
-    creator_id: 202,
+    creator_id: 203,
     creator_name: "Priya Sharma",
     creator_avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
     rating: 4.9,
