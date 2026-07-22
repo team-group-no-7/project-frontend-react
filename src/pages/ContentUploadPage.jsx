@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { CATEGORIES } from "@/data/mockData";
+import { api } from "../lib/api";
 
 /**
  * ContentUploadPage Component (Module 3: Unified Content Studio)
@@ -28,7 +29,7 @@ export default function ContentUploadPage({ onUploadSuccess, onCancel }) {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg("");
 
@@ -54,10 +55,17 @@ export default function ContentUploadPage({ onUploadSuccess, onCancel }) {
 
     setIsSubmitting(true);
 
-    // Simulate database write
-    setTimeout(() => {
-      setIsSubmitting(false);
-      const newContent = {
+    // Prepare Spring Boot standard Multipart Form Data
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+    formData.append("title", title.trim());
+    formData.append("description", description.trim());
+    formData.append("price", numericPrice);
+    formData.append("categoryId", categoryId);
+
+    try {
+      await api.uploadContent(formData);
+      onUploadSuccess({
         id: Date.now(),
         title: title.trim(),
         description: description.trim(),
@@ -69,9 +77,12 @@ export default function ContentUploadPage({ onUploadSuccess, onCancel }) {
         learners_count: 0,
         fileName: selectedFile.name,
         uploaded_at: new Date().toISOString()
-      };
-      onUploadSuccess(newContent);
-    }, 800);
+      });
+    } catch (err) {
+      setErrorMsg("Failed to upload content. Please check connection.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

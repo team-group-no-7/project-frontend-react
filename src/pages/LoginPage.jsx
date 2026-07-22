@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { api } from "../lib/api";
 
 /**
  * LoginPage Component (Module 1 - Item 2: User Sign In Page)
@@ -15,7 +16,7 @@ export default function LoginPage({ onLoginSuccess, onNavigateToRegister }) {
   const [errorMsg, setErrorMsg] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg("");
 
@@ -31,20 +32,14 @@ export default function LoginPage({ onLoginSuccess, onNavigateToRegister }) {
 
     setIsLoading(true);
 
-    // Simulate backend auth response
-    setTimeout(() => {
+    try {
+      const user = await api.login(email, password);
+      onLoginSuccess(user);
+    } catch (err) {
+      setErrorMsg(err.message || "Failed to log in.");
+    } finally {
       setIsLoading(false);
-      const mockUser = {
-        id: 101,
-        name: email.split("@")[0].replace(".", " ").toUpperCase(),
-        email: email,
-        role: "LEARNER",
-        token: "jwt_mock_token_8a9f02341"
-      };
-      // Save token in browser storage
-      localStorage.setItem("learnhub_token", mockUser.token);
-      onLoginSuccess(mockUser);
-    }, 800);
+    }
   };
 
   const handleForgotPassword = () => {
