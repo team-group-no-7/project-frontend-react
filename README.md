@@ -33,11 +33,3 @@ npm run build
 ```
 The output static assets will be generated inside the `/dist` directory.
 
----
-
-## 📁 Key Folder Structure
-
-*   `/src/data/mockData.js`: Frontend mock database storing records that map 1-to-1 to the monolithic MySQL tables (`USERS`, `CONTENTS`, `PURCHASES`, `DOUBT_SESSIONS`).
-*   `/src/components/ui/`: Standard Shadcn UI layout primitives (Button, Card, Tabs, Avatar, Badge, Input, Label, Textarea).
-*   `/src/components/`: Modular custom views (`ProfileSidebar.jsx`, `LearnerDashboard.jsx`, `CreatorDashboard.jsx`).
-*   `/src/pages/ProfilePage.jsx`: The orchestrator page displaying the profile dashboards and managing role switching.
