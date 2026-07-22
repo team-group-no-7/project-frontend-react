@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 
 // Initial uploaded contents list
-import { UPLOADED_CONTENTS } from "@/data/mockData";
+import { UPLOADED_CONTENTS, getCategoryName } from "@/data/mockData";
 
 /**
  * ContentManagementGrid Component (Module 3: Resource Management)
@@ -18,7 +18,7 @@ export default function ContentManagementGrid({ onOpenUploadForm }) {
   const [contentsList, setContentsList] = useState([
     ...UPLOADED_CONTENTS.map(item => ({
       ...item,
-      category_name: item.category_id === 1 ? "Java" : item.category_id === 2 ? "DSA" : item.category_id === 3 ? "Web Dev" : "System Design",
+      category_name: getCategoryName(item.category_id),
       status: "PUBLISHED",
       downloads: 420,
       revenue: item.price * 420

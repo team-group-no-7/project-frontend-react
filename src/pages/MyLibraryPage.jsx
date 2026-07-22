@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 
 // Mock database purchased items
-import { PURCHASED_CONTENTS } from "@/data/mockData";
+import { PURCHASED_CONTENTS, getCategoryName } from "@/data/mockData";
 
 /**
  * MyLibraryPage Component (Module 3 - Item 11: "My Library" Learner Page)
@@ -18,11 +18,6 @@ export default function MyLibraryPage() {
   const [activeReadingItem, setActiveReadingItem] = useState(null);
   const [downloadNotification, setDownloadNotification] = useState("");
 
-  // Helper to map category_id to tag name
-  const getCategoryName = (categoryId) => {
-    const categories = { 1: "Java", 2: "DSA", 3: "Web Dev", 4: "System Design", 5: "SQL & DB" };
-    return categories[categoryId] || "General";
-  };
 
   // Filter purchased items by search query
   const filteredItems = libraryList.filter((item) => {

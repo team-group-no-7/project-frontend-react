@@ -195,3 +195,10 @@ export const MARKETPLACE_CONTENTS = [
   }
 ];
 
+// Centralized helper to map category ID to name
+export const getCategoryName = (categoryId) => {
+  const cat = CATEGORIES.find(c => c.id === Number(categoryId));
+  return cat ? cat.name : "General";
+};
+
+

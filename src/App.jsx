@@ -37,6 +37,22 @@ function App() {
   const [selectedCheckoutItem, setSelectedCheckoutItem] = useState(null);
   const [latestTransaction, setLatestTransaction] = useState(null);
 
+  // Configuration for platform navigation links
+  const navItems = [
+    { name: 'landing', label: 'Home', icon: Home },
+    { name: 'marketplace', label: 'Catalog', icon: ShoppingBag },
+    { name: 'upload', label: 'Upload', icon: UploadCloud },
+    { name: 'manage', label: 'Grid', icon: LayoutGrid },
+    { name: 'checkout', label: 'Checkout', icon: CreditCard },
+    { name: 'library', label: 'Library', icon: BookOpen },
+    { name: 'earnings', label: 'Revenue', icon: DollarSign },
+    { name: 'qa', label: 'Q&A', icon: MessageSquare },
+    { name: 'doubts', label: 'Doubts', icon: Video },
+    { name: 'noticeboard', label: 'Feed', icon: Bell },
+    { name: 'admin', label: 'Admin', icon: ShieldAlert, activeClass: 'bg-red-600 text-white', iconClass: 'text-amber-300' },
+    { name: 'profile', label: 'Profile', icon: User }
+  ];
+
   const handleLoginSuccess = (user) => {
     setCurrentUser(user);
     setIsLoggedIn(true);
@@ -85,139 +101,25 @@ function App() {
 
           {/* Navigation Items (Modules 1 to 5) */}
           <nav className="flex items-center gap-1 bg-gray-100 dark:bg-gray-900/80 p-1 rounded-xl border border-gray-200 dark:border-gray-800 overflow-x-auto">
-
-            {/* Module 1: Home */}
-            <Button
-              size="sm"
-              variant={currentPage === 'landing' ? 'default' : 'ghost'}
-              onClick={() => setCurrentPage('landing')}
-              className={`gap-1 text-xs font-semibold rounded-lg ${currentPage === 'landing' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300'
-                }`}
-            >
-              <Home className="h-3.5 w-3.5" /> Home
-            </Button>
-
-            {/* Module 2: Catalog */}
-            <Button
-              size="sm"
-              variant={currentPage === 'marketplace' ? 'default' : 'ghost'}
-              onClick={() => setCurrentPage('marketplace')}
-              className={`gap-1 text-xs font-semibold rounded-lg ${currentPage === 'marketplace' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300'
-                }`}
-            >
-              <ShoppingBag className="h-3.5 w-3.5" /> Catalog
-            </Button>
-
-            {/* Module 2: Publish */}
-            <Button
-              size="sm"
-              variant={currentPage === 'upload' ? 'default' : 'ghost'}
-              onClick={() => setCurrentPage('upload')}
-              className={`gap-1 text-xs font-semibold rounded-lg ${currentPage === 'upload' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300'
-                }`}
-            >
-              <UploadCloud className="h-3.5 w-3.5" /> Upload
-            </Button>
-
-            {/* Module 2: Manage */}
-            <Button
-              size="sm"
-              variant={currentPage === 'manage' ? 'default' : 'ghost'}
-              onClick={() => setCurrentPage('manage')}
-              className={`gap-1 text-xs font-semibold rounded-lg ${currentPage === 'manage' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300'
-                }`}
-            >
-              <LayoutGrid className="h-3.5 w-3.5" /> Grid
-            </Button>
-
-            {/* Module 3: Checkout */}
-            <Button
-              size="sm"
-              variant={currentPage === 'checkout' ? 'default' : 'ghost'}
-              onClick={() => setCurrentPage('checkout')}
-              className={`gap-1 text-xs font-semibold rounded-lg ${currentPage === 'checkout' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300'
-                }`}
-            >
-              <CreditCard className="h-3.5 w-3.5" /> Checkout
-            </Button>
-
-            {/* Module 3: Library */}
-            <Button
-              size="sm"
-              variant={currentPage === 'library' ? 'default' : 'ghost'}
-              onClick={() => setCurrentPage('library')}
-              className={`gap-1 text-xs font-semibold rounded-lg ${currentPage === 'library' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300'
-                }`}
-            >
-              <BookOpen className="h-3.5 w-3.5" /> Library
-            </Button>
-
-            {/* Module 3: Earnings */}
-            <Button
-              size="sm"
-              variant={currentPage === 'earnings' ? 'default' : 'ghost'}
-              onClick={() => setCurrentPage('earnings')}
-              className={`gap-1 text-xs font-semibold rounded-lg ${currentPage === 'earnings' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300'
-                }`}
-            >
-              <DollarSign className="h-3.5 w-3.5" /> Revenue
-            </Button>
-
-            {/* Module 4: Q&A */}
-            <Button
-              size="sm"
-              variant={currentPage === 'qa' ? 'default' : 'ghost'}
-              onClick={() => setCurrentPage('qa')}
-              className={`gap-1 text-xs font-semibold rounded-lg ${currentPage === 'qa' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300'
-                }`}
-            >
-              <MessageSquare className="h-3.5 w-3.5" /> Q&A
-            </Button>
-
-            {/* Module 4: Doubts */}
-            <Button
-              size="sm"
-              variant={currentPage === 'doubts' ? 'default' : 'ghost'}
-              onClick={() => setCurrentPage('doubts')}
-              className={`gap-1 text-xs font-semibold rounded-lg ${currentPage === 'doubts' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300'
-                }`}
-            >
-              <Video className="h-3.5 w-3.5" /> Doubts
-            </Button>
-
-            {/* Module 4: Feed */}
-            <Button
-              size="sm"
-              variant={currentPage === 'noticeboard' ? 'default' : 'ghost'}
-              onClick={() => setCurrentPage('noticeboard')}
-              className={`gap-1 text-xs font-semibold rounded-lg ${currentPage === 'noticeboard' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300'
-                }`}
-            >
-              <Bell className="h-3.5 w-3.5" /> Feed
-            </Button>
-
-            {/* Module 5: Admin */}
-            <Button
-              size="sm"
-              variant={currentPage === 'admin' ? 'default' : 'ghost'}
-              onClick={() => setCurrentPage('admin')}
-              className={`gap-1 text-xs font-semibold rounded-lg ${currentPage === 'admin' ? 'bg-red-600 text-white' : 'text-gray-600 dark:text-gray-300'
-                }`}
-            >
-              <ShieldAlert className="h-3.5 w-3.5 text-amber-300" /> Admin
-            </Button>
-
-            {/* Module 1: Profile */}
-            <Button
-              size="sm"
-              variant={currentPage === 'profile' ? 'default' : 'ghost'}
-              onClick={() => setCurrentPage('profile')}
-              className={`gap-1 text-xs font-semibold rounded-lg ${currentPage === 'profile' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300'
-                }`}
-            >
-              <User className="h-3.5 w-3.5" /> Profile
-            </Button>
-
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = currentPage === item.name;
+              return (
+                <Button
+                  key={item.name}
+                  size="sm"
+                  variant={isActive ? 'default' : 'ghost'}
+                  onClick={() => setCurrentPage(item.name)}
+                  className={`gap-1 text-xs font-semibold rounded-lg ${
+                    isActive
+                      ? (item.activeClass || 'bg-indigo-600 text-white')
+                      : 'text-gray-600 dark:text-gray-300'
+                  }`}
+                >
+                  <Icon className={`h-3.5 w-3.5 ${!isActive && item.iconClass ? item.iconClass : ''}`} /> {item.label}
+                </Button>
+              );
+            })}
           </nav>
 
           {/* Auth Action & Notification Center */}

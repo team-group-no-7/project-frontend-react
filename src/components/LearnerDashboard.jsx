@@ -4,13 +4,10 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { getCategoryName } from "@/data/mockData";
 
 export default function LearnerDashboard({ purchasedContents, doubtSessions }) {
-  // Helper to map category_id to tag name (mimics database relation)
-  const getCategoryName = (categoryId) => {
-    const categories = { 1: "Java", 2: "DSA", 3: "Web Dev", 4: "System Design" };
-    return categories[categoryId] || "General";
-  };
+
 
   return (
     <Tabs defaultValue="library" className="w-full">
