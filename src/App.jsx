@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShoppingBag, UploadCloud, LayoutGrid, User, Sparkles } from 'lucide-react';
+import { ShoppingBag, UploadCloud, LayoutGrid, User, Sparkles, ShieldAlert } from 'lucide-react';
 
 // Import Module Pages
 import MarketplacePage from './pages/MarketplacePage';
@@ -7,6 +7,7 @@ import ContentUploadPage from './pages/ContentUploadPage';
 import ContentManagementGrid from './pages/ContentManagementGrid';
 import ProfilePage from './pages/ProfilePage';
 import CreatorProfilePage from './pages/CreatorProfilePage';
+import AdminDashboardPage from './pages/AdminDashboardPage';
 import { Button } from './components/ui/button';
 
 /**
@@ -130,6 +131,20 @@ function App() {
               <User className="h-3.5 w-3.5" /> My Account
             </Button>
 
+            {/* 6. Admin Control Panel */}
+            <Button
+              size="sm"
+              variant={currentPage === 'admin' ? 'default' : 'ghost'}
+              onClick={() => setCurrentPage('admin')}
+              className={`gap-1.5 text-xs font-semibold rounded-lg transition-all ${
+                currentPage === 'admin'
+                  ? 'bg-indigo-600 text-white shadow-xs'
+                  : 'text-gray-600 dark:text-gray-300 hover:text-indigo-600'
+              }`}
+            >
+              <ShieldAlert className="h-3.5 w-3.5" /> Admin Panel
+            </Button>
+
           </nav>
 
         </div>
@@ -167,6 +182,10 @@ function App() {
 
         {currentPage === 'profile' && (
           <ProfilePage />
+        )}
+
+        {currentPage === 'admin' && (
+          <AdminDashboardPage />
         )}
       </div>
 
