@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { CATEGORIES } from "@/data/mockData";
-import { api } from "../lib/api";
 
 /**
  * ContentUploadPage Component (Module 3: Unified Content Studio)
@@ -19,7 +18,7 @@ export default function ContentUploadPage({ onUploadSuccess, onCancel }) {
   const [priceType, setPriceType] = useState("paid"); // 'free' vs 'paid'
   const [price, setPrice] = useState("299");
   const [selectedFile, setSelectedFile] = useState(null);
-  
+
   const [errorMsg, setErrorMsg] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -88,7 +87,7 @@ export default function ContentUploadPage({ onUploadSuccess, onCancel }) {
   return (
     <div className="min-h-screen bg-[#F8F7FF] dark:bg-[#0b0a14] py-10 px-6">
       <div className="max-w-2xl mx-auto space-y-6">
-        
+
         {/* Header & Back navigate */}
         <div className="flex items-center justify-between">
           <Button variant="ghost" onClick={onCancel} className="gap-2 text-xs text-gray-600 dark:text-gray-400">
@@ -112,7 +111,7 @@ export default function ContentUploadPage({ onUploadSuccess, onCancel }) {
 
           <CardContent className="p-6">
             <form onSubmit={handleSubmit} className="space-y-5">
-              
+
               {errorMsg && (
                 <div className="p-3 bg-red-50 text-red-600 rounded-lg text-xs font-semibold">
                   {errorMsg}

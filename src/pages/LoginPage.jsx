@@ -4,7 +4,6 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { api } from "../lib/api";
 
 /**
  * LoginPage Component (Module 1 - Item 2: User Sign In Page)
@@ -54,7 +53,7 @@ export default function LoginPage({ onLoginSuccess, onNavigateToRegister }) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#F8F7FF] dark:bg-[#0b0a14] px-4 py-12">
       <Card className="w-full max-w-md border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#121124] shadow-xl rounded-2xl overflow-hidden">
-        
+
         {/* Header Banner */}
         <CardHeader className="bg-gradient-to-r from-indigo-900 to-purple-900 text-white p-6 text-center space-y-2">
           <div className="mx-auto w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center font-bold text-2xl tracking-wider mb-1">
@@ -76,7 +75,7 @@ export default function LoginPage({ onLoginSuccess, onNavigateToRegister }) {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            
+
             {/* Email Field */}
             <div className="space-y-1.5">
               <Label htmlFor="l-email" className="text-xs font-bold uppercase text-gray-700 dark:text-gray-300">
