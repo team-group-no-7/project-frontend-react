@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 
 export default function WelcomeBanner() {
     return (
@@ -8,7 +9,7 @@ export default function WelcomeBanner() {
                 <p className="text-sm text-slate-500 mt-1">Here's what's happening with your content today.</p>
             </div>
             <div>
-                <button className="bg-gradient-to-r from-blue-600 to-blue-500 text-white px-4 py-2 rounded-lg shadow">+ Create New Resource</button>
+                <Link to="/content-studio" className="bg-gradient-to-r from-blue-600 to-blue-500 text-white px-4 py-2 rounded-lg shadow inline-block">+ Create New Resource</Link>
             </div>
         </div>
     )

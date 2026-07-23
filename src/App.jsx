@@ -1,6 +1,7 @@
 import React from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Dashboard from './pages/creator/Dashboard'
+import ContentStudio from './pages/creator/ContentStudio'
 
 function ComingSoon({ title }) {
   return (
@@ -18,7 +19,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Dashboard />} />
-        <Route path="/content-studio" element={<ComingSoon title="Content Studio" />} />
+        <Route path="/content-studio" element={<ContentStudio />} />
         <Route path="/my-resources" element={<ComingSoon title="My Resources" />} />
         <Route path="/analytics" element={<ComingSoon title="Analytics" />} />
         <Route path="/earnings" element={<ComingSoon title="Earnings" />} />

@@ -1,5 +1,6 @@
 import React from 'react'
 import { Bell, HelpCircle } from 'lucide-react';
+import { Link } from 'react-router-dom'
 import ProfileDropdown from './ProfileDropdown'
 
 export default function TopNavbar({ title = 'Creator Dashboard' }) {

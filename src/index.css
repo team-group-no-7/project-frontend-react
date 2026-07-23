@@ -18,3 +18,16 @@ body {
     --primary-600: #1d4ed8;
     /* blue-700 */
 }
+
+/* small helper classes for the project's royal color */
+.bg-royal {
+    background-color: var(--primary-500);
+}
+
+.text-royal {
+    color: var(--primary-600);
+}
+
+.border-royal {
+    border-color: var(--primary-500);
+}
