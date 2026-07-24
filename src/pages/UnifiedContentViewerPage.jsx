@@ -172,106 +172,23 @@ export default function UnifiedContentViewerPage({ contentItem, onBack }) {
             </div>
 
             {/* Document Text / Code Content Renderer */}
-            <div className="prose dark:prose-invert max-w-none text-xs sm:text-sm text-gray-800 dark:text-gray-200 leading-relaxed space-y-4 font-normal">
+            <div className="prose dark:prose-invert max-w-none text-xs sm:text-sm text-gray-800 dark:text-gray-200 leading-relaxed font-normal">
               {isPdf ? (
-                // PDF Layout
-                <div style={{ transform: `scale(${zoomLevel / 100})`, transformOrigin: "top left" }} className="space-y-4">
-                  <h2 className="text-lg font-black text-gray-900 dark:text-white">
-                    {chapters[activeChapterIndex]?.title || "PDF Guide"} (Page {currentPageNum})
-                  </h2>
-                  <p>
-                    [Simulated PDF Document Stream] This page presents the formatted documentation, vector figures, and cheat sheet highlights of Rohan's study material. Spring Boot Actuator features are demonstrated in detail below.
-                  </p>
-                  <div className="bg-gray-900 text-gray-100 p-4 rounded-xl font-mono text-xs overflow-x-auto shadow-inner">
-                    <span className="text-indigo-400">// page {currentPageNum} code payload</span>
-                    <br />
-                    <span className="text-purple-400">GET</span> <span className="text-emerald-300">/actuator/health</span>
-                    <br />
-                    <span className="text-blue-400">Response:</span> &#123; "status": "UP", "details": &#123; "db": &#123; "status": "UP" &#125; &#125; &#125;
-                  </div>
-                  <p className="text-xs text-gray-400">
-                    Use pagination buttons below to navigate pages 1 to {totalPages} in this PDF deck.
-                  </p>
-                </div>
+                <PDFDocumentCanvas
+                  title={chapters[activeChapterIndex]?.title}
+                  currentPageNum={currentPageNum}
+                  zoomLevel={zoomLevel}
+                  totalPages={totalPages}
+                  handlePrevPage={handlePrevPage}
+                  handleNextPage={handleNextPage}
+                  setZoomLevel={setZoomLevel}
+                />
               ) : (
-                // Markdown Layout
-                <div className="space-y-4">
-                  <h2 className="text-lg font-black text-gray-900 dark:text-white">
-                    {contentItem?.title || "Markdown Article Reader"}
-                  </h2>
-                  <p className="text-xs font-semibold text-slate-500">
-                    Format: Scrollable Markdown (MD) Article
-                  </p>
-                  <p>
-                    Spring Boot provides a rapid application development framework built on top of the core Spring Framework. It eliminates boilerplate XML configurations by leveraging <strong>Convention over Configuration</strong> principles and auto-configuration dependencies.
-                  </p>
-                  <div className="bg-gray-900 text-gray-100 p-4 rounded-xl font-mono text-xs overflow-x-auto space-y-1 shadow-inner">
-                    <span className="text-indigo-400">// Sample Spring Boot RestController Setup</span>
-                    <br />
-                    <span className="text-purple-400">@RestController</span>
-                    <br />
-                    <span className="text-purple-400">@RequestMapping</span>(<span className="text-emerald-300">"/api/contents"</span>)
-                    <br />
-                    <span className="text-blue-400">public class</span> <span className="text-amber-300">ContentController</span> &#123;
-                    <br />
-                    &nbsp;&nbsp;<span className="text-purple-400">@GetMapping</span>
-                    <br />
-                    &nbsp;&nbsp;<span className="text-blue-400">public</span> ResponseEntity&lt;List&lt;Content&gt;&gt; getAll() &#123;
-                    <br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;<span className="text-blue-400">return</span> ResponseEntity.ok(service.findAll());
-                    <br />
-                    &nbsp;&nbsp;&#125;
-                    <br />
-                    &#125;
-                  </div>
-                  <p>
-                    Key architectural benefits include embedded Tomcat/Jetty web servers, production-ready metrics endpoints via Spring Boot Actuator, and seamless JPA relational database mapping with Hibernate.
-                  </p>
-                  <div className="p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-100 rounded-xl text-blue-700 dark:text-blue-300 text-xs">
-                    <strong>Note:</strong> You can read the entire article in this scrollable layout. Feel free to use the Doubts drawer on the right to post questions.
-                  </div>
-                </div>
+                <MarkdownDocumentCanvas
+                  title={contentItem?.title}
+                />
               )}
             </div>
-
-            {/* Page Navigation Footer */}
-            {isPdf ? (
-              <div className="flex items-center justify-between pt-6 border-t border-gray-100 dark:border-gray-800">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={currentPageNum === 1}
-                  onClick={handlePrevPage}
-                  className="gap-1 text-xs font-semibold"
-                >
-                  <ChevronLeft className="h-4 w-4" /> Previous Page
-                </Button>
-
-                <div className="flex items-center gap-2">
-                  <Button size="xs" variant="ghost" onClick={() => setZoomLevel(z => Math.max(50, z - 10))}><ZoomOut className="h-3 w-3" /></Button>
-                  <span className="text-xs text-gray-500 font-bold">
-                    Page {currentPageNum} / {totalPages} ({zoomLevel}%)
-                  </span>
-                  <Button size="xs" variant="ghost" onClick={() => setZoomLevel(z => Math.min(150, z + 10))}><ZoomIn className="h-3 w-3" /></Button>
-                </div>
-
-                <Button
-                  size="sm"
-                  disabled={currentPageNum === totalPages}
-                  onClick={handleNextPage}
-                  className="bg-indigo-600 text-white font-bold text-xs gap-1"
-                >
-                  Next Page <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            ) : (
-              <div className="flex items-center justify-between pt-6 border-t border-gray-100 dark:border-gray-800 text-xs text-gray-500 font-bold">
-                <span>Article Reader Mode</span>
-                <span className="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded flex items-center gap-1">
-                  <CheckCircle2 className="h-3 w-3" /> Fully Loaded
-                </span>
-              </div>
-            )}
 
           </div>
         </main>
@@ -297,6 +214,118 @@ export default function UnifiedContentViewerPage({ contentItem, onBack }) {
           </aside>
         )}
 
+      </div>
+    </div>
+  );
+}
+
+// ==========================================
+// 📄 Local PDF Content Canvas Component
+// ==========================================
+function PDFDocumentCanvas({ title, currentPageNum, zoomLevel, totalPages, handlePrevPage, handleNextPage, setZoomLevel }) {
+  return (
+    <div className="space-y-6">
+      <div style={{ transform: `scale(${zoomLevel / 100})`, transformOrigin: "top left" }} className="space-y-4">
+        <h2 className="text-lg font-black text-gray-900 dark:text-white">
+          {title || "PDF Guide"} (Page {currentPageNum})
+        </h2>
+        <p>
+          [Simulated PDF Document Stream] This page presents the formatted documentation, vector figures, and cheat sheet highlights of Rohan's study material. Spring Boot Actuator features are demonstrated in detail below.
+        </p>
+        <div className="bg-gray-900 text-gray-100 p-4 rounded-xl font-mono text-xs overflow-x-auto shadow-inner">
+          <span className="text-indigo-400">// page {currentPageNum} code payload</span>
+          <br />
+          <span className="text-purple-400">GET</span> <span className="text-emerald-300">/actuator/health</span>
+          <br />
+          <span className="text-blue-400">Response:</span> &#123; "status": "UP", "details": &#123; "db": &#123; "status": "UP" &#125; &#125; &#125;
+        </div>
+        <p className="text-xs text-gray-400">
+          Use pagination buttons below to navigate pages 1 to {totalPages} in this PDF deck.
+        </p>
+      </div>
+
+      {/* PDF Page Navigation Footer */}
+      <div className="flex items-center justify-between pt-6 border-t border-gray-100 dark:border-gray-800">
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={currentPageNum === 1}
+          onClick={handlePrevPage}
+          className="gap-1 text-xs font-semibold"
+        >
+          <ChevronLeft className="h-4 w-4" /> Previous Page
+        </Button>
+
+        <div className="flex items-center gap-2">
+          <Button size="xs" variant="ghost" onClick={() => setZoomLevel(z => Math.max(50, z - 10))}><ZoomOut className="h-3 w-3" /></Button>
+          <span className="text-xs text-gray-500 font-bold">
+            Page {currentPageNum} / {totalPages} ({zoomLevel}%)
+          </span>
+          <Button size="xs" variant="ghost" onClick={() => setZoomLevel(z => Math.min(150, z + 10))}><ZoomIn className="h-3 w-3" /></Button>
+        </div>
+
+        <Button
+          size="sm"
+          disabled={currentPageNum === totalPages}
+          onClick={handleNextPage}
+          className="bg-indigo-600 text-white font-bold text-xs gap-1"
+        >
+          Next Page <ChevronRight className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// ==========================================
+// 📝 Local MD Content Canvas Component
+// ==========================================
+function MarkdownDocumentCanvas({ title }) {
+  return (
+    <div className="space-y-6">
+      <div className="space-y-4">
+        <h2 className="text-lg font-black text-gray-900 dark:text-white">
+          {title || "Markdown Article Reader"}
+        </h2>
+        <p className="text-xs font-semibold text-slate-500">
+          Format: Scrollable Markdown (MD) Article
+        </p>
+        <p>
+          Spring Boot provides a rapid application development framework built on top of the core Spring Framework. It eliminates boilerplate XML configurations by leveraging <strong>Convention over Configuration</strong> principles and auto-configuration dependencies.
+        </p>
+        <div className="bg-gray-900 text-gray-100 p-4 rounded-xl font-mono text-xs overflow-x-auto space-y-1 shadow-inner">
+          <span className="text-indigo-400">// Sample Spring Boot RestController Setup</span>
+          <br />
+          <span className="text-purple-400">@RestController</span>
+          <br />
+          <span className="text-purple-400">@RequestMapping</span>(<span className="text-emerald-300">"/api/contents"</span>)
+          <br />
+          <span className="text-blue-400">public class</span> <span className="text-amber-300">ContentController</span> &#123;
+          <br />
+          &nbsp;&nbsp;<span className="text-purple-400">@GetMapping</span>
+          <br />
+          &nbsp;&nbsp;<span className="text-blue-400">public</span> ResponseEntity&lt;List&lt;Content&gt;&gt; getAll() &#123;
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;<span className="text-blue-400">return</span> ResponseEntity.ok(service.findAll());
+          <br />
+          &nbsp;&nbsp;&#125;
+          <br />
+          &#125;
+        </div>
+        <p>
+          Key architectural benefits include embedded Tomcat/Jetty web servers, production-ready metrics endpoints via Spring Boot Actuator, and seamless JPA relational database mapping with Hibernate.
+        </p>
+        <div className="p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-100 rounded-xl text-blue-700 dark:text-blue-300 text-xs">
+          <strong>Note:</strong> You can read the entire article in this scrollable layout. Feel free to use the Doubts drawer on the right to post questions.
+        </div>
+      </div>
+
+      {/* MD Page Info Footer */}
+      <div className="flex items-center justify-between pt-6 border-t border-gray-100 dark:border-gray-800 text-xs text-gray-500 font-bold">
+        <span>Article Reader Mode</span>
+        <span className="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded flex items-center gap-1">
+          <CheckCircle2 className="h-3 w-3" /> Fully Loaded
+        </span>
       </div>
     </div>
   );
