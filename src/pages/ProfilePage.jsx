@@ -32,13 +32,10 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      
+
       {/* Sub-header row for Role Switcher inside content */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-800 dark:text-white">Account Profile</h1>
-          <p className="text-sm text-slate-500 mt-1">Manage your student learning and creator publishing modes.</p>
-        </div>
+
         <div className="flex items-center gap-3">
           <Badge variant="outline" className={`px-3 py-1 font-semibold text-xs border uppercase rounded-full ${activeRole === "CREATOR"
             ? "bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800"

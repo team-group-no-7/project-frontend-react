@@ -38,9 +38,7 @@ export default function LearnerDashboard({ purchasedContents, doubtSessions }) {
                     {getCategoryName(purchase.content.category_id)}
                   </Badge>
                   <h4 className="font-semibold text-base text-gray-900 dark:text-white">{purchase.content.title}</h4>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Transaction ID: <code className="bg-gray-100 dark:bg-slate-800 px-1 py-0.5 rounded text-[11px] font-mono">{purchase.transaction_id}</code> • Purchased {new Date(purchase.purchased_at).toLocaleDateString()}
-                  </p>
+
                 </div>
                 <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
                   <span className="font-bold text-gray-900 dark:text-white">₹{purchase.amount_paid}</span>

@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
-import { 
-  ShieldAlert, Users, FileText, DollarSign, CheckCircle2, Lock, Unlock, 
+import {
+  ShieldAlert, Users, FileText, DollarSign, CheckCircle2, Lock, Unlock,
   Search, BarChart3, HeartPulse, Flag
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
@@ -87,7 +87,7 @@ export default function AdminDashboardPage() {
 
   // Filter calculations using useMemo for render performance
   const filteredUsers = useMemo(() => {
-    return usersList.filter(u => 
+    return usersList.filter(u =>
       !searchUser.trim() ||
       u.name.toLowerCase().includes(searchUser.toLowerCase()) ||
       u.email.toLowerCase().includes(searchUser.toLowerCase()) ||
@@ -96,7 +96,7 @@ export default function AdminDashboardPage() {
   }, [usersList, searchUser]);
 
   const filteredResources = useMemo(() => {
-    return resourcesList.filter(r => 
+    return resourcesList.filter(r =>
       !searchResource.trim() ||
       r.title.toLowerCase().includes(searchResource.toLowerCase()) ||
       r.creator.toLowerCase().includes(searchResource.toLowerCase()) ||
@@ -105,7 +105,7 @@ export default function AdminDashboardPage() {
   }, [resourcesList, searchResource]);
 
   const filteredTransactions = useMemo(() => {
-    return transactionsList.filter(t => 
+    return transactionsList.filter(t =>
       !searchTxn.trim() ||
       t.id.toLowerCase().includes(searchTxn.toLowerCase()) ||
       t.user.toLowerCase().includes(searchTxn.toLowerCase()) ||
@@ -118,17 +118,6 @@ export default function AdminDashboardPage() {
 
       {/* Executive Header Banner */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
-        <div className="space-y-1">
-          <div className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 text-xs font-bold px-2.5 py-0.5 rounded">
-            <ShieldAlert className="h-3.5 w-3.5" /> CDAC Final Project Control Panel
-          </div>
-          <h1 className="text-2xl font-extrabold text-slate-800 dark:text-white tracking-tight">
-            Platform Administration & Oversight
-          </h1>
-          <p className="text-xs text-slate-500">
-            Central workspace for platform analytics, user privilege moderation, resource governance, and transactional health logs.
-          </p>
-        </div>
 
         {/* Unified Tab Selector */}
         <div className="flex bg-white dark:bg-slate-900 p-1 rounded-xl border border-slate-100 dark:border-slate-800">
@@ -143,11 +132,10 @@ export default function AdminDashboardPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                  activeTab === tab.id
-                    ? "bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 shadow-sm"
-                    : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
-                }`}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${activeTab === tab.id
+                  ? "bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 shadow-sm"
+                  : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                  }`}
               >
                 <Icon className="h-3.5 w-3.5" />
                 {tab.label}
@@ -167,7 +155,7 @@ export default function AdminDashboardPage() {
       {/* -------------------- VIEW 1: PLATFORM ANALYTICS -------------------- */}
       {activeTab === "ANALYTICS" && (
         <div className="space-y-6">
-          
+
           {/* Top Overview Metric Indicators */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Card className="shadow-sm">
@@ -217,7 +205,7 @@ export default function AdminDashboardPage() {
 
           {/* CSS Sales Growth Chart Card */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
+
             {/* Visual Graph Panel */}
             <Card className="md:col-span-2 shadow-sm">
               <CardHeader className="border-b border-slate-100 dark:border-slate-800 pb-2">
@@ -288,11 +276,11 @@ export default function AdminDashboardPage() {
             </div>
             <div className="relative w-full sm:w-60">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
-              <Input 
-                placeholder="Search user name or role..." 
-                value={searchUser} 
-                onChange={(e) => setSearchUser(e.target.value)} 
-                className="pl-9 text-xs" 
+              <Input
+                placeholder="Search user name or role..."
+                value={searchUser}
+                onChange={(e) => setSearchUser(e.target.value)}
+                className="pl-9 text-xs"
               />
             </div>
           </CardHeader>
@@ -317,9 +305,9 @@ export default function AdminDashboardPage() {
                         <div className="text-[10px] text-slate-400">{user.email} • User ID #{user.id}</div>
                       </td>
                       <td className="p-3.5">
-                        <select 
-                          value={user.role} 
-                          onChange={(e) => handleChangeRole(user.id, e.target.value)} 
+                        <select
+                          value={user.role}
+                          onChange={(e) => handleChangeRole(user.id, e.target.value)}
                           className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs rounded px-1.5 py-0.5 text-slate-700 dark:text-slate-300 font-semibold focus:outline-none"
                         >
                           <option value="LEARNER">LEARNER</option>
@@ -334,13 +322,12 @@ export default function AdminDashboardPage() {
                       </td>
                       <td className="p-3.5 text-slate-500 dark:text-slate-400 font-semibold">{user.joined}</td>
                       <td className="p-3.5 text-right">
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          onClick={() => handleToggleFreeze(user.id, user.status)} 
-                          className={`h-7 text-xs gap-1 font-bold cursor-pointer ${
-                            user.status === "ACTIVE" ? "border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900/30 dark:hover:bg-red-950/20" : "border-emerald-200 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-900/30 dark:hover:bg-emerald-950/20"
-                          }`}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleToggleFreeze(user.id, user.status)}
+                          className={`h-7 text-xs gap-1 font-bold cursor-pointer ${user.status === "ACTIVE" ? "border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900/30 dark:hover:bg-red-950/20" : "border-emerald-200 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-900/30 dark:hover:bg-emerald-950/20"
+                            }`}
                         >
                           {user.status === "ACTIVE" ? <><Lock className="h-3 w-3" /> Freeze</> : <><Unlock className="h-3 w-3" /> Unfreeze</>}
                         </Button>
@@ -368,11 +355,11 @@ export default function AdminDashboardPage() {
             </div>
             <div className="relative w-full sm:w-60">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
-              <Input 
-                placeholder="Search resources, topics..." 
-                value={searchResource} 
-                onChange={(e) => setSearchResource(e.target.value)} 
-                className="pl-9 text-xs" 
+              <Input
+                placeholder="Search resources, topics..."
+                value={searchResource}
+                onChange={(e) => setSearchResource(e.target.value)}
+                className="pl-9 text-xs"
               />
             </div>
           </CardHeader>
@@ -408,9 +395,9 @@ export default function AdminDashboardPage() {
                       </td>
                       <td className="p-3.5">
                         <Badge className={
-                          res.status === "APPROVED" ? "bg-emerald-600 text-white font-semibold border-none" : 
-                          res.status === "FLAGGED" ? "bg-red-600 text-white font-semibold animate-pulse border-none" : 
-                          "bg-yellow-600 text-white font-semibold border-none"
+                          res.status === "APPROVED" ? "bg-emerald-600 text-white font-semibold border-none" :
+                            res.status === "FLAGGED" ? "bg-red-600 text-white font-semibold animate-pulse border-none" :
+                              "bg-yellow-600 text-white font-semibold border-none"
                         }>
                           {res.status}
                         </Badge>
@@ -418,19 +405,19 @@ export default function AdminDashboardPage() {
                       <td className="p-3.5 text-right">
                         <div className="flex items-center justify-end gap-1.5">
                           {res.status !== "APPROVED" && (
-                            <Button 
-                              size="sm" 
-                              onClick={() => handleModerateResource(res.id, "APPROVED")} 
+                            <Button
+                              size="sm"
+                              onClick={() => handleModerateResource(res.id, "APPROVED")}
                               className="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold h-7 py-1 px-2.5 cursor-pointer"
                             >
                               Approve
                             </Button>
                           )}
                           {res.status !== "FLAGGED" && (
-                            <Button 
-                              size="sm" 
-                              onClick={() => handleFlagResource(res.id)} 
-                              variant="outline" 
+                            <Button
+                              size="sm"
+                              onClick={() => handleFlagResource(res.id)}
+                              variant="outline"
                               className="border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900/30 dark:hover:bg-red-950/20 text-[10px] font-bold h-7 py-1 px-2.5 cursor-pointer"
                             >
                               <Flag className="h-3 w-3 shrink-0" /> Flag
@@ -461,11 +448,11 @@ export default function AdminDashboardPage() {
             </div>
             <div className="relative w-full sm:w-60">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
-              <Input 
-                placeholder="Search Txn ID or User..." 
-                value={searchTxn} 
-                onChange={(e) => setSearchTxn(e.target.value)} 
-                className="pl-9 text-xs" 
+              <Input
+                placeholder="Search Txn ID or User..."
+                value={searchTxn}
+                onChange={(e) => setSearchTxn(e.target.value)}
+                className="pl-9 text-xs"
               />
             </div>
           </CardHeader>
