@@ -38,15 +38,17 @@ export default function LoginPage({ onLoginSuccess, onNavigateToRegister }) {
     // Simulate API Auth token response
     setTimeout(() => {
       setIsLoading(false);
+      const resolvedRole = email.toLowerCase() === "admin@learnhub.com" ? "ADMIN" : "LEARNER";
       const mockUser = {
         id: 101,
         name: email.split("@")[0].replace(".", " ").toUpperCase(),
         email: email,
-        role: "LEARNER",
+        role: resolvedRole,
         token: "jwt_mock_token_8a9f02341"
       };
-      // Save token to localStorage as per requirement 2
+      // Save token and user details to localStorage for persistence
       localStorage.setItem("learnhub_token", mockUser.token);
+      localStorage.setItem("learnhub_user", JSON.stringify(mockUser));
       onLoginSuccess(mockUser);
     }, 800);
   };

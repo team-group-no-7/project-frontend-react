@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Star, Users, BookOpen, MapPin, ArrowLeft, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -15,12 +15,44 @@ import { CREATORS, MARKETPLACE_CONTENTS } from '@/data/mockData';
  * 3. Creator's Published Courses / Notes
  * 4. Learner Reviews
  */
-export default function CreatorProfilePage({ creatorId = 202, onBack }) {
+export default function CreatorProfilePage({ creatorId = 202, onBack, onBookSession }) {
   // Find creator details from mock database (default to Rohan Verma if not found)
   const creator = CREATORS.find((c) => c.id === Number(creatorId)) || CREATORS[0];
   
-  // Tab state to switch between 'courses' and 'reviews'
+  // Tab state to switch between 'courses', 'reviews', and 'booking'
   const [activeTab, setActiveTab] = useState('courses');
+
+  // Doubt Session Booking States
+  const [topic, setTopic] = useState("");
+  const [slot, setSlot] = useState("");
+  const [duration, setDuration] = useState("45"); // default 45 mins
+
+  // Recalculate price dynamically based on session duration selection
+  const price = useMemo(() => {
+    if (duration === "30") return 250;
+    if (duration === "60") return 450;
+    return 350; // 45 mins
+  }, [duration]);
+
+  const handleBookSessionSubmit = (e) => {
+    e.preventDefault();
+    if (!topic.trim()) {
+      alert("Please enter the topic of your doubt.");
+      return;
+    }
+    if (!slot) {
+      alert("Please select a date and time slot.");
+      return;
+    }
+    onBookSession && onBookSession({
+      id: Date.now(),
+      topic: topic.trim(),
+      scheduled_at: slot,
+      duration_minutes: Number(duration),
+      session_price: price,
+      creator: creator
+    });
+  };
 
   // Filter resources published by this specific creator
   const creatorContents = MARKETPLACE_CONTENTS.filter(
@@ -124,6 +156,17 @@ export default function CreatorProfilePage({ creatorId = 202, onBack }) {
         >
           Student Reviews ({creator.reviews ? creator.reviews.length : 0})
         </button>
+
+        <button
+          onClick={() => setActiveTab('booking')}
+          className={`px-4 py-2 text-xs font-semibold rounded-lg transition-colors ${
+            activeTab === 'booking'
+              ? 'bg-indigo-600 text-white font-bold'
+              : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 hover:text-gray-900'
+          }`}
+        >
+          Book Live 1:1 Doubt Session
+        </button>
       </div>
 
       {/* Tab 1: Published Resources List */}
@@ -194,6 +237,64 @@ export default function CreatorProfilePage({ creatorId = 202, onBack }) {
           ) : (
             <p className="text-xs text-gray-500 py-4">No reviews available yet.</p>
           )}
+        </div>
+      )}
+
+      {/* Tab 3: Book Live 1:1 Session Form */}
+      {activeTab === 'booking' && (
+        <div className="bg-white dark:bg-[#121124] border border-gray-200 dark:border-gray-800 rounded-xl p-6 shadow-sm space-y-4 max-w-lg">
+          <div className="border-b pb-3">
+            <h3 className="text-sm font-bold text-gray-900 dark:text-white">Book 1:1 Live doubt session with {creator.name}</h3>
+            <p className="text-xs text-gray-500">Connect face-to-face via embedded Jitsi Video Call to clear backend conceptual doubts.</p>
+          </div>
+
+          <form onSubmit={handleBookSessionSubmit} className="space-y-4 text-xs">
+            <div className="space-y-1">
+              <label className="font-semibold text-gray-700 dark:text-gray-300 block">Doubt Topic / Question *</label>
+              <input 
+                type="text" 
+                placeholder="e.g., Struggling with Spring Boot Transaction boundaries or Hibernate lazy loading"
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                className="w-full border rounded-lg px-3 py-2 bg-transparent text-gray-900 dark:text-white border-gray-200 dark:border-gray-800 focus:outline-indigo-600"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="font-semibold text-gray-700 dark:text-gray-300 block">Preferred Date & Time *</label>
+                <input 
+                  type="datetime-local" 
+                  value={slot}
+                  onChange={(e) => setSlot(e.target.value)}
+                  className="w-full border rounded-lg px-3 py-2 bg-transparent text-gray-900 dark:text-white border-gray-200 dark:border-gray-800 focus:outline-indigo-600"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-semibold text-gray-700 dark:text-gray-300 block">Session Duration *</label>
+                <select 
+                  value={duration} 
+                  onChange={(e) => setDuration(e.target.value)}
+                  className="w-full border rounded-lg px-3 py-2 bg-white dark:bg-slate-900 text-gray-900 dark:text-white border-gray-200 dark:border-gray-800 focus:outline-indigo-600"
+                >
+                  <option value="30">30 Mins (₹250)</option>
+                  <option value="45">45 Mins (₹350)</option>
+                  <option value="60">60 Mins (₹450)</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="pt-2 flex justify-between items-center border-t border-gray-100 dark:border-gray-800">
+              <div>
+                <p className="text-[10px] text-gray-500">Payable Fee</p>
+                <p className="text-base font-extrabold text-indigo-600">₹{price}</p>
+              </div>
+              <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs py-2 px-4 rounded-lg shadow">
+                Confirm Slot & Proceed to Pay
+              </Button>
+            </div>
+          </form>
         </div>
       )}
 

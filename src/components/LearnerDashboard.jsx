@@ -5,7 +5,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-export default function LearnerDashboard({ purchasedContents, doubtSessions }) {
+export default function LearnerDashboard({ purchasedContents, doubtSessions, onOpenReader, onJoinCall }) {
   // Helper to map category_id to tag name (mimics database relation)
   const getCategoryName = (categoryId) => {
     const categories = { 1: "Java", 2: "DSA", 3: "Web Dev", 4: "System Design" };
@@ -42,7 +42,13 @@ export default function LearnerDashboard({ purchasedContents, doubtSessions }) {
                 </div>
                 <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
                   <span className="font-bold text-gray-900 dark:text-white">₹{purchase.amount_paid}</span>
-                  <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm">Open Content</Button>
+                  <Button 
+                    onClick={() => onOpenReader && onOpenReader(purchase.content)} 
+                    size="sm" 
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm"
+                  >
+                    Open Content
+                  </Button>
                 </div>
               </div>
             ))}
@@ -77,8 +83,13 @@ export default function LearnerDashboard({ purchasedContents, doubtSessions }) {
                     <span className="block mt-0.5">Duration: <strong>{session.duration_minutes} mins</strong> • Price: <strong>₹{session.session_price}</strong></span>
                   </div>
                   {session.booking_status === "APPROVED" && (
-                    <Button size="sm" variant="outline" className="border-blue-500 text-blue-600 hover:bg-blue-600 hover:text-white gap-1 w-full sm:w-auto mt-2 sm:mt-0 font-semibold shadow-sm">
-                      <ExternalLink className="h-3 w-3" /> Join {session.jitsi_room_name}
+                    <Button 
+                      onClick={() => onJoinCall && onJoinCall(session)}
+                      size="sm" 
+                      variant="outline" 
+                      className="border-blue-500 text-blue-600 hover:bg-blue-600 hover:text-white gap-1 w-full sm:w-auto mt-2 sm:mt-0 font-semibold shadow-sm"
+                    >
+                      <ExternalLink className="h-3 w-3" /> Join Jitsi Meet Call
                     </Button>
                   )}
                 </div>

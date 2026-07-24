@@ -11,6 +11,9 @@ import { Button } from "@/components/ui/button";
 export default function ContentPreviewModal({ item, onClose, isPurchased = false, onBuyNow }) {
   if (!item) return null;
 
+  const typeLower = item.type?.toLowerCase() || "";
+  const isPdf = typeLower.includes("pdf") || typeLower.includes("sheet");
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
       <div className="bg-white dark:bg-[#121124] border border-gray-200 dark:border-gray-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-xl space-y-4 p-6">
@@ -28,26 +31,30 @@ export default function ContentPreviewModal({ item, onClose, isPurchased = false
               Published by <strong className="text-gray-700 dark:text-gray-300">{item.creator_name}</strong>
             </p>
           </div>
-
+ 
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1">
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Content Description */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
             {item.description}
           </p>
 
-          {/* Sample Preview Text */}
-          <div className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 space-y-1">
-            <p className="text-[11px] font-bold text-gray-700 dark:text-gray-300 flex items-center gap-1">
-              <BookOpen className="h-3.5 w-3.5 text-indigo-600" /> Sample Preview Snippet:
-            </p>
-            <p className="text-xs italic text-gray-600 dark:text-gray-400 leading-normal">
-              "{item.preview_text || "Includes comprehensive code examples, setup steps, and interview questions."}"
-            </p>
+          {/* Visual Media Preview */}
+          <div className="border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden text-xs">
+            <div className="bg-gray-50 dark:bg-gray-900 px-3.5 py-2 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center text-[10px] font-bold text-gray-500">
+              <span className="flex items-center gap-1.5">
+                <BookOpen className="h-3.5 w-3.5 text-indigo-600" />
+                {isPdf ? "Simulated PDF Preview (Page 1 of 1)" : "Simulated Markdown Preview"}
+              </span>
+              <span className="text-indigo-600 uppercase text-[9px] bg-indigo-50 dark:bg-indigo-950/50 px-1.5 py-0.5 rounded">Preview Mode</span>
+            </div>
+            <div className="p-4 bg-white dark:bg-gray-950 font-mono text-[11px] text-gray-600 dark:text-gray-300 leading-relaxed min-h-[90px] whitespace-pre-line select-none">
+              {item.preview_text || "Includes comprehensive code examples, setup steps, and interview questions."}
+            </div>
           </div>
         </div>
 
