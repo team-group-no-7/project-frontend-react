@@ -48,7 +48,7 @@
 
   --popover-foreground: oklch(0.145 0 0);
 
-  --primary: oklch(0.205 0 0);
+  --primary: oklch(0.585 0.233 264.88);
 
   --primary-foreground: oklch(0.985 0 0);
 
@@ -215,7 +215,7 @@ code {
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
+  --primary: oklch(0.688 0.162 254.16);
   --primary-foreground: oklch(0.205 0 0);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
@@ -249,3 +249,21 @@ code {
     @apply bg-background text-foreground;}
   html {
     @apply font-sans;}}
+
+/* Theme primary color variations (royal blue) */
+:root {
+  --primary-500: #2563eb;
+  --primary-600: #1d4ed8;
+}
+
+.bg-royal {
+  background-color: var(--primary-500);
+}
+
+.text-royal {
+  color: var(--primary-600);
+}
+
+.border-royal {
+  border-color: var(--primary-500);
+}

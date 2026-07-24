@@ -31,22 +31,22 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F7FF] dark:bg-[#0b0a14] text-[#1A1A2E] dark:text-[#f3f4f6]">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
 
       {/* Platform Header Navigation */}
-      <header className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#121124] px-6 py-4 sticky top-0 z-10 shadow-sm">
+      <header className="border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 px-6 py-4 sticky top-0 z-10 shadow-sm">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Badge variant="outline" className={`px-3 py-1 font-semibold text-xs border uppercase rounded-full ${activeRole === "CREATOR"
-              ? "bg-amber-50 dark:bg-amber-950/20 text-[#F5A623] border-[#F5A623]"
-              : "bg-indigo-50 dark:bg-indigo-950/20 text-indigo-600 border-indigo-600"
+              ? "bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800"
+              : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700"
               }`}>
               {activeRole} MODE
             </Badge>
             <Button
               onClick={handleToggleRole}
               variant="outline"
-              className="gap-2 text-sm border-indigo-600 text-indigo-600 hover:bg-indigo-600 hover:text-white dark:border-indigo-400 dark:text-indigo-400 transition-all duration-300 font-medium"
+              className="gap-2 text-sm border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white dark:border-blue-400 dark:text-blue-400 transition-all duration-300 font-semibold"
             >
               <ArrowRightLeft className="h-4 w-4" />
               Switch to {activeRole === "LEARNER" ? "Creator" : "Learner"} Mode
