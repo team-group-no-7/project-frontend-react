@@ -1,55 +1,39 @@
 import React from 'react'
 import SidebarItem from './SidebarItem'
-import { BookOpen, ShoppingBag, Sparkles, UploadCloud, LayoutGrid, User, ShieldAlert } from 'lucide-react';
+import { BookOpen, Home, PenTool, FolderOpen, BarChart2, IndianRupee, Video, Users, User, Settings } from 'lucide-react';
 
 const items = [
-    ['marketplace', ShoppingBag, 'Marketplace'],
-    ['creator-profile', Sparkles, 'Creator Profile'],
-    ['upload', UploadCloud, 'Publish Content'],
-    ['manage', LayoutGrid, 'Management Grid'],
-    ['profile', User, 'My Account'],
-    ['admin', ShieldAlert, 'Admin Panel'],
+    ['/', Home, 'Creator Dashboard'],
+    ['/content-studio', PenTool, 'Content Studio'],
+    ['/my-resources', FolderOpen, 'My Resources'],
+    ['/analytics', BarChart2, 'Analytics'],
+    ['/earnings', IndianRupee, 'Earnings'],
+    ['/live-sessions', Video, 'Live Sessions'],
+    ['/community', Users, 'Community'],
+    ['/profile', User, 'Profile'],
+    ['/settings', Settings, 'Settings'],
 ]
 
-export default function Sidebar({ currentPage, onChangePage, role = 'LEARNER' }) {
-    const filteredItems = items.filter(([pageKey]) => {
-        if (role === 'ADMIN') {
-            return pageKey === 'admin' || pageKey === 'profile';
-        } else if (role === 'CREATOR') {
-            return pageKey === 'upload' || pageKey === 'manage' || pageKey === 'profile';
-        } else {
-            // LEARNER
-            return pageKey === 'marketplace' || pageKey === 'profile';
-        }
-    });
-
+export default function Sidebar() {
     return (
-        <aside className="w-64 bg-white border-r border-slate-100 min-h-screen px-4 py-6 sticky top-0 flex flex-col justify-between shrink-0">
-            <div>
-                <div className="mb-8 flex items-center gap-3 px-2">
-                    <BookOpen size={26} color="#2563eb" />
-                    <div>
-                        <div className="text-2xl font-bold tracking-tight text-slate-800">LearnHub</div>
-                    </div>
+        <aside className="w-64 bg-white border-r border-slate-100 min-h-screen px-4 py-6 sticky top-0">
+            <div className="mb-8 flex items-center gap-3 px-2">
+                <BookOpen size={26} color="#2563eb" />
+                <div>
+                    <div className="text-2xl font-semibold">LearnHub</div>
+                    {/* <div className="text-xs text-slate-400">Creator</div> */}
                 </div>
+            </div>
 
-                <nav className="flex flex-col gap-1">
-                    {filteredItems.map(([pageKey, icon, label]) => (
-                        <SidebarItem 
-                            key={pageKey} 
-                            active={currentPage === pageKey} 
-                            onClick={() => onChangePage(pageKey)} 
-                            icon={icon}
-                        >
-                            {label}
-                        </SidebarItem>
-                    ))}
-                </nav>
-            </div>
-            
-            <div className="px-2">
-                <div className="text-xs text-slate-400">© 2026 LearnHub Inc.</div>
-            </div>
+            <nav className="flex flex-col gap-1">
+                {items.map(([to, icon, label]) => (
+                    <SidebarItem key={to} to={to} icon={icon}>
+                        {label}
+                    </SidebarItem>
+                ))}
+            </nav>
+
+            {/* Upgrade card removed per request */}
         </aside>
     )
 }
