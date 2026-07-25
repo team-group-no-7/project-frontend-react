@@ -1,109 +1,207 @@
-import { useState } from "react";
+import React from "react";
+import { Star, ChevronRight, FileText, Globe, Layers, HardDrive, Clock, Tag, User, ArrowLeft, ShieldCheck, Download, Award } from "lucide-react";
 
-import Breadcrumb from "../components/resource/Breadcrumb";
-import ResourcePreview from "../components/resource/ResourcePreview";
-import ResourceInfo from "../components/resource/ResourceInfo";
-import PurchaseCard from "../components/resource/PurchaseCard";
-import CreatorProfile from "../components/resource/CreatorProfile";
-import ResourceTabs from "../components/resource/ResourceTabs";
-import DescriptionTab from "../components/resource/DescriptionTab";
-import PreviewTab from "../components/resource/PreviewTab";
-import ReviewsTab from "../components/resource/ReviewsTab";
-import DiscussionTab from "../components/resource/DiscussionTab";
-import RelatedResources from "../components/resource/RelatedResources";
-
-import resource from "../data/resource";
-import reviews, { ratingDistribution } from "../data/reviews";
-import discussions from "../data/discussions";
-import relatedResources from "../data/relatedResources";
-import breadcrumbs from "../data/breadcrumbs";
-
-export default function ResourceDetailPage({ resourceItem = resource, onBuyContent, onBack }) {
-  const [activeTab, setActiveTab] = useState("Description");
-
-  // Determine active resource values dynamically if passed
-  const activeResource = {
-    ...resource,
-    ...resourceItem,
-    // Merge creator subobject cleanly if present
-    creator: {
-      ...resource.creator,
-      ...(resourceItem?.creator || {})
-    }
+export default function ResourceDetailPage({ resourceItem, onBuyContent, onBack }) {
+  // Safe fallback to default mock item if none selected
+  const item = resourceItem || {
+    id: 11,
+    title: "Complete Java Spring Boot Monolith & Microservices",
+    description: "Master Spring Boot backend architecture, REST APIs, Security, JPA, PostgreSQL integration with real-world enterprise code examples.",
+    price: 599.00,
+    category_name: "Java",
+    creator_name: "Rohan Verma",
+    creator_avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+    rating: 4.8,
+    reviews_count: 142,
+    learners_count: 1420,
+    type: "Notes & Code",
+    level: "Intermediate",
+    tags: ["Java", "Spring Boot", "REST API", "PostgreSQL"],
+    preview_text: "Chapter 1: Introduction to Spring Boot 3.x, Spring Core Annotations, Dependency Injection, and REST Controllers setup with Swagger docs."
   };
 
   const handleBuy = () => {
     if (onBuyContent) {
-      onBuyContent(activeResource);
+      onBuyContent(item);
     }
   };
 
-  const handleWishlist = () => console.log("Wishlist clicked");
-  const handleShare = () => console.log("Share clicked");
-  const handleReport = () => console.log("Report clicked");
-  const handlePreview = () => console.log("Preview clicked");
-  const handleFullscreen = () => console.log("Fullscreen clicked");
-
   return (
-    <div className="min-h-screen bg-white">
-      <div className="mx-auto flex max-w-[1600px] flex-col gap-6 px-4 py-4 sm:px-6 sm:py-5 lg:px-10 xl:px-14">
-        {/* Breadcrumb + Back Button */}
-        <div className="flex flex-wrap items-center gap-4">
+    <div className="min-h-screen bg-slate-50 py-8">
+      <div className="mx-auto max-w-6xl px-4 space-y-6">
+        
+        {/* Navigation Bar */}
+        <div className="flex flex-wrap items-center gap-4 bg-white p-4 rounded-xl shadow-xs border border-gray-100">
           <button 
             onClick={onBack}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition cursor-pointer"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-bold text-gray-600 hover:bg-slate-50 transition cursor-pointer"
           >
-            ← Back to Catalog
+            <ArrowLeft className="h-3.5 w-3.5" /> Back to Catalog
           </button>
-          <Breadcrumb items={breadcrumbs} />
+          
+          <div className="flex items-center gap-1.5 text-xs text-gray-400">
+            <span>LearnHub</span>
+            <ChevronRight className="h-3 w-3" />
+            <span>Marketplace</span>
+            <ChevronRight className="h-3 w-3" />
+            <span className="text-gray-600 font-semibold">{item.category_name}</span>
+          </div>
         </div>
 
-        {/* Hero */}
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[65%_35%]">
-          <ResourcePreview
-            resource={activeResource}
-            onPreview={handlePreview}
-            onFullscreen={handleFullscreen}
-          />
-          <ResourceInfo
-            resource={activeResource}
-            onBuy={handleBuy}
-            onWishlist={handleWishlist}
-            onShare={handleShare}
-            onReport={handleReport}
-          />
-        </div>
+        {/* Main Grid: Details + Purchase Panel */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+          
+          {/* Left Column: Details (span 2) */}
+          <div className="lg:col-span-2 space-y-6">
+            
+            {/* Header Content Panel */}
+            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs space-y-4">
+              <span className="inline-flex rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-indigo-600">
+                {item.category_name}
+              </span>
 
-        {/* Main content column + sticky purchase card sit side by side on desktop */}
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_300px]">
-          <div className="flex flex-col gap-6">
-            {/* Creator profile */}
-            <CreatorProfile creator={activeResource.creator} />
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 leading-tight">
+                {item.title}
+              </h1>
 
-            {/* Tabs + Tab content */}
-            <div>
-              <ResourceTabs
-                activeTab={activeTab}
-                onChange={setActiveTab}
-                reviewCount={reviews.length}
-                discussionCount={discussions.length}
-              />
+              {/* Stats & Creator Info */}
+              <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500 pt-2 border-t border-gray-100">
+                <div className="flex items-center gap-1 text-amber-500 font-semibold">
+                  <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                  <span>{item.rating}</span>
+                  <span className="text-gray-400 font-normal">({item.reviews_count || 0} reviews)</span>
+                </div>
+                <span>•</span>
+                <span>{item.learners_count?.toLocaleString("en-IN") || 0} learners enrolled</span>
+              </div>
 
-              {activeTab === "Description" && <DescriptionTab resource={activeResource} />}
-              {activeTab === "Preview" && <PreviewTab resource={activeResource} />}
-              {activeTab === "Reviews" && (
-                <ReviewsTab resource={activeResource} reviews={reviews} distribution={ratingDistribution} />
+              {/* Creator details */}
+              <div className="flex items-center gap-3 pt-2">
+                {item.creator_avatar ? (
+                  <img
+                    src={item.creator_avatar}
+                    alt={item.creator_name}
+                    className="h-10 w-10 rounded-full object-cover border border-gray-200"
+                  />
+                ) : (
+                  <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center border border-gray-200">
+                    <User className="h-5 w-5 text-gray-400" />
+                  </div>
+                )}
+                <div>
+                  <p className="text-xs text-gray-400">Published by</p>
+                  <p className="text-sm font-bold text-gray-900">{item.creator_name}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Description Card */}
+            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs space-y-3">
+              <h2 className="text-lg font-bold text-gray-900">About this Resource</h2>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                {item.description}
+              </p>
+            </div>
+
+            {/* Content Preview Block (Reading from MockData) */}
+            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs space-y-4">
+              <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
+                <FileText className="h-5 w-5 text-indigo-600" />
+                <h2 className="text-lg font-bold text-gray-900">Resource Preview</h2>
+              </div>
+              
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Sneak Peek / Table of Contents</p>
+                <p className="text-sm text-slate-700 font-mono leading-relaxed whitespace-pre-line">
+                  {item.preview_text || "No preview chapter available for this resource."}
+                </p>
+              </div>
+            </div>
+
+            {/* Metadata Badges Card */}
+            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs space-y-4">
+              <h2 className="text-lg font-bold text-gray-900">Specifications</h2>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                  <Layers className="h-5 w-5 text-indigo-500" />
+                  <div>
+                    <p className="text-[10px] text-gray-400 uppercase font-semibold">Skill Level</p>
+                    <p className="text-xs font-bold text-gray-800">{item.level || "Beginner"}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                  <FileText className="h-5 w-5 text-indigo-500" />
+                  <div>
+                    <p className="text-[10px] text-gray-400 uppercase font-semibold">Resource Type</p>
+                    <p className="text-xs font-bold text-gray-800">{item.type || "PDF Document"}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Tags list */}
+              {item.tags && item.tags.length > 0 && (
+                <div className="pt-2">
+                  <p className="text-xs text-gray-400 mb-2">Tags / Topics</p>
+                  <div className="flex flex-wrap gap-2">
+                    {item.tags.map((tag) => (
+                      <span key={tag} className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-xs font-medium text-slate-600">
+                        <Tag className="h-3 w-3 text-slate-400" /> {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               )}
-              {activeTab === "Discussion" && <DiscussionTab discussions={discussions} />}
+            </div>
+
+          </div>
+
+          {/* Right Column: Sticky Purchase Panel */}
+          <div className="space-y-4 lg:sticky lg:top-24">
+            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+              
+              <div className="space-y-1">
+                <p className="text-xs text-gray-400">Total Price</p>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-extrabold text-gray-900">
+                    {item.price === 0 ? "FREE" : `₹${item.price}`}
+                  </span>
+                  {item.price > 0 && (
+                    <span className="text-sm text-gray-400 line-through">
+                      ₹{(item.price * 1.5).toFixed(0)}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleBuy}
+                className="w-full rounded-xl bg-indigo-600 py-3 text-sm font-bold text-white shadow-md shadow-indigo-600/20 hover:bg-indigo-700 active:scale-[0.99] transition-all cursor-pointer"
+              >
+                Proceed to Checkout
+              </button>
+
+              <div className="pt-4 border-t border-gray-100 space-y-3">
+                <div className="flex items-center gap-2.5 text-xs text-gray-600">
+                  <ShieldCheck className="h-4 w-4 text-emerald-500" />
+                  <span>Secure checkout transaction</span>
+                </div>
+                <div className="flex items-center gap-2.5 text-xs text-gray-600">
+                  <Download className="h-4 w-4 text-indigo-500" />
+                  <span>Instant downloads after payment</span>
+                </div>
+                <div className="flex items-center gap-2.5 text-xs text-gray-600">
+                  <Award className="h-4 w-4 text-amber-500" />
+                  <span>Lifetime access to updates</span>
+                </div>
+              </div>
+
             </div>
           </div>
 
-          {/* Sticky purchase card (desktop only) */}
-          <PurchaseCard resource={activeResource} onBuy={handleBuy} />
         </div>
 
-        {/* Related resources */}
-        <RelatedResources resources={relatedResources} />
       </div>
     </div>
   );
