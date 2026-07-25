@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Star, Users, BookOpen, MapPin, ArrowLeft, Mail } from 'lucide-react';
+import { Star, Users, BookOpen, MapPin, ArrowLeft, Mail, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 // Mock Database Data
@@ -107,8 +107,8 @@ export default function CreatorProfilePage({ creatorId = 202, onBack, onBookSess
 
         </div>
 
-        {/* Quick Stats Grid */}
-        <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-gray-100 dark:border-gray-800 text-center">
+        {/* Quick Stats Grid — 4 columns now that followersCount is in use */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-gray-100 dark:border-gray-800 text-center">
           <div className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
             <p className="text-xs text-gray-500 font-medium">Rating</p>
             <p className="text-base font-bold text-amber-500 flex items-center justify-center gap-1 mt-1">
@@ -120,6 +120,13 @@ export default function CreatorProfilePage({ creatorId = 202, onBack, onBookSess
             <p className="text-xs text-gray-500 font-medium">Total Students</p>
             <p className="text-base font-bold text-gray-900 dark:text-white mt-1">
               {creator.totalStudents}
+            </p>
+          </div>
+
+          <div className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+            <p className="text-xs text-gray-500 font-medium">Followers</p>
+            <p className="text-base font-bold text-indigo-600 dark:text-indigo-400 flex items-center justify-center gap-1 mt-1">
+              <Heart className="h-4 w-4" /> {creator.followersCount?.toLocaleString()}
             </p>
           </div>
 

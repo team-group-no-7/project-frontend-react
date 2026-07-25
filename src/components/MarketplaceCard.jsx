@@ -1,5 +1,5 @@
 import React from "react";
-import { Star, Users, Eye, CheckCircle } from "lucide-react";
+import { Star, Users, Eye, CheckCircle, Flame, BadgeCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 /**
@@ -18,12 +18,24 @@ export default function MarketplaceCard({
       onClick={() => onPreview && onPreview(item)}
       className="bg-white dark:bg-[#121124] border border-gray-200 dark:border-gray-800 rounded-xl p-5 shadow-xs flex flex-col justify-between space-y-4 hover:shadow-md transition-shadow cursor-pointer"
     >
-      {/* Top Header: Category & Price */}
+      {/* Top Header: Category, Trending/Featured badges & Price */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-semibold text-indigo-600 bg-indigo-50 dark:bg-indigo-950/40 px-2.5 py-1 rounded">
-            {item.category_name}
-          </span>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-[11px] font-semibold text-indigo-600 bg-indigo-50 dark:bg-indigo-950/40 px-2.5 py-1 rounded">
+              {item.category_name}
+            </span>
+            {item.is_trending && (
+              <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded">
+                <Flame className="h-3 w-3" /> Trending
+              </span>
+            )}
+            {item.featured && (
+              <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">
+                <BadgeCheck className="h-3 w-3" /> Featured
+              </span>
+            )}
+          </div>
           {isPurchased ? (
             <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded">
               <CheckCircle className="h-3 w-3" /> Owned

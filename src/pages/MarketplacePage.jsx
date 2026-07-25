@@ -95,12 +95,15 @@ export default function MarketplacePage({ onNavigateToProfile, onOpenCreatorProf
           <button
             key={cat.id}
             onClick={() => setSelectedCategoryId(cat.id)}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap ${selectedCategoryId === cat.id
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap ${selectedCategoryId === cat.id
               ? "bg-indigo-600 text-white shadow-xs"
               : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200"
               }`}
           >
             {cat.name}
+            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${selectedCategoryId === cat.id ? "bg-white/20 text-white" : "bg-gray-200 dark:bg-gray-700 text-gray-500"}`}>
+              {cat.count}
+            </span>
           </button>
         ))}
       </div>

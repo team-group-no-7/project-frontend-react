@@ -179,14 +179,19 @@ export const PURCHASED_CONTENTS = [
     transaction_id: "pay_N8s92f1Kds", // PURCHASES.transaction_id
     purchased_at: "2026-06-15T10:30:00", // PURCHASES.purchased_at
     
-    // SQL JOIN Content details for display
+    // SQL JOIN Content details for display (includes display fields for UI)
     content: {
-      id: 11, // CONTENTS.id
-      title: "Complete Java Spring Boot Guide", // CONTENTS.title
-      description: "Learn Spring Boot Mon monolithic backend development.",
+      id: 11,
+      title: "Complete Java Spring Boot Monolith & Microservices",
+      description: "Master Spring Boot backend architecture, REST APIs, Security, JPA, PostgreSQL integration with real-world enterprise code examples.",
       price: 599.00,
-      category_id: 1, // CATEGORIES.id (e.g. Java)
-      creator_id: 202
+      category_id: 1,
+      category_name: "Java",
+      creator_id: 202,
+      creator_name: "Rohan Verma",
+      creator_avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      type: "Notes & Code",
+      level: "Intermediate"
     }
   },
   {
@@ -198,14 +203,19 @@ export const PURCHASED_CONTENTS = [
     transaction_id: "pay_M9a73d2Jfa",
     purchased_at: "2026-07-01T15:45:00",
     
-    // SQL JOIN Content details for display
+    // SQL JOIN Content details for display (includes display fields for UI)
     content: {
       id: 12,
       title: "Data Structures & Algorithms Cheat Sheets",
-      description: "Fast revision guide for placements.",
+      description: "Fast-track interview revision notes covering Trees, Graphs, Dynamic Programming, and Array patterns with LeetCode solutions.",
       price: 199.00,
-      category_id: 2, // CATEGORIES.id (e.g. DSA)
-      creator_id: 203
+      category_id: 2,
+      category_name: "DSA",
+      creator_id: 203,
+      creator_name: "Priya Sharma",
+      creator_avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
+      type: "Cheat Sheet PDF",
+      level: "All Levels"
     }
   }
 ];
@@ -249,7 +259,7 @@ export const DOUBT_SESSIONS = [
   {
     id: 302,
     learner_id: 101,
-    creator_id: 203,
+    creator_id: 101,
     topic: "Redux Toolkit vs Context API",
     scheduled_at: "2026-07-12T15:00:00",
     duration_minutes: 30,
@@ -366,8 +376,8 @@ export const MARKETPLACE_CONTENTS = [
     category_id: 5,
     category_name: "SQL & DB",
     creator_id: 203,
-    creator_name: "Neha Gupta",
-    creator_avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+    creator_name: "Priya Sharma",
+    creator_avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
     rating: 4.8,
     reviews_count: 115,
     learners_count: 1120,
@@ -407,7 +417,7 @@ export const MARKETPLACE_CONTENTS = [
     price: 249.00,
     category_id: 2,
     category_name: "DSA",
-    creator_id: 202,
+    creator_id: 203,
     creator_name: "Priya Sharma",
     creator_avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
     rating: 4.85,
@@ -491,7 +501,7 @@ export const MARKETPLACE_CONTENTS = [
     price: 189.00,
     category_id: 2,
     category_name: "DSA",
-    creator_id: 202,
+    creator_id: 203,
     creator_name: "Priya Sharma",
     creator_avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
     rating: 4.8,
