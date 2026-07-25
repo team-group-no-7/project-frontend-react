@@ -86,7 +86,7 @@ export default function ContentManagementGrid({ onOpenUploadForm, contentsList, 
       .filter((item) => {
         const titleMatch = item.title.toLowerCase().includes(searchQuery.toLowerCase());
         const catMatch = categoryFilter === "All" || (item.category_name || "General") === categoryFilter;
-        
+
         const itemStatus = item.status || "Published";
         const statusMatch = statusFilter === "All" || itemStatus === statusFilter;
 
@@ -119,7 +119,7 @@ export default function ContentManagementGrid({ onOpenUploadForm, contentsList, 
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
-      
+
       {/* Top Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 pb-4">
         <div>
@@ -157,7 +157,7 @@ export default function ContentManagementGrid({ onOpenUploadForm, contentsList, 
 
       {/* Toolbar Filters Section */}
       <div className="flex flex-wrap items-center gap-3 bg-white p-4 rounded-xl border border-gray-100 shadow-xs">
-        
+
         {/* Search */}
         <div className="relative flex-1 min-w-[200px]">
           <Search className="h-4 w-4 absolute left-3 top-2.5 text-gray-400" />
@@ -172,7 +172,6 @@ export default function ContentManagementGrid({ onOpenUploadForm, contentsList, 
 
         {/* Category Filter */}
         <div className="flex flex-col gap-1">
-          <span className="text-[10px] font-bold text-gray-400 uppercase">Category</span>
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
@@ -186,7 +185,6 @@ export default function ContentManagementGrid({ onOpenUploadForm, contentsList, 
 
         {/* Status Filter */}
         <div className="flex flex-col gap-1">
-          <span className="text-[10px] font-bold text-gray-400 uppercase">Status</span>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -200,7 +198,6 @@ export default function ContentManagementGrid({ onOpenUploadForm, contentsList, 
 
         {/* Sorting Dropdown */}
         <div className="flex flex-col gap-1">
-          <span className="text-[10px] font-bold text-gray-400 uppercase">Sort Order</span>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
@@ -232,7 +229,7 @@ export default function ContentManagementGrid({ onOpenUploadForm, contentsList, 
                 const itemStatus = item.status || "Published";
                 return (
                   <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
-                    
+
                     {/* Title */}
                     <td className="p-4 font-bold text-gray-900">
                       {item.title}
@@ -252,9 +249,8 @@ export default function ContentManagementGrid({ onOpenUploadForm, contentsList, 
 
                     {/* Status Pill */}
                     <td className="p-4">
-                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                        itemStatus === "Published" ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-500"
-                      }`}>
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${itemStatus === "Published" ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-500"
+                        }`}>
                         {itemStatus}
                       </span>
                     </td>
@@ -262,7 +258,7 @@ export default function ContentManagementGrid({ onOpenUploadForm, contentsList, 
                     {/* Action buttons */}
                     <td className="p-4 text-right">
                       <div className="flex items-center justify-end gap-1.5">
-                        
+
                         {/* Toggle Status Button */}
                         <button
                           type="button"
@@ -347,7 +343,7 @@ export default function ContentManagementGrid({ onOpenUploadForm, contentsList, 
             >
               <X size={18} />
             </button>
-            
+
             <div>
               <h3 className="text-lg font-bold text-gray-900">Edit Resource Details</h3>
               <p className="text-xs text-gray-400">Update title and pricing metadata.</p>

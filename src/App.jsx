@@ -16,6 +16,7 @@ import JitsiCallPage from './pages/JitsiCallPage';
 import CreatorDashboardMain from './pages/creator/Dashboard';
 import ContentStudio from './pages/creator/ContentStudio';
 import ResourceDetailPage from './pages/ResourceDetailPage';
+import LearnerDashboard from './pages/learner/Dashboard';
 
 // Import Layout Components
 import DashboardLayout from './components/creator/DashboardLayout';
@@ -31,7 +32,8 @@ const getPageTitle = (page) => {
     'admin': 'Admin Panel',
     'dashboard': 'Creator Dashboard',
     'content-studio': 'Content Studio',
-    'resource-details': 'Resource Details'
+    'resource-details': 'Resource Details',
+    'learner-dashboard': 'Learner Dashboard'
   };
   return titles[page] || 'LearnHub';
 };
@@ -66,7 +68,7 @@ function App() {
       const savedUser = localStorage.getItem('learnhub_user');
       const user = savedUser ? JSON.parse(savedUser) : null;
       if (user?.role === 'ADMIN') return 'admin';
-      return user?.role === 'CREATOR' ? 'dashboard' : 'marketplace';
+      return user?.role === 'CREATOR' ? 'dashboard' : 'learner-dashboard';
     }
     return 'landing';
   });
@@ -134,7 +136,7 @@ function App() {
       };
       localStorage.setItem("learnhub_user", JSON.stringify(updatedProfile));
       // Route appropriately
-      setCurrentPage(updatedProfile.role === 'CREATOR' ? 'dashboard' : 'marketplace');
+      setCurrentPage(updatedProfile.role === 'CREATOR' ? 'dashboard' : 'learner-dashboard');
       return updatedProfile;
     });
   };
@@ -143,8 +145,8 @@ function App() {
   const handleLoginSuccess = (user) => {
     setProfile(user);
     setIsLoggedIn(true);
-    // If logging in as Admin, route to Admin Panel, otherwise route to Creator Dashboard or Marketplace
-    setCurrentPage(user.role === 'ADMIN' ? 'admin' : (user.role === 'CREATOR' ? 'dashboard' : 'marketplace'));
+    // If logging in as Admin, route to Admin Panel, otherwise route to Creator Dashboard or Learner Dashboard
+    setCurrentPage(user.role === 'ADMIN' ? 'admin' : (user.role === 'CREATOR' ? 'dashboard' : 'learner-dashboard'));
   };
 
   // Logout handler
@@ -228,7 +230,7 @@ function App() {
     return (
       <UnifiedContentViewerPage
         contentItem={selectedReaderItem}
-        onBack={() => setCurrentPage('profile')}
+        onBack={() => setCurrentPage('learner-dashboard')}
       />
     );
   }
@@ -248,7 +250,7 @@ function App() {
     return (
       <PaymentResultPage
         transaction={latestTransaction}
-        onGoToLibrary={() => setCurrentPage('profile')}
+        onGoToLibrary={() => setCurrentPage('learner-dashboard')}
         onTryAgain={() => setCurrentPage('checkout')}
       />
     );
@@ -273,6 +275,16 @@ function App() {
       onSwitchRole={handleSwitchRole}
       onLogout={handleLogout}
     >
+      {currentPage === 'learner-dashboard' && (
+        <LearnerDashboard
+          profile={profile}
+          purchasedContents={purchasedContents}
+          marketplaceContents={marketplaceContents}
+          onChangePage={setCurrentPage}
+          onSelectResource={setSelectedResourceItem}
+        />
+      )}
+
       {currentPage === 'marketplace' && (
         <MarketplacePage
           onNavigateToProfile={() => setCurrentPage('profile')}

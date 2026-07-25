@@ -1,8 +1,9 @@
 import React from 'react'
 import SidebarItem from './SidebarItem'
-import { BookOpen, ShoppingBag, Sparkles, LayoutGrid, User, ShieldAlert, PenTool } from 'lucide-react';
+import { BookOpen, ShoppingBag, LayoutGrid, User, ShieldAlert, PenTool } from 'lucide-react';
 
 const items = [
+    ['learner-dashboard', LayoutGrid, 'Dashboard'],
     ['marketplace', ShoppingBag, 'Marketplace'],
     ['dashboard', LayoutGrid, 'Creator Dashboard'],
     ['content-studio', PenTool, 'Content Studio'],
@@ -19,7 +20,7 @@ export default function Sidebar({ currentPage, onChangePage, role = 'LEARNER' })
             return pageKey === 'dashboard' || pageKey === 'content-studio' || pageKey === 'manage' || pageKey === 'profile';
         } else {
             // LEARNER
-            return pageKey === 'marketplace' || pageKey === 'profile';
+            return pageKey === 'learner-dashboard' || pageKey === 'marketplace' || pageKey === 'profile';
         }
     });
 
