@@ -14,8 +14,10 @@ export default function MarketplaceCard({
   isPurchased = false
 }) {
   return (
-    <div className="bg-white dark:bg-[#121124] border border-gray-200 dark:border-gray-800 rounded-xl p-5 shadow-xs flex flex-col justify-between space-y-4 hover:shadow-md transition-shadow">
-      
+    <div 
+      onClick={() => onPreview && onPreview(item)}
+      className="bg-white dark:bg-[#121124] border border-gray-200 dark:border-gray-800 rounded-xl p-5 shadow-xs flex flex-col justify-between space-y-4 hover:shadow-md transition-shadow cursor-pointer"
+    >
       {/* Top Header: Category & Price */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
@@ -34,10 +36,7 @@ export default function MarketplaceCard({
         </div>
 
         {/* Title */}
-        <h3
-          onClick={() => onPreview && onPreview(item)}
-          className="text-base font-bold text-gray-900 dark:text-white hover:text-indigo-600 cursor-pointer transition-colors line-clamp-2"
-        >
+        <h3 className="text-base font-bold text-gray-900 dark:text-white hover:text-indigo-600 transition-colors line-clamp-2">
           {item.title}
         </h3>
 
@@ -49,7 +48,7 @@ export default function MarketplaceCard({
         {/* Creator Name & Avatar */}
         <div
           onClick={(e) => {
-            e.stopPropagation();
+            e.stopPropagation(); // Prevents card click from triggering
             onOpenCreatorProfile && onOpenCreatorProfile(item.creator_id);
           }}
           className="flex items-center gap-2 pt-1 text-xs text-gray-500 hover:text-indigo-600 cursor-pointer w-fit"
@@ -79,8 +78,7 @@ export default function MarketplaceCard({
         <Button
           size="sm"
           variant="outline"
-          onClick={() => onPreview && onPreview(item)}
-          className="gap-1 text-xs border-indigo-600 text-indigo-600 hover:bg-indigo-50"
+          className="gap-1 text-xs border-indigo-600 text-indigo-600 hover:bg-indigo-50 cursor-pointer"
         >
           <Eye className="h-3.5 w-3.5" /> View Details
         </Button>

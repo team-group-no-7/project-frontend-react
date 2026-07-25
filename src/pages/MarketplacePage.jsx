@@ -117,7 +117,7 @@ export default function MarketplacePage({ onNavigateToProfile, onOpenCreatorProf
             <MarketplaceCard
               key={item.id}
               item={item}
-              onPreview={(selected) => setPreviewItem(selected)}
+              onPreview={(selected) => onBuyContent && onBuyContent(selected)}
               onOpenCreatorProfile={onOpenCreatorProfile}
               isPurchased={purchasedContentIds.includes(item.id)}
             />
