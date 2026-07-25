@@ -50,6 +50,16 @@ export default function StepFive({ form }) {
                                 <div className="flex items-start gap-3"><span className="mt-1 h-2 w-2 rounded-full bg-royal" />Downloadable resources</div>
                             </div>
                         </div>
+
+                        {form.body && (
+                            <div className="rounded-3xl bg-white border border-slate-200 p-6">
+                                <div className="font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-100 text-lg">Article Content Preview</div>
+                                <div 
+                                    className="prose max-w-none text-slate-700 space-y-4 text-sm leading-relaxed overflow-x-auto"
+                                    dangerouslySetInnerHTML={{ __html: form.body }}
+                                />
+                            </div>
+                        )}
                     </div>
                 </div>
                 <div className="bg-white rounded-3xl p-6 shadow-sm">

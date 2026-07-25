@@ -31,3 +31,56 @@ body {
 .border-royal {
     border-color: var(--primary-500);
 }
+
+/* ReactQuill Custom Styling for LearnHub */
+.learnhub-quill-wrapper .ql-toolbar.ql-snow {
+    border: 1px solid #e2e8f0;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    background-color: #f8fafc;
+    padding: 10px 14px;
+    font-family: inherit;
+}
+
+.learnhub-quill-wrapper .ql-container.ql-snow {
+    border: 1px solid #e2e8f0;
+    border-top: none;
+    border-bottom-left-radius: 1rem;
+    border-bottom-right-radius: 1rem;
+    min-height: 400px;
+    font-size: 0.95rem;
+    color: #334155;
+    background-color: #ffffff;
+    font-family: inherit;
+}
+
+.learnhub-quill-wrapper .ql-editor {
+    min-height: 400px;
+    padding: 16px 20px;
+    line-height: 1.6;
+}
+
+.learnhub-quill-wrapper .ql-editor.ql-blank::before {
+    color: #94a3b8;
+    font-style: normal;
+}
+
+/* Highlight active toolbar buttons in royal blue */
+.learnhub-quill-wrapper .ql-snow.ql-toolbar button:hover,
+.learnhub-quill-wrapper .ql-snow .ql-toolbar button:hover,
+.learnhub-quill-wrapper .ql-snow.ql-toolbar button:focus,
+.learnhub-quill-wrapper .ql-snow .ql-toolbar button:focus,
+.learnhub-quill-wrapper .ql-snow.ql-toolbar button.ql-active,
+.learnhub-quill-wrapper .ql-snow .ql-toolbar button.ql-active {
+    color: #2563eb;
+}
+
+.learnhub-quill-wrapper .ql-snow.ql-toolbar button.ql-active .ql-stroke,
+.learnhub-quill-wrapper .ql-snow .ql-toolbar button.ql-active .ql-stroke {
+    stroke: #2563eb;
+}
+
+.learnhub-quill-wrapper .ql-snow.ql-toolbar button.ql-active .ql-fill,
+.learnhub-quill-wrapper .ql-snow .ql-toolbar button.ql-active .ql-fill {
+    fill: #2563eb;
+}

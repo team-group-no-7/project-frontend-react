@@ -88,7 +88,7 @@ export default function ContentStudio() {
         if (currentStep === 1) return !!contentType;
         if (contentType === 'article') {
             if (currentStep === 2) return !!selectedEditor;
-            if (currentStep === 3) return !!articleContent.title;
+            if (currentStep === 3) return !!articleContent.title?.trim() && !!articleContent.body?.replace(/<[^>]*>/g, '').trim();
             if (currentStep === 4) return !!articleContent.title && !!articleContent.description;
         }
         if (contentType === 'pdf') {
