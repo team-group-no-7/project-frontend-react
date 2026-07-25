@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Plus, Trash2, LayoutGrid, Search, Copy, Edit3, Eye, EyeOff, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Plus, Trash2, LayoutGrid, Search, Edit3, Eye, EyeOff, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -35,19 +35,7 @@ export default function ContentManagementGrid({ onOpenUploadForm, contentsList, 
     return ["All", ...new Set(list)];
   }, [resources]);
 
-  // Duplicate resource handler
-  const handleDuplicate = (item) => {
-    const copy = {
-      ...item,
-      id: Date.now(),
-      title: `${item.title} (Copy)`,
-      downloads: 0,
-      revenue: 0,
-      status: "Draft",
-      created_at: new Date().toISOString().split("T")[0]
-    };
-    setResources([copy, ...resources]);
-  };
+
 
   // Toggle status handler (Published vs Draft)
   const handleToggleStatus = (id) => {
@@ -285,15 +273,7 @@ export default function ContentManagementGrid({ onOpenUploadForm, contentsList, 
                           {itemStatus === "Published" ? <EyeOff size={16} /> : <Eye size={16} />}
                         </button>
 
-                        {/* Duplicate Button */}
-                        <button
-                          type="button"
-                          onClick={() => handleDuplicate(item)}
-                          className="p-1.5 rounded hover:bg-slate-100 text-slate-500 transition-colors cursor-pointer"
-                          title="Duplicate Content"
-                        >
-                          <Copy size={16} />
-                        </button>
+
 
                         {/* Edit Button */}
                         <button
