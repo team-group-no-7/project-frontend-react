@@ -1,0 +1,103 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* -----------------------------
+   Base Styles
+------------------------------ */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+/* -----------------------------
+   Global Reset
+------------------------------ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* -----------------------------
+   Scrollbar
+------------------------------ */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #eef2ff;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #6366f1;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4f46e5;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #6366f1 #eef2ff;
+}
+
+/* -----------------------------
+   Text Selection
+------------------------------ */
+
+::selection {
+  background: #6366f1;
+  color: white;
+}
+
+/* -----------------------------
+   Buttons
+------------------------------ */
+
+button {
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+/* -----------------------------
+   Inputs
+------------------------------ */
+
+input,
+textarea,
+select {
+  outline: none;
+}
+
+/* -----------------------------
+   Images
+------------------------------ */
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* -----------------------------
+   Links
+------------------------------ */
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
