@@ -14,6 +14,7 @@ import UnifiedContentViewerPage from './pages/UnifiedContentViewerPage';
 import CheckoutPage from './pages/CheckoutPage';
 import PaymentResultPage from './pages/PaymentResultPage';
 import JitsiCallPage from './pages/JitsiCallPage';
+import CreatorDashboardMain from './pages/creator/Dashboard';
 
 // Import Layout Components
 import DashboardLayout from './components/creator/DashboardLayout';
@@ -27,7 +28,8 @@ const getPageTitle = (page) => {
     'upload': 'Publish Content',
     'manage': 'Management Grid',
     'profile': 'My Account',
-    'admin': 'Admin Panel'
+    'admin': 'Admin Panel',
+    'dashboard': 'Creator Dashboard'
   };
   return titles[page] || 'LearnHub';
 };
@@ -61,7 +63,8 @@ function App() {
     if (savedToken) {
       const savedUser = localStorage.getItem('learnhub_user');
       const user = savedUser ? JSON.parse(savedUser) : null;
-      return user?.role === 'ADMIN' ? 'admin' : 'marketplace';
+      if (user?.role === 'ADMIN') return 'admin';
+      return user?.role === 'CREATOR' ? 'dashboard' : 'marketplace';
     }
     return 'landing';
   });
@@ -127,6 +130,8 @@ function App() {
         role: prev.role === 'LEARNER' ? 'CREATOR' : 'LEARNER'
       };
       localStorage.setItem("learnhub_user", JSON.stringify(updatedProfile));
+      // Route appropriately
+      setCurrentPage(updatedProfile.role === 'CREATOR' ? 'dashboard' : 'marketplace');
       return updatedProfile;
     });
   };
@@ -135,8 +140,8 @@ function App() {
   const handleLoginSuccess = (user) => {
     setProfile(user);
     setIsLoggedIn(true);
-    // If logging in as Admin, route to Admin Panel, otherwise route to Marketplace
-    setCurrentPage(user.role === 'ADMIN' ? 'admin' : 'marketplace');
+    // If logging in as Admin, route to Admin Panel, otherwise route to Creator Dashboard or Marketplace
+    setCurrentPage(user.role === 'ADMIN' ? 'admin' : (user.role === 'CREATOR' ? 'dashboard' : 'marketplace'));
   };
 
   // Logout handler
@@ -276,6 +281,10 @@ function App() {
             setCurrentPage('checkout');
           }}
         />
+      )}
+
+      {currentPage === 'dashboard' && (
+        <CreatorDashboardMain />
       )}
 
       {currentPage === 'creator-profile' && (
