@@ -6,7 +6,6 @@ import Stepper from '../../components/contentStudio/shared/Stepper';
 import WizardFooter from '../../components/contentStudio/shared/WizardFooter';
 
 import ArticleStepOne from '../../components/contentStudio/article/StepOne';
-import ArticleStepTwo from '../../components/contentStudio/article/StepTwo';
 import ArticleStepThree from '../../components/contentStudio/article/StepThree';
 import ArticleStepFour from '../../components/contentStudio/article/StepFour';
 import ArticleStepFive from '../../components/contentStudio/article/StepFive';
@@ -23,7 +22,6 @@ import { pdfDummy } from '../../data/contentStudio/pdfDummyData';
 export default function ContentStudio() {
     const [currentStep, setCurrentStep] = useState(1);
     const [contentType, setContentType] = useState(null);
-    const [selectedEditor, setSelectedEditor] = useState('rich');
     const [articleContent, setArticleContent] = useState({ ...articleDummy, body: '' });
     const [pdfForm, setPdfForm] = useState({ ...pdfDummy });
     const [uploadedFile, setUploadedFile] = useState(null);
@@ -70,7 +68,6 @@ export default function ContentStudio() {
         const draft = {
             contentType,
             currentStep,
-            selectedEditor,
             articleContent,
             pdfForm,
             uploadedFile: uploadedFile ? { name: uploadedFile.name, size: uploadedFile.size, type: uploadedFile.type } : null,
@@ -87,9 +84,8 @@ export default function ContentStudio() {
     function canProceed() {
         if (currentStep === 1) return !!contentType;
         if (contentType === 'article') {
-            if (currentStep === 2) return !!selectedEditor;
-            if (currentStep === 3) return !!articleContent.title?.trim() && !!articleContent.body?.replace(/<[^>]*>/g, '').trim();
-            if (currentStep === 4) return !!articleContent.title && !!articleContent.description;
+            if (currentStep === 2) return !!articleContent.title?.trim() && !!articleContent.body?.replace(/<[^>]*>/g, '').trim();
+            if (currentStep === 3) return !!articleContent.title && !!articleContent.description;
         }
         if (contentType === 'pdf') {
             if (currentStep === 2) return !!uploadedFile;
@@ -118,10 +114,9 @@ export default function ContentStudio() {
                     ) : (
                         <>
                             {currentStep === 1 && <ArticleStepOne contentType={contentType} setContentType={setContentType} />}
-                            {contentType === 'article' && currentStep === 2 && <ArticleStepTwo selectedEditor={selectedEditor} setSelectedEditor={setSelectedEditor} />}
-                            {contentType === 'article' && currentStep === 3 && <ArticleStepThree content={articleContent} setContent={setArticleContent} />}
-                            {contentType === 'article' && currentStep === 4 && <ArticleStepFour form={articleContent} onChange={setArticleContent} />}
-                            {contentType === 'article' && currentStep === 5 && <ArticleStepFive form={articleContent} />}
+                            {contentType === 'article' && currentStep === 2 && <ArticleStepThree content={articleContent} setContent={setArticleContent} />}
+                            {contentType === 'article' && currentStep === 3 && <ArticleStepFour form={articleContent} onChange={setArticleContent} />}
+                            {contentType === 'article' && currentStep === 4 && <ArticleStepFive form={articleContent} />}
 
                             {contentType === 'pdf' && currentStep === 2 && <PDFStepTwo file={uploadedFile} onFile={(f) => setUploadedFile(f)} />}
                             {contentType === 'pdf' && currentStep === 3 && <PDFStepThree form={pdfForm} onChange={setPdfForm} />}

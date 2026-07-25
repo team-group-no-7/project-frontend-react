@@ -24,7 +24,7 @@ export default function StepOne({ contentType, setContentType, onNext }) {
             <h2 className="text-lg font-semibold mb-4">What do you want to create?</h2>
             <div className="grid grid-cols-2 gap-6">
                 <Card icon={File} title="PDF Resource" desc="Upload PDF files like notes, books, assignments, or study material." selected={contentType === 'pdf'} onClick={() => setContentType('pdf')} />
-                <Card icon={FileText} title="Article" desc="Write articles, tutorials, blogs, or guides using Rich Text or Markdown." selected={contentType === 'article'} onClick={() => setContentType('article')} />
+                <Card icon={FileText} title="Article" desc="Write articles, tutorials, blogs, or guides using Rich Text Editor." selected={contentType === 'article'} onClick={() => setContentType('article')} />
             </div>
         </div>
     );
