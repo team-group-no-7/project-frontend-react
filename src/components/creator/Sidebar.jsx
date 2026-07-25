@@ -1,11 +1,11 @@
 import React from 'react'
 import SidebarItem from './SidebarItem'
-import { BookOpen, ShoppingBag, Sparkles, UploadCloud, LayoutGrid, User, ShieldAlert } from 'lucide-react';
+import { BookOpen, ShoppingBag, Sparkles, LayoutGrid, User, ShieldAlert, PenTool } from 'lucide-react';
 
 const items = [
     ['marketplace', ShoppingBag, 'Marketplace'],
-    ['creator-profile', Sparkles, 'Creator Profile'],
-    ['upload', UploadCloud, 'Publish Content'],
+    ['dashboard', LayoutGrid, 'Creator Dashboard'],
+    ['content-studio', PenTool, 'Content Studio'],
     ['manage', LayoutGrid, 'Management Grid'],
     ['profile', User, 'My Account'],
     ['admin', ShieldAlert, 'Admin Panel'],
@@ -16,7 +16,7 @@ export default function Sidebar({ currentPage, onChangePage, role = 'LEARNER' })
         if (role === 'ADMIN') {
             return pageKey === 'admin' || pageKey === 'profile';
         } else if (role === 'CREATOR') {
-            return pageKey === 'upload' || pageKey === 'manage' || pageKey === 'profile';
+            return pageKey === 'dashboard' || pageKey === 'content-studio' || pageKey === 'manage' || pageKey === 'profile';
         } else {
             // LEARNER
             return pageKey === 'marketplace' || pageKey === 'profile';

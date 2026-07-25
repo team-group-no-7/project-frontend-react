@@ -15,6 +15,7 @@ import CheckoutPage from './pages/CheckoutPage';
 import PaymentResultPage from './pages/PaymentResultPage';
 import JitsiCallPage from './pages/JitsiCallPage';
 import CreatorDashboardMain from './pages/creator/Dashboard';
+import ContentStudio from './pages/creator/ContentStudio';
 
 // Import Layout Components
 import DashboardLayout from './components/creator/DashboardLayout';
@@ -29,7 +30,8 @@ const getPageTitle = (page) => {
     'manage': 'Management Grid',
     'profile': 'My Account',
     'admin': 'Admin Panel',
-    'dashboard': 'Creator Dashboard'
+    'dashboard': 'Creator Dashboard',
+    'content-studio': 'Content Studio'
   };
   return titles[page] || 'LearnHub';
 };
@@ -101,7 +103,7 @@ function App() {
       rating: 5.0,
       reviews_count: 0,
       learners_count: 0,
-      type: "Cheat Sheet PDF", // simulated type
+      type: newContent.type || "Cheat Sheet PDF",
       level: "Beginner",
       tags: ["New"],
       preview_text: "Includes course guides, code logs and setup files."
@@ -284,7 +286,17 @@ function App() {
       )}
 
       {currentPage === 'dashboard' && (
-        <CreatorDashboardMain />
+        <CreatorDashboardMain 
+          profile={profile}
+          uploadedContents={uploadedContents}
+        />
+      )}
+
+      {currentPage === 'content-studio' && (
+        <ContentStudio
+          onChangePage={setCurrentPage}
+          onUploadSuccess={handleUploadSuccess}
+        />
       )}
 
       {currentPage === 'creator-profile' && (

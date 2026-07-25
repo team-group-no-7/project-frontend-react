@@ -100,8 +100,8 @@ export const recentResources = [
 ]
 
 export const quickActions = [
-    { id: 1, title: 'Create PDF Resource', subtitle: 'Upload and publish PDF', icon: FileUp, color: 'bg-blue-50', accent: 'text-blue-600' },
-    { id: 2, title: 'Write Article', subtitle: 'Create new article', icon: PenTool, color: 'bg-blue-50', accent: 'text-blue-600' },
+    { id: 1, title: 'Create PDF Resource', subtitle: 'Upload and publish PDF', icon: FileUp, color: 'bg-blue-50', accent: 'text-blue-600', to: '/content-studio?type=pdf' },
+    { id: 2, title: 'Write Article', subtitle: 'Create new article', icon: PenTool, color: 'bg-blue-50', accent: 'text-blue-600', to: '/content-studio?type=article' },
     { id: 3, title: 'Schedule Live Session', subtitle: 'Connect with learners', icon: Calendar, color: 'bg-blue-50', accent: 'text-blue-600' },
     { id: 4, title: 'View Analytics', subtitle: 'Track your performance', icon: BarChart2, color: 'bg-blue-50', accent: 'text-blue-600' },
 ]
