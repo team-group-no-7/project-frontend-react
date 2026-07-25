@@ -15,6 +15,7 @@ import PaymentResultPage from './pages/PaymentResultPage';
 import JitsiCallPage from './pages/JitsiCallPage';
 import CreatorDashboardMain from './pages/creator/Dashboard';
 import ContentStudio from './pages/creator/ContentStudio';
+import ResourceDetailPage from './pages/ResourceDetailPage';
 
 // Import Layout Components
 import DashboardLayout from './components/creator/DashboardLayout';
@@ -29,7 +30,8 @@ const getPageTitle = (page) => {
     'profile': 'My Account',
     'admin': 'Admin Panel',
     'dashboard': 'Creator Dashboard',
-    'content-studio': 'Content Studio'
+    'content-studio': 'Content Studio',
+    'resource-details': 'Resource Details'
   };
   return titles[page] || 'LearnHub';
 };
@@ -71,6 +73,7 @@ function App() {
 
   const [selectedCreatorId, setSelectedCreatorId] = useState(202);
   const [selectedReaderItem, setSelectedReaderItem] = useState(null);
+  const [selectedResourceItem, setSelectedResourceItem] = useState(null);
 
   // Dynamic purchasing ledger states
   const [purchasedContents, setPurchasedContents] = useState(PURCHASED_CONTENTS);
@@ -277,9 +280,20 @@ function App() {
           purchasedContents={purchasedContents}
           marketplaceContents={marketplaceContents}
           onBuyContent={(item) => {
+            setSelectedResourceItem(item);
+            setCurrentPage('resource-details');
+          }}
+        />
+      )}
+
+      {currentPage === 'resource-details' && (
+        <ResourceDetailPage
+          resourceItem={selectedResourceItem}
+          onBuyContent={(item) => {
             setSelectedCheckoutItem(item);
             setCurrentPage('checkout');
           }}
+          onBack={() => setCurrentPage('marketplace')}
         />
       )}
 
