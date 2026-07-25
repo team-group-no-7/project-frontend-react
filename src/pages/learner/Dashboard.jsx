@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { BookOpen, Award, Clock, Star, Play, ChevronRight, GraduationCap } from "lucide-react";
 
-export default function LearnerDashboard({ profile, purchasedContents = [], marketplaceContents = [], onChangePage, onSelectResource }) {
+export default function LearnerDashboard({ profile, purchasedContents = [], marketplaceContents = [], onChangePage, onResumeReading, onViewRecommendation }) {
   const userName = profile?.name || "Learner";
 
   // Calculate statistics dynamically based on purchased contents ledger
@@ -117,12 +117,7 @@ export default function LearnerDashboard({ profile, purchasedContents = [], mark
                   </div>
 
                   <button
-                    onClick={() => {
-                      if (onSelectResource) {
-                        onSelectResource(res);
-                      }
-                      onChangePage("reader");
-                    }}
+                    onClick={() => onResumeReading && onResumeReading(res)}
                     className="w-full mt-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-white border border-gray-200 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
                   >
                     <Play className="h-3 w-3 fill-gray-600 text-gray-600" /> Resume Reading
@@ -161,12 +156,7 @@ export default function LearnerDashboard({ profile, purchasedContents = [], mark
             {recommendations.map((item) => (
               <div 
                 key={item.id} 
-                onClick={() => {
-                  if (onSelectResource) {
-                    onSelectResource(item);
-                  }
-                  onChangePage("resource-details");
-                }}
+                onClick={() => onViewRecommendation && onViewRecommendation(item)}
                 className="p-4 rounded-xl border border-gray-100 hover:shadow-sm hover:border-gray-200 transition bg-white flex flex-col justify-between gap-4 cursor-pointer"
               >
                 <div>

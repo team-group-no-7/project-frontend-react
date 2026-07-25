@@ -281,7 +281,14 @@ function App() {
           purchasedContents={purchasedContents}
           marketplaceContents={marketplaceContents}
           onChangePage={setCurrentPage}
-          onSelectResource={setSelectedResourceItem}
+          onResumeReading={(item) => {
+            setSelectedReaderItem(item);
+            setCurrentPage('reader');
+          }}
+          onViewRecommendation={(item) => {
+            setSelectedResourceItem(item);
+            setCurrentPage('resource-details');
+          }}
         />
       )}
 
