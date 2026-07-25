@@ -1,5 +1,6 @@
 import React from "react";
-import { Star, ChevronRight, FileText, Globe, Layers, HardDrive, Clock, Tag, User, ArrowLeft, ShieldCheck, Download, Award } from "lucide-react";
+import { Star, ChevronRight, FileText, Layers, Tag, User, ArrowLeft, ShieldCheck, Download, Award } from "lucide-react";
+import { CREATORS } from "../data/mockData";
 
 export default function ResourceDetailPage({ resourceItem, onBuyContent, onBack }) {
   // Safe fallback to default mock item if none selected
@@ -8,7 +9,9 @@ export default function ResourceDetailPage({ resourceItem, onBuyContent, onBack 
     title: "Complete Java Spring Boot Monolith & Microservices",
     description: "Master Spring Boot backend architecture, REST APIs, Security, JPA, PostgreSQL integration with real-world enterprise code examples.",
     price: 599.00,
+    category_id: 1,
     category_name: "Java",
+    creator_id: 202,
     creator_name: "Rohan Verma",
     creator_avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
     rating: 4.8,
@@ -19,6 +22,10 @@ export default function ResourceDetailPage({ resourceItem, onBuyContent, onBack 
     tags: ["Java", "Spring Boot", "REST API", "PostgreSQL"],
     preview_text: "Chapter 1: Introduction to Spring Boot 3.x, Spring Core Annotations, Dependency Injection, and REST Controllers setup with Swagger docs."
   };
+
+  // Find creator dynamically from mock database to retrieve associated student reviews
+  const creatorProfile = CREATORS.find(c => c.id === item.creator_id) || CREATORS[0];
+  const creatorReviews = creatorProfile?.reviews || [];
 
   const handleBuy = () => {
     if (onBuyContent) {
@@ -103,7 +110,7 @@ export default function ResourceDetailPage({ resourceItem, onBuyContent, onBack 
               </p>
             </div>
 
-            {/* Content Preview Block (Reading from MockData) */}
+            {/* Content Preview Block */}
             <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs space-y-4">
               <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
                 <FileText className="h-5 w-5 text-indigo-600" />
@@ -118,7 +125,7 @@ export default function ResourceDetailPage({ resourceItem, onBuyContent, onBack 
               </div>
             </div>
 
-            {/* Metadata Badges Card */}
+            {/* Specifications Card */}
             <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs space-y-4">
               <h2 className="text-lg font-bold text-gray-900">Specifications</h2>
               <div className="grid grid-cols-2 gap-4">
@@ -151,6 +158,46 @@ export default function ResourceDetailPage({ resourceItem, onBuyContent, onBack 
                     ))}
                   </div>
                 </div>
+              )}
+            </div>
+
+            {/* Reviews Card (Dynamic from mockData.js CREATORS table) */}
+            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs space-y-4">
+              <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
+                <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
+                <h2 className="text-lg font-bold text-gray-900">Learner Reviews</h2>
+              </div>
+
+              {creatorReviews.length > 0 ? (
+                <div className="space-y-4 divide-y divide-gray-100">
+                  {creatorReviews.map((rev, idx) => (
+                    <div key={rev.id || idx} className={`pt-4 ${idx === 0 ? 'pt-0' : ''}`}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <img
+                            src={rev.avatar}
+                            alt={rev.studentName}
+                            className="h-8 w-8 rounded-full object-cover border border-gray-100"
+                          />
+                          <div>
+                            <p className="text-xs font-bold text-gray-800">{rev.studentName}</p>
+                            <p className="text-[10px] text-gray-400">{rev.date}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-0.5 text-amber-500">
+                          {Array.from({ length: rev.rating || 5 }).map((_, i) => (
+                            <Star key={i} className="h-3 w-3 fill-amber-500 text-amber-500" />
+                          ))}
+                        </div>
+                      </div>
+                      <p className="mt-2 text-xs text-gray-600 leading-relaxed">
+                        {rev.comment}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-gray-400 italic">No student reviews posted for this creator yet.</p>
               )}
             </div>
 
