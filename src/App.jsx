@@ -5,7 +5,6 @@ import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import MarketplacePage from './pages/MarketplacePage';
-import ContentUploadPage from './pages/ContentUploadPage';
 import ContentManagementGrid from './pages/ContentManagementGrid';
 import ProfilePage from './pages/ProfilePage';
 import CreatorProfilePage from './pages/CreatorProfilePage';
@@ -26,7 +25,6 @@ const getPageTitle = (page) => {
   const titles = {
     'marketplace': 'Marketplace Catalog',
     'creator-profile': 'Creator Profile',
-    'upload': 'Publish Content',
     'manage': 'Management Grid',
     'profile': 'My Account',
     'admin': 'Admin Panel',
@@ -289,6 +287,7 @@ function App() {
         <CreatorDashboardMain 
           profile={profile}
           uploadedContents={uploadedContents}
+          onChangePage={setCurrentPage}
         />
       )}
 
@@ -318,17 +317,10 @@ function App() {
           }}
         />
       )}
-      
-      {currentPage === 'upload' && (
-        <ContentUploadPage
-          onUploadSuccess={handleUploadSuccess}
-          onCancel={() => setCurrentPage('manage')}
-        />
-      )}
 
       {currentPage === 'manage' && (
         <ContentManagementGrid
-          onOpenUploadForm={() => setCurrentPage('upload')}
+          onOpenUploadForm={() => setCurrentPage('content-studio')}
           contentsList={uploadedContents}
           onDeleteContent={handleDeleteContent}
         />
