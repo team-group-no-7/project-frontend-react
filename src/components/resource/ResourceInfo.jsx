@@ -1,16 +1,16 @@
 import {
-  FaStar,
-  FaRegBookmark,
-  FaShareAlt,
-  FaFlag,
-  FaGlobe,
-  FaLayerGroup,
-  FaFileAlt,
-  FaWeightHanging,
-  FaClock,
-  FaTag,
-  FaCheckCircle,
-} from "react-icons/fa";
+  Star,
+  Bookmark,
+  Share2,
+  Flag,
+  Globe,
+  Layers,
+  FileText,
+  HardDrive,
+  Clock,
+  Tag,
+  CheckCircle2,
+} from "lucide-react";
 
 function MetaRow({ icon: Icon, label, value }) {
   return (
@@ -38,14 +38,15 @@ export default function ResourceInfo({ resource, onBuy, onWishlist, onShare, onR
 
         <div className="flex flex-wrap items-center gap-3 text-sm">
           <div className="flex items-center gap-1 text-amber-500">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <FaStar
-                key={i}
-                className={
-                  i < Math.round(resource.rating) ? "h-4 w-4" : "h-4 w-4 text-gray-200"
-                }
-              />
-            ))}
+            {Array.from({ length: 5 }).map((_, i) => {
+              const isFilled = i < Math.round(resource.rating);
+              return (
+                <Star
+                  key={i}
+                  className={`h-4 w-4 ${isFilled ? "fill-amber-500 text-amber-500" : "text-gray-200"}`}
+                />
+              );
+            })}
           </div>
           <span className="font-semibold text-gray-800">{resource.rating}</span>
           <span className="text-gray-400">·</span>
@@ -64,7 +65,7 @@ export default function ResourceInfo({ resource, onBuy, onWishlist, onShare, onR
           <span className="flex items-center gap-1 text-sm font-semibold text-gray-800">
             {resource.creator.name}
             {resource.creator.verified && (
-              <FaCheckCircle className="h-3.5 w-3.5 text-blue-500" title="Verified creator" />
+              <CheckCircle2 className="h-3.5 w-3.5 text-blue-500" title="Verified creator" />
             )}
           </span>
         </div>
@@ -87,11 +88,11 @@ export default function ResourceInfo({ resource, onBuy, onWishlist, onShare, onR
       <p className="text-sm leading-relaxed text-gray-600">{resource.shortDescription}</p>
 
       <div className="rounded-2xl bg-gray-50 px-4">
-        <MetaRow icon={FaGlobe} label="Language" value={resource.language} />
-        <MetaRow icon={FaLayerGroup} label="Level" value={resource.level} />
-        <MetaRow icon={FaFileAlt} label="Pages" value={resource.pages} />
-        <MetaRow icon={FaWeightHanging} label="File Size" value={resource.fileSize} />
-        <MetaRow icon={FaClock} label="Last Updated" value={resource.lastUpdated} />
+        <MetaRow icon={Globe} label="Language" value={resource.language} />
+        <MetaRow icon={Layers} label="Level" value={resource.level} />
+        <MetaRow icon={FileText} label="Pages" value={resource.pages} />
+        <MetaRow icon={HardDrive} label="File Size" value={resource.fileSize} />
+        <MetaRow icon={Clock} label="Last Updated" value={resource.lastUpdated} />
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -100,7 +101,7 @@ export default function ResourceInfo({ resource, onBuy, onWishlist, onShare, onR
             key={tag}
             className="flex items-center gap-1.5 rounded-full border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600"
           >
-            <FaTag className="h-2.5 w-2.5" />
+            <Tag className="h-2.5 w-2.5" />
             {tag}
           </span>
         ))}
@@ -110,7 +111,7 @@ export default function ResourceInfo({ resource, onBuy, onWishlist, onShare, onR
         <button
           type="button"
           onClick={onBuy}
-          className="w-full rounded-2xl bg-blue-600 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 transition-all duration-200 hover:bg-blue-700 hover:shadow-blue-600/35 active:scale-[0.99]"
+          className="w-full rounded-2xl bg-blue-600 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 transition-all duration-200 hover:bg-blue-700 hover:shadow-blue-600/35 active:scale-[0.99] cursor-pointer"
         >
           Buy Now — {resource.currency}
           {resource.price}
@@ -120,25 +121,25 @@ export default function ResourceInfo({ resource, onBuy, onWishlist, onShare, onR
           <button
             type="button"
             onClick={onWishlist}
-            className="flex flex-col items-center gap-1.5 rounded-2xl border border-gray-200 py-2.5 text-xs font-medium text-gray-600 transition-colors duration-200 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600"
+            className="flex flex-col items-center gap-1.5 rounded-2xl border border-gray-200 py-2.5 text-xs font-medium text-gray-600 transition-colors duration-200 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600 cursor-pointer"
           >
-            <FaRegBookmark className="h-4 w-4" />
+            <Bookmark className="h-4 w-4" />
             Wishlist
           </button>
           <button
             type="button"
             onClick={onShare}
-            className="flex flex-col items-center gap-1.5 rounded-2xl border border-gray-200 py-2.5 text-xs font-medium text-gray-600 transition-colors duration-200 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600"
+            className="flex flex-col items-center gap-1.5 rounded-2xl border border-gray-200 py-2.5 text-xs font-medium text-gray-600 transition-colors duration-200 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600 cursor-pointer"
           >
-            <FaShareAlt className="h-4 w-4" />
+            <Share2 className="h-4 w-4" />
             Share
           </button>
           <button
             type="button"
             onClick={onReport}
-            className="flex flex-col items-center gap-1.5 rounded-2xl border border-gray-200 py-2.5 text-xs font-medium text-gray-600 transition-colors duration-200 hover:border-red-200 hover:bg-red-50 hover:text-red-500"
+            className="flex flex-col items-center gap-1.5 rounded-2xl border border-gray-200 py-2.5 text-xs font-medium text-gray-600 transition-colors duration-200 hover:border-red-200 hover:bg-red-50 hover:text-red-500 cursor-pointer"
           >
-            <FaFlag className="h-4 w-4" />
+            <Flag className="h-4 w-4" />
             Report
           </button>
         </div>

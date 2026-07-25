@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaReply } from "react-icons/fa";
+import { Reply } from "lucide-react";
 import ReplyCard from "./ReplyCard";
 
 export default function QuestionCard({ question }) {
@@ -23,9 +23,9 @@ export default function QuestionCard({ question }) {
           <button
             type="button"
             onClick={() => setShowReplyBox((v) => !v)}
-            className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-blue-600 transition-colors hover:text-blue-700"
+            className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-blue-600 transition-colors hover:text-blue-700 cursor-pointer"
           >
-            <FaReply className="h-3 w-3" />
+            <Reply className="h-3 w-3" />
             Reply
           </button>
 
@@ -38,7 +38,7 @@ export default function QuestionCard({ question }) {
               />
               <button
                 type="button"
-                className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 sm:w-auto"
+                className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 sm:w-auto cursor-pointer"
               >
                 Post
               </button>

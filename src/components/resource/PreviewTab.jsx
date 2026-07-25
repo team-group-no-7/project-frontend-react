@@ -1,4 +1,4 @@
-import { FaFilePdf, FaLock } from "react-icons/fa";
+import { FileText, Lock } from "lucide-react";
 
 export default function PreviewTab({ resource }) {
   return (
@@ -13,7 +13,7 @@ export default function PreviewTab({ resource }) {
 
       <div className="flex flex-col gap-2.5 rounded-2xl bg-gray-50 p-5">
         <div className="flex items-center gap-2 text-sm font-semibold text-gray-800">
-          <FaFilePdf className="h-4 w-4 text-red-500" />
+          <FileText className="h-4 w-4 text-red-500" />
           Preview — first {resource.previewPages} of {resource.pages} pages
         </div>
         <p className="text-sm leading-relaxed text-gray-600">
@@ -30,7 +30,7 @@ export default function PreviewTab({ resource }) {
           className="h-64 w-full object-cover blur-sm sm:h-80"
         />
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gray-900/50 text-center text-white">
-          <FaLock className="h-6 w-6" />
+          <Lock className="h-6 w-6" />
           <p className="text-sm font-medium">
             Full {resource.pages}-page document unlocks after purchase
           </p>

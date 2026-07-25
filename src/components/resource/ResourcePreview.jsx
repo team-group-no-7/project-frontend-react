@@ -1,4 +1,4 @@
-import { FaPlay, FaExpand, FaFilePdf } from "react-icons/fa";
+import { Play, Maximize, FileText } from "lucide-react";
 
 export default function ResourcePreview({ resource, onPreview, onFullscreen }) {
   return (
@@ -14,7 +14,7 @@ export default function ResourcePreview({ resource, onPreview, onFullscreen }) {
         {/* Badges */}
         <div className="absolute left-4 top-4 flex items-center gap-2">
           <span className="flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-xs font-semibold text-gray-800 shadow-sm backdrop-blur">
-            <FaFilePdf className="h-3 w-3 text-red-500" />
+            <FileText className="h-3 w-3 text-red-500" />
             {resource.fileType}
           </span>
           <span className="rounded-full bg-white/95 px-3 py-1.5 text-xs font-semibold text-gray-800 shadow-sm backdrop-blur">
@@ -27,9 +27,9 @@ export default function ResourcePreview({ resource, onPreview, onFullscreen }) {
           type="button"
           onClick={onFullscreen}
           aria-label="View fullscreen"
-          className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/95 text-gray-700 shadow-sm backdrop-blur transition-all duration-200 hover:bg-white hover:text-blue-600"
+          className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/95 text-gray-700 shadow-sm backdrop-blur transition-all duration-200 hover:bg-white hover:text-blue-600 cursor-pointer"
         >
-          <FaExpand className="h-3.5 w-3.5" />
+          <Maximize className="h-3.5 w-3.5" />
         </button>
 
         {/* Preview button */}
@@ -37,9 +37,9 @@ export default function ResourcePreview({ resource, onPreview, onFullscreen }) {
           <button
             type="button"
             onClick={onPreview}
-            className="flex items-center gap-2 rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/30 transition-all duration-200 hover:scale-[1.03] hover:bg-blue-700 active:scale-[0.98]"
+            className="flex items-center gap-2 rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/30 transition-all duration-200 hover:scale-[1.03] hover:bg-blue-700 active:scale-[0.98] cursor-pointer"
           >
-            <FaPlay className="h-3 w-3" />
+            <Play className="h-3 w-3" />
             Preview first {resource.previewPages} pages
           </button>
         </div>

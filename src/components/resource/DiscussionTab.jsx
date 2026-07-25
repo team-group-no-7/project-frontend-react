@@ -1,4 +1,4 @@
-import { FaComment } from "react-icons/fa";
+import { MessageSquare } from "lucide-react";
 import QuestionCard from "./QuestionCard";
 
 export default function DiscussionTab({ discussions }) {
@@ -12,9 +12,9 @@ export default function DiscussionTab({ discussions }) {
         />
         <button
           type="button"
-          className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+          className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700 cursor-pointer"
         >
-          <FaComment className="h-3.5 w-3.5" />
+          <MessageSquare className="h-3.5 w-3.5" />
           Post
         </button>
       </div>

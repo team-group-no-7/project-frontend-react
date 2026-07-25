@@ -1,4 +1,4 @@
-import { FaChevronRight } from "react-icons/fa";
+import { ChevronRight } from "lucide-react";
 
 export default function Breadcrumb({ items }) {
   return (
@@ -20,7 +20,7 @@ export default function Breadcrumb({ items }) {
                   >
                     {item.label}
                   </a>
-                  <FaChevronRight className="h-2.5 w-2.5 text-gray-300" />
+                  <ChevronRight className="h-2.5 w-2.5 text-gray-300" />
                 </>
               )}
             </li>

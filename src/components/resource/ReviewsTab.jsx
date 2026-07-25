@@ -1,11 +1,17 @@
-import { FaStar, FaRegThumbsUp } from "react-icons/fa";
+import { Star, ThumbsUp } from "lucide-react";
 
 function StarRow({ rating, size = "h-3.5 w-3.5" }) {
   return (
     <div className="flex items-center gap-0.5 text-amber-500">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <FaStar key={i} className={i < rating ? size : `${size} text-gray-200`} />
-      ))}
+      {Array.from({ length: 5 }).map((_, i) => {
+        const isFilled = i < rating;
+        return (
+          <Star 
+            key={i} 
+            className={`${size} ${isFilled ? "fill-amber-500 text-amber-500" : "text-gray-200"}`} 
+          />
+        );
+      })}
     </div>
   );
 }
@@ -47,9 +53,9 @@ function ReviewCard({ review }) {
 
       <button
         type="button"
-        className="flex w-fit items-center gap-1.5 text-xs font-medium text-gray-400 transition-colors hover:text-blue-600"
+        className="flex w-fit items-center gap-1.5 text-xs font-medium text-gray-400 transition-colors hover:text-blue-600 cursor-pointer"
       >
-        <FaRegThumbsUp className="h-3 w-3" />
+        <ThumbsUp className="h-3 w-3" />
         Helpful ({review.helpfulCount})
       </button>
     </div>

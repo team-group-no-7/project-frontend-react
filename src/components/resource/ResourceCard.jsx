@@ -1,4 +1,4 @@
-import { FaStar } from "react-icons/fa";
+import { Star } from "lucide-react";
 
 export default function ResourceCard({ resource }) {
   return (
@@ -19,7 +19,7 @@ export default function ResourceCard({ resource }) {
         <p className="text-xs text-gray-500">by {resource.creator}</p>
 
         <div className="flex items-center gap-1 text-xs text-amber-500">
-          <FaStar className="h-3 w-3" />
+          <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
           <span className="font-semibold text-gray-700">{resource.rating}</span>
           <span className="text-gray-400">({resource.reviewCount})</span>
         </div>
@@ -28,7 +28,7 @@ export default function ResourceCard({ resource }) {
           <span className="text-base font-bold text-gray-900">₹{resource.price}</span>
           <button
             type="button"
-            className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-600 transition-colors duration-200 group-hover:bg-blue-600 group-hover:text-white"
+            className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-600 transition-colors duration-200 group-hover:bg-blue-600 group-hover:text-white cursor-pointer"
           >
             View Details
           </button>
