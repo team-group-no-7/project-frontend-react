@@ -3,7 +3,7 @@ import { Bell, HelpCircle } from 'lucide-react';
 import ProfileDropdown from './ProfileDropdown'
 import { INITIAL_USER } from '@/data/mockData'
 
-export default function TopNavbar({ title = 'Creator Dashboard', profile = INITIAL_USER, onSwitchRole }) {
+export default function TopNavbar({ title = 'Creator Dashboard', profile = INITIAL_USER, onSwitchRole, onLogout }) {
     return (
         <header className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-white sticky top-0 z-10">
             <div className="text-lg font-bold tracking-tight text-slate-800">{title}</div>
@@ -17,7 +17,7 @@ export default function TopNavbar({ title = 'Creator Dashboard', profile = INITI
                         <span className="absolute -top-1 -right-1 text-xs bg-red-600 text-white rounded-full px-1.5 py-0.5 scale-90 font-bold leading-none">3</span>
                     </button>
                 </div>
-                <ProfileDropdown profile={profile} onSwitchMode={onSwitchRole} />
+                <ProfileDropdown profile={profile} onSwitchMode={onSwitchRole} onLogout={onLogout} />
             </div>
         </header>
     )

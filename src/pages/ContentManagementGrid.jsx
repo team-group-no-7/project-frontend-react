@@ -10,52 +10,26 @@ import { UPLOADED_CONTENTS } from "@/data/mockData";
  * 
  * Simple tabular layout exclusive to creators to manage uploaded content.
  */
-export default function ContentManagementGrid({ onOpenUploadForm }) {
-  // State for contents list
-  const [contentsList, setContentsList] = useState([
-    {
-      id: 21,
-      title: "React 19 Hooks Deep Dive",
-      category_name: "Web Dev",
-      price: 299.00,
-      downloads: 140,
-      revenue: 41860,
-      status: "Active"
-    },
-    {
-      id: 22,
-      title: "System Design for Beginners",
-      category_name: "System Design",
-      price: 0.00,
-      downloads: 320,
-      revenue: 0,
-      status: "Active"
-    },
-    {
-      id: 31,
-      title: "Mastering SQL & Database Indexing",
-      category_name: "SQL & DB",
-      price: 349.00,
-      downloads: 85,
-      revenue: 29665,
-      status: "Active"
-    }
-  ]);
-
+export default function ContentManagementGrid({ onOpenUploadForm, contentsList = UPLOADED_CONTENTS, onDeleteContent }) {
   // Search Query State
   const [searchQuery, setSearchQuery] = useState("");
+
+  const getCategoryName = (categoryId) => {
+    const categories = { 1: "Java", 2: "DSA", 3: "Web Dev", 4: "System Design" };
+    return categories[categoryId] || "General";
+  };
 
   // Delete Content Item
   const handleDelete = (id, title) => {
     if (window.confirm(`Are you sure you want to delete "${title}"?`)) {
-      setContentsList(prev => prev.filter(item => item.id !== id));
+      onDeleteContent && onDeleteContent(id);
     }
   };
 
   // Filter List by Search Query
   const filteredList = contentsList.filter((item) =>
     item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.category_name.toLowerCase().includes(searchQuery.toLowerCase())
+    (item.category_name || getCategoryName(item.category_id)).toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -89,13 +63,13 @@ export default function ContentManagementGrid({ onOpenUploadForm }) {
         <div className="bg-white dark:bg-[#121124] border border-gray-200 dark:border-gray-800 rounded-xl p-4 text-center">
           <p className="text-xs text-gray-500 font-medium">Total Downloads</p>
           <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400 mt-1">
-            {contentsList.reduce((sum, item) => sum + item.downloads, 0)}
+            {contentsList.reduce((sum, item) => sum + (item.downloads || 0), 0)}
           </p>
         </div>
         <div className="bg-white dark:bg-[#121124] border border-gray-200 dark:border-gray-800 rounded-xl p-4 text-center">
           <p className="text-xs text-gray-500 font-medium">Total Revenue</p>
           <p className="text-lg font-bold text-emerald-600 mt-1">
-            ₹{contentsList.reduce((sum, item) => sum + item.revenue, 0).toLocaleString()}
+            ₹{contentsList.reduce((sum, item) => sum + (item.revenue || 0), 0).toLocaleString()}
           </p>
         </div>
       </div>
@@ -133,13 +107,13 @@ export default function ContentManagementGrid({ onOpenUploadForm }) {
                   </td>
                   <td className="p-3">
                     <span className="bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 px-2 py-0.5 rounded text-[11px] font-semibold">
-                      {item.category_name}
+                      {item.category_name || getCategoryName(item.category_id)}
                     </span>
                   </td>
                   <td className="p-3 font-bold">
                     {item.price === 0 ? "FREE" : `₹${item.price}`}
                   </td>
-                  <td className="p-3 text-gray-500">{item.downloads}</td>
+                  <td className="p-3 text-gray-500">{item.downloads || 0}</td>
                   <td className="p-3 text-right">
                     <Button
                       size="sm"

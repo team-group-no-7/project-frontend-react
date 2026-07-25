@@ -11,7 +11,18 @@ const items = [
     ['admin', ShieldAlert, 'Admin Panel'],
 ]
 
-export default function Sidebar({ currentPage, onChangePage }) {
+export default function Sidebar({ currentPage, onChangePage, role = 'LEARNER' }) {
+    const filteredItems = items.filter(([pageKey]) => {
+        if (role === 'ADMIN') {
+            return pageKey === 'admin' || pageKey === 'profile';
+        } else if (role === 'CREATOR') {
+            return pageKey === 'upload' || pageKey === 'manage' || pageKey === 'profile';
+        } else {
+            // LEARNER
+            return pageKey === 'marketplace' || pageKey === 'profile';
+        }
+    });
+
     return (
         <aside className="w-64 bg-white border-r border-slate-100 min-h-screen px-4 py-6 sticky top-0 flex flex-col justify-between shrink-0">
             <div>
@@ -23,7 +34,7 @@ export default function Sidebar({ currentPage, onChangePage }) {
                 </div>
 
                 <nav className="flex flex-col gap-1">
-                    {items.map(([pageKey, icon, label]) => (
+                    {filteredItems.map(([pageKey, icon, label]) => (
                         <SidebarItem 
                             key={pageKey} 
                             active={currentPage === pageKey} 

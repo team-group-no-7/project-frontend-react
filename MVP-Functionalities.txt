@@ -1,0 +1,279 @@
+﻿Prompt 1: 
+What are the core functionalities or features of our application. What it does or provides.
+In my point of view it is:
+* core idea of upload pdf or create article and sell or buy online.
+* session: 1:1 interaction.
+* Analytics.
+* Notification and follow feature.
+* QnA, Reviews or feedback, Community.
+* Any others. List all.
+
+
+Answer: 
+At a high level, LearnMint provides these core functionalities:
+1. Knowledge Publishing – Upload PDF resources or write and publish articles.
+2. Knowledge Marketplace – Discover, browse, buy, and sell educational resources.
+3. Content Monetization – Earn revenue by selling digital learning content.
+4. Content Consumption – Read purchased PDFs and articles in an integrated viewer.
+5. Creator Workspace – Manage resources, drafts, earnings, and analytics.
+6. Learner Workspace – Access purchased resources, bookmarks, and learning history.
+7. 1:1 Mentorship / Live Sessions – Book and manage one-on-one sessions with creators.
+8. Community & Engagement – Q&A, reviews, ratings, comments, and creator announcements.
+9. Social Features – Follow creators and receive updates from them.
+10. Notifications – Alerts for purchases, new content, sessions, announcements, and activities.
+11. Analytics & Insights – Performance insights for creators and platform administrators.
+12. Administration & Moderation – Manage users, resources, transactions, reports, and platform settings.
+13. Authentication & User Management – Secure login, registration, profile management, and role-based access.
+========================================================================
+
+
+
+
+
+
+Prompt 2: 
+What is minimal functionalities at least should have to work the application? Because I think there is too much load on us. As we implementing too many feature or functionalities & time is very less.
+Answer: 
+For a CDAC final project, the goal is a complete, working application, not the application with the most features.
+I recommend splitting features into two groups.
+✅ Must Have (MVP)
+These are the minimum functionalities that make LearnMint usable.
+1. Authentication & User Roles
+
+   * Login, Signup
+   * Learner / Creator / Admin
+   2. Content Publishing
+
+      * Upload PDF
+      * Write Article
+      * Save Draft
+      * Publish
+      3. Marketplace
+
+         * Browse & Search
+         * Resource Details
+         * Creator Profile
+         4. Buy & Sell Resources
+
+            * Payment
+            * Purchase History
+            * My Library
+            5. Content Reader
+
+               * PDF Viewer
+               * Article Viewer
+               6. Creator Dashboard
+
+                  * Manage Resources
+                  * Revenue Summary
+                  * Basic Analytics
+                  7. Admin Panel
+
+                     * Users
+                     * Resources
+                     * Transactions
+                     * Reports
+                     * Settings
+________________
+
+
+⭐ Nice to Have (If Time Permits)
+These make the platform richer but are not essential for a working product.
+                     * Follow Creator
+                     * Notifications
+                     * Reviews & Ratings
+                     * Q&A / Comments
+                     * Community Hub
+                     * Creator Announcements
+                     * 1:1 Live Session Booking
+                     * Advanced Analytics
+                     * Reading Progress
+                     * Bookmarks
+                     * Wishlist
+                     * Resource Recommendations
+________________
+
+
+My recommendation is to treat Community, Notifications, Follow, and 1:1 Sessions as Nice to Have features. If your team finishes the MVP early, you can add one or two of them. Otherwise, don't let them delay the completion of the core application.
+========================================================================
+
+
+
+
+
+
+Prompt 3: 
+Okay which one feature from nice to have features list I can pick that stand out my project?
+Answer: 
+If your goal is to stand out during CDAC evaluation and placements, I would choose a feature that is:
+---
+My ranking:-
+🥇 1. 1:1 Mentorship / Live Session Booking ⭐⭐⭐⭐⭐ (Best Choice)
+
+
+This is the feature I'd choose.
+
+
+Why?
+                     * Very few student projects include it.
+                     * It perfectly fits LearnMint's vision.
+                     * You don't need to build video calling yourself.
+
+
+You can implement:
+                     * Creator sets available slots.
+                     * Learner books a slot.
+                     * Creator accepts/rejects.
+                     * Session appears in both dashboards.
+                     * Store a Google Meet/Zoom link (or dummy link for demo).
+
+
+This showcases:
+                     * Scheduling
+                     * Booking system
+                     * Notifications
+                     * Role-based workflows
+                     * Database relationships
+
+
+---
+🥈 2. Follow Creator + Notifications ⭐⭐⭐⭐☆
+
+
+A very realistic social feature.
+
+
+Flow:
+Follow Creator
+        ↓
+Creator publishes new resource
+        ↓
+Followers receive notification
+
+
+This makes the platform feel alive with relatively low implementation effort.
+
+
+---
+🥉 3. Reviews + Q&A ⭐⭐⭐⭐☆
+
+
+After purchasing a resource:
+                     * Ask questions
+                     * Leave reviews
+                     * Rate the resource
+This is useful but quite common.
+
+
+---
+4. Reading Progress + Bookmarks ⭐⭐⭐☆
+
+
+Nice user experience improvement, but it doesn't make the project stand out as much.
+
+
+---
+My recommendation:
+
+
+If you can add only one extra feature:
+
+
+> Choose 1:1 Mentorship / Live Session Booking.
+It transforms LearnHub from just a content marketplace into a knowledge platform, because creators don't only sell PDFs and articles—they can also offer personalized guidance.
+
+
+It also gives you an excellent story to explain in interviews:
+> "LearnMint enables creators to monetize their expertise in two ways: by selling digital resources (PDFs and articles) and by offering paid one-on-one mentorship sessions."
+
+
+That's a much stronger value proposition than simply saying, "Users can upload PDFs and buy them.”
+========================================================================
+
+
+
+
+Prompt 4:
+I agreed with the recommended final scope:
+  
+
+Wanted to classify these functionalities broadly so that it is easy to understand like: 
+general application flow, creator flow, learner flow, admin flow 
+or 
+General application functionalities, creator dashboard and it's functionalities, learner dashboard and it's functionalities, and admin dashboard and it's functionalities.
+
+
+Answer:
+I think the second approach is much better because it aligns with how you'll build the application and how people think about the system.
+LearnMint Functionalities
+1. General Application Functionalities (Common)
+These are available to everyone or form the core platform.
+                     * User Authentication (Login, Signup, Role-based Access)
+                     * Landing Page
+                     * Marketplace (Browse & Search Resources)
+                     * Resource Details Page
+                     * Creator Profile
+                     * PDF & Article Viewer
+                     * Secure Payment & Checkout
+________________
+
+
+2. Creator Dashboard
+Features for creators to publish and monetize knowledge.
+                     * Content Studio (Upload PDF / Create Article)
+                     * Draft & Publish Resources
+                     * Manage Published Resources
+                     * Earnings Dashboard
+                     * Basic Analytics
+                     * Manage 1:1 Session Availability
+                     * View & Manage Session Bookings
+                     * Creator Profile Management
+________________
+
+
+3. Learner Dashboard
+Features for learners to purchase and access content.
+                     * My Library
+                     * Purchased Resources
+                     * Reading PDFs & Articles
+                     * Purchase History
+                     * Book 1:1 Sessions
+                     * View Upcoming & Previous Sessions
+                     * Learner Profile Management
+________________
+
+
+4. Admin Dashboard
+Platform management and monitoring.
+                     * Dashboard Overview
+                     * User Management
+                     * Resource Moderation
+                     * Transaction Management
+                     * Reports & Analytics
+                     * Platform Settings
+________________
+
+
+Overall Application Flow:
+Visitor
+   │
+   ▼
+Browse Marketplace
+   │
+Login / Signup
+   │
+   ├───────────────┐
+   ▼               ▼
+Learner         Creator
+   │               │
+Buy Resource    Publish Resource
+Book Session    Manage Content
+Read Content    Earn Revenue
+   │               │
+   └──────┬────────┘
+          ▼
+        Admin
+   Monitors & Manages Platform
+
+
+========================================================================

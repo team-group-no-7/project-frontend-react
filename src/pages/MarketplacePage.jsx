@@ -1,7 +1,7 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Search, ShoppingBag, BookOpen } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+
 
 // Import components & mock database catalog
 import MarketplaceCard from "@/components/MarketplaceCard";
@@ -19,21 +19,21 @@ import { MARKETPLACE_CONTENTS, CATEGORIES, PURCHASED_CONTENTS } from "@/data/moc
  *  - Grid of Marketplace items
  *  - Resource details preview modal
  */
-export default function MarketplacePage({ onNavigateToProfile, onOpenCreatorProfile }) {
+export default function MarketplacePage({ onNavigateToProfile, onOpenCreatorProfile, onBuyContent, purchasedContents = PURCHASED_CONTENTS, marketplaceContents = MARKETPLACE_CONTENTS }) {
   // State for search query and selected category ID
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState(0); // 0 = All Categories
   const [sortBy, setSortBy] = useState("popular"); // "popular" | "price-low" | "price-high" | "rating"
-  
+
   // State for preview modal
   const [previewItem, setPreviewItem] = useState(null);
 
   // Array of purchased content IDs for current user
-  const purchasedContentIds = PURCHASED_CONTENTS.map((p) => p.content_id);
+  const purchasedContentIds = purchasedContents.map((p) => p.content_id);
 
   // Filter and sort items based on user selection
   const filteredContents = useMemo(() => {
-    return MARKETPLACE_CONTENTS.filter((item) => {
+    return marketplaceContents.filter((item) => {
       // Search matching title or description
       const matchesSearch =
         item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -54,16 +54,13 @@ export default function MarketplacePage({ onNavigateToProfile, onOpenCreatorProf
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
-      
+
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
         <div>
           <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
             <ShoppingBag className="h-6 w-6 text-indigo-600" /> Marketplace Catalog
           </h1>
-          <p className="text-xs text-gray-500 mt-1">
-            Discover quality notes, cheat sheets, and interview guides from verified creators.
-          </p>
         </div>
 
         {/* Search Bar & Sort Dropdown */}
@@ -98,11 +95,10 @@ export default function MarketplacePage({ onNavigateToProfile, onOpenCreatorProf
           <button
             key={cat.id}
             onClick={() => setSelectedCategoryId(cat.id)}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap ${
-              selectedCategoryId === cat.id
-                ? "bg-indigo-600 text-white shadow-xs"
-                : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200"
-            }`}
+            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap ${selectedCategoryId === cat.id
+              ? "bg-indigo-600 text-white shadow-xs"
+              : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200"
+              }`}
           >
             {cat.name}
           </button>
@@ -142,8 +138,8 @@ export default function MarketplacePage({ onNavigateToProfile, onOpenCreatorProf
           onClose={() => setPreviewItem(null)}
           isPurchased={purchasedContentIds.includes(previewItem.id)}
           onBuyNow={() => {
-            alert(`Redirecting to Razorpay checkout for "${previewItem.title}"...`);
             setPreviewItem(null);
+            onBuyContent && onBuyContent(previewItem);
           }}
         />
       )}
