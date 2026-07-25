@@ -19,13 +19,14 @@ export default function UnifiedContentViewerPage({ contentItem, onBack }) {
   const typeLower = contentItem?.type?.toLowerCase() || "";
   const isPdf = typeLower.includes("pdf") || typeLower.includes("sheet");
 
-  // Table of Contents chapters
-  const chapters = [
-    { title: "Chapter 1: Monolithic vs Microservices Architecture", startPage: 1 },
-    { title: "Chapter 2: Spring Boot 4 Core Annotations & IoC Container", startPage: 3 },
-    { title: "Chapter 3: Spring Data JPA Repositories & Entity Relations", startPage: 6 },
-    { title: "Chapter 4: Spring Security 6 & JWT Token Authentication", startPage: 9 },
-    { title: "Chapter 5: Docker Containerization & Deployment Best Practices", startPage: 12 }
+  // Table of Contents — use chapters from the content item if provided by backend,
+  // otherwise show a generic numbered fallback so any resource type works
+  const chapters = contentItem?.chapters || [
+    { title: "Chapter 1: Introduction & Overview",        startPage: 1  },
+    { title: "Chapter 2: Core Concepts & Theory",         startPage: 3  },
+    { title: "Chapter 3: Hands-on Examples & Exercises",  startPage: 6  },
+    { title: "Chapter 4: Advanced Topics & Edge Cases",   startPage: 9  },
+    { title: "Chapter 5: Summary, Practice & Next Steps", startPage: 12 },
   ];
 
   // Calculate reading progress percentage

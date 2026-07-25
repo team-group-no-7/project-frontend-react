@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { CREATORS, MARKETPLACE_CONTENTS, PURCHASED_CONTENTS, INITIAL_USER } from "@/data/mockData";
 
 /**
  * AdminDashboardPage Component (Module 10: Central Admin Control Panel)
@@ -30,31 +31,43 @@ export default function AdminDashboardPage() {
   const [searchResource, setSearchResource] = useState("");
   const [searchTxn, setSearchTxn] = useState("");
 
-  // 1. Users Mock Database State (Conforms to USERS table schema)
-  const [usersList, setUsersList] = useState([
-    { id: 101, name: "Arjun Mehta", email: "arjun.mehta@learnhub.com", role: "LEARNER", status: "ACTIVE", joined: "22-05-2026" },
-    { id: 202, name: "Rohan Verma", email: "rohan.verma@learnhub.com", role: "CREATOR", status: "ACTIVE", joined: "10-04-2026" },
-    { id: 203, name: "Priya Sharma", email: "priya.sharma@learnhub.com", role: "CREATOR", status: "ACTIVE", joined: "22-03-2026" },
-    { id: 304, name: "Vikram Singh", email: "vikram.s@learnhub.com", role: "LEARNER", status: "FROZEN", joined: "01-06-2026" },
-    { id: 405, name: "Neha Gupta", email: "neha.gupta@learnhub.com", role: "CREATOR", status: "ACTIVE", joined: "14-02-2026" }
+  // 1. Users list — derived from shared CREATORS table + the initial logged-in user
+  const [usersList, setUsersList] = useState(() => [
+    { id: INITIAL_USER.id, name: INITIAL_USER.name, email: INITIAL_USER.email, role: INITIAL_USER.role, status: "ACTIVE", joined: "22-05-2026" },
+    ...CREATORS.map(c => ({
+      id: c.id,
+      name: c.name,
+      email: `${c.name.toLowerCase().replace(" ", ".")}@learnhub.com`,
+      role: "CREATOR",
+      status: "ACTIVE",
+      joined: c.joinedDate
+    }))
   ]);
 
-  // 2. Resources Mock Database State (Conforms to CONTENTS table schema)
-  const [resourcesList, setResourcesList] = useState([
-    { id: 11, title: "Complete Java Spring Boot Guide", creator: "Rohan Verma", category: "Java", price: 599, status: "APPROVED", reports: 0 },
-    { id: 12, title: "LeetCode Dynamic Programming Mastery", creator: "Priya Sharma", category: "DSA", price: 399, status: "PENDING", reports: 2 },
-    { id: 13, title: "React 19 Hooks & Rendering Optimization", creator: "Arjun Mehta", category: "Web Dev", price: 299, status: "APPROVED", reports: 0 },
-    { id: 14, title: "Low-Level System Design Handbook", creator: "Arjun Mehta", category: "System Design", price: 499, status: "FLAGGED", reports: 5 },
-    { id: 15, title: "Kubernetes & Docker Microservices", creator: "Vikram Singh", category: "DevOps", price: 799, status: "PENDING", reports: 1 }
-  ]);
+  // 2. Resources list — derived from shared MARKETPLACE_CONTENTS table
+  const [resourcesList, setResourcesList] = useState(() =>
+    MARKETPLACE_CONTENTS.map(c => ({
+      id: c.id,
+      title: c.title,
+      creator: c.creator_name,
+      category: c.category_name,
+      price: c.price,
+      status: "APPROVED",  // Default — backend will supply real status
+      reports: 0
+    }))
+  );
 
-  // 3. Transactions Mock Database State (Conforms to PURCHASES table schema)
-  const [transactionsList, setTransactionsList] = useState([
-    { id: "pay_N8s92f1Kds", user: "Arjun Mehta", item: "Complete Java Spring Boot Guide", amount: 707, date: "2026-07-22 10:30 AM", status: "SUCCESS" },
-    { id: "pay_FAIL_M9a73", user: "Vikram Singh", item: "Low-Level System Design Handbook", amount: 588, date: "2026-07-21 02:15 PM", status: "FAILED" },
-    { id: "pay_K8d82j1Hda", user: "Neha Gupta", item: "LeetCode Dynamic Programming Mastery", amount: 470, date: "2026-07-20 05:45 PM", status: "SUCCESS" },
-    { id: "pay_P8q12k1Jsd", user: "Arjun Mehta", item: "React 19 Hooks & Rendering Optimization", amount: 352, date: "2026-07-18 11:20 AM", status: "SUCCESS" }
-  ]);
+  // 3. Transactions list — derived from shared PURCHASES table
+  const [transactionsList, setTransactionsList] = useState(() =>
+    PURCHASED_CONTENTS.map(p => ({
+      id: p.transaction_id,
+      user: INITIAL_USER.name,
+      item: p.content.title,
+      amount: p.amount_paid,
+      date: new Date(p.purchased_at).toLocaleString(),
+      status: p.payment_status
+    }))
+  );
 
   // UI toast notifier trigger
   const triggerNotification = (msg) => {

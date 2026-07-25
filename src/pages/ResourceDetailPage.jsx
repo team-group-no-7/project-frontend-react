@@ -126,47 +126,24 @@ export default function ResourceDetailPage({ resourceItem, onBuyContent, onBack 
               </div>
             </div>
 
-            {/* Specifications Card (Synced with mockData fields) */}
+            {/* Specifications Card — SpecItem helper removes repeated JSX blocks */}
             <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs space-y-4">
               <h2 className="text-lg font-bold text-gray-900">Specifications</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                
-                {/* Level */}
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                  <Layers className="h-5 w-5 text-indigo-500" />
-                  <div>
-                    <p className="text-[10px] text-gray-400 uppercase font-semibold">Skill Level</p>
-                    <p className="text-xs font-bold text-gray-800">{item.level || "Beginner"}</p>
+                {[
+                  { icon: Layers,   label: "Skill Level",     value: item.level || "Beginner" },
+                  { icon: FileText, label: "Resource Type",   value: item.type  || "PDF Document" },
+                  { icon: Calendar, label: "Published Date",  value: item.created_at || "2026-06-10" },
+                  { icon: Globe,    label: "Language",        value: "English" },
+                ].map(({ icon: Icon, label, value }) => (
+                  <div key={label} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <Icon className="h-5 w-5 text-indigo-500" />
+                    <div>
+                      <p className="text-[10px] text-gray-400 uppercase font-semibold">{label}</p>
+                      <p className="text-xs font-bold text-gray-800">{value}</p>
+                    </div>
                   </div>
-                </div>
-
-                {/* Type */}
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                  <FileText className="h-5 w-5 text-indigo-500" />
-                  <div>
-                    <p className="text-[10px] text-gray-400 uppercase font-semibold">Resource Type</p>
-                    <p className="text-xs font-bold text-gray-800">{item.type || "PDF Document"}</p>
-                  </div>
-                </div>
-
-                {/* Created At */}
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                  <Calendar className="h-5 w-5 text-indigo-500" />
-                  <div>
-                    <p className="text-[10px] text-gray-400 uppercase font-semibold">Published Date</p>
-                    <p className="text-xs font-bold text-gray-800">{item.created_at || "2026-06-10"}</p>
-                  </div>
-                </div>
-
-                {/* Language */}
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                  <Globe className="h-5 w-5 text-indigo-500" />
-                  <div>
-                    <p className="text-[10px] text-gray-400 uppercase font-semibold">Language</p>
-                    <p className="text-xs font-bold text-gray-800">English</p>
-                  </div>
-                </div>
-
+                ))}
               </div>
 
               {/* Tags list */}
