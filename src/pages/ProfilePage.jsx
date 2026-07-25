@@ -9,15 +9,9 @@ import ProfileSidebar from "@/components/ProfileSidebar";
 import LearnerDashboard from "@/components/LearnerDashboard";
 import CreatorDashboard from "@/components/CreatorDashboard";
 
-// Dummy Data matching database models
-import {
-  INITIAL_USER,
-  PURCHASED_CONTENTS,
-  UPLOADED_CONTENTS,
-  DOUBT_SESSIONS
-} from "@/data/mockData";
+import { INITIAL_USER } from "@/data/mockData";
 
-export default function ProfilePage({ activeRole = "LEARNER", onToggleRole, profile: initialProfile, onOpenReader, purchasedContents = PURCHASED_CONTENTS, doubtSessions = DOUBT_SESSIONS, onJoinCall }) {
+export default function ProfilePage({ activeRole = "LEARNER", onToggleRole, profile: initialProfile, onOpenReader, purchasedContents = [], doubtSessions = [], uploadedContents = [], onJoinCall }) {
   const [profile, setProfile] = useState(() => initialProfile || INITIAL_USER);
 
   // Update profile states when saving settings in Creator dashboard
@@ -59,8 +53,8 @@ export default function ProfilePage({ activeRole = "LEARNER", onToggleRole, prof
             profile={profile}
             activeRole={activeRole}
             libraryCount={purchasedContents.length}
-            sessionsCount={DOUBT_SESSIONS.length}
-            uploadsCount={UPLOADED_CONTENTS.length}
+            sessionsCount={doubtSessions.length}
+            uploadsCount={uploadedContents.length}
           />
         </section>
 
@@ -90,7 +84,7 @@ export default function ProfilePage({ activeRole = "LEARNER", onToggleRole, prof
             />
           ) : (
             <CreatorDashboard
-              uploadedContents={UPLOADED_CONTENTS}
+              uploadedContents={uploadedContents}
               profile={profile}
               onSaveSettings={handleSaveProfileSettings}
             />

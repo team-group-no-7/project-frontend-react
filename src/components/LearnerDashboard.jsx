@@ -6,11 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 export default function LearnerDashboard({ purchasedContents, doubtSessions, onOpenReader, onJoinCall }) {
-  // Helper to map category_id to tag name (mimics database relation)
-  const getCategoryName = (categoryId) => {
-    const categories = { 1: "Java", 2: "DSA", 3: "Web Dev", 4: "System Design" };
-    return categories[categoryId] || "General";
-  };
 
   return (
     <Tabs defaultValue="library" className="w-full">
@@ -34,9 +29,7 @@ export default function LearnerDashboard({ purchasedContents, doubtSessions, onO
             {purchasedContents.map((purchase) => (
               <div key={purchase.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 border border-slate-100 dark:border-slate-800/80 rounded-lg gap-3 hover:shadow-sm transition-shadow bg-white dark:bg-slate-900">
                 <div>
-                  <Badge className="bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 font-semibold mb-1" variant="outline">
-                    {getCategoryName(purchase.content.category_id)}
-                  </Badge>
+                    {purchase.content.category_name || "General"}
                   <h4 className="font-semibold text-base text-gray-900 dark:text-white">{purchase.content.title}</h4>
 
                 </div>

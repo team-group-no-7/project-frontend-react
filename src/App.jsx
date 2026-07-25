@@ -365,6 +365,7 @@ function App() {
           onToggleRole={handleSwitchRole} 
           profile={profile}
           purchasedContents={purchasedContents}
+          uploadedContents={uploadedContents}
           doubtSessions={doubtSessions}
           onJoinCall={(session) => {
             setSelectedCallSession(session);

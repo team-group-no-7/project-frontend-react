@@ -18,11 +18,6 @@ export default function CreatorDashboard({ uploadedContents, profile, onSaveSett
     setIsEditing(false);
   };
 
-  // Helper to map category_id to tag name
-  const getCategoryName = (categoryId) => {
-    const categories = { 1: "Java", 2: "DSA", 3: "Web Dev", 4: "System Design" };
-    return categories[categoryId] || "General";
-  };
 
   return (
     <Tabs defaultValue="uploads" className="w-full">
@@ -49,9 +44,7 @@ export default function CreatorDashboard({ uploadedContents, profile, onSaveSett
             {uploadedContents.map((content) => (
               <div key={content.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 border border-slate-100 dark:border-slate-800/80 rounded-lg gap-3 hover:shadow-sm transition-shadow bg-white dark:bg-slate-900">
                 <div>
-                  <Badge className="bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800 font-semibold mb-1" variant="outline">
-                    {getCategoryName(content.category_id)}
-                  </Badge>
+                    {content.category_name || "General"}
                   <h4 className="font-semibold text-base text-gray-900 dark:text-white">{content.title}</h4>
                   <p className="text-xs text-gray-500 mt-1">{content.description}</p>
                 </div>
