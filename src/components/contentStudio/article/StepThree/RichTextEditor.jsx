@@ -14,7 +14,8 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
     }, [value]);
 
     // Handle user formatting action using browser's native execCommand
-    const handleFormat = (command, argument = null) => {
+    const handleFormat = (e, command, argument = null) => {
+        e.preventDefault(); // CRITICAL: Prevent button click from stealing text selection focus
         document.execCommand(command, false, argument);
         if (editorRef.current) {
             onChange(editorRef.current.innerHTML);
@@ -52,7 +53,7 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
             <div className="flex flex-wrap items-center gap-1.5 p-2 bg-slate-50 border-b border-slate-100 text-slate-600">
                 <button
                     type="button"
-                    onClick={() => handleFormat('bold')}
+                    onMouseDown={(e) => handleFormat(e, 'bold')}
                     className="p-1.5 rounded hover:bg-slate-200 hover:text-slate-900 transition-colors cursor-pointer"
                     title="Bold"
                 >
@@ -60,7 +61,7 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
                 </button>
                 <button
                     type="button"
-                    onClick={() => handleFormat('italic')}
+                    onMouseDown={(e) => handleFormat(e, 'italic')}
                     className="p-1.5 rounded hover:bg-slate-200 hover:text-slate-900 transition-colors cursor-pointer"
                     title="Italic"
                 >
@@ -68,7 +69,7 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
                 </button>
                 <button
                     type="button"
-                    onClick={() => handleFormat('underline')}
+                    onMouseDown={(e) => handleFormat(e, 'underline')}
                     className="p-1.5 rounded hover:bg-slate-200 hover:text-slate-900 transition-colors cursor-pointer"
                     title="Underline"
                 >
@@ -79,23 +80,23 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
                 
                 <button
                     type="button"
-                    onClick={() => handleFormat('formatBlock', '<h1>')}
-                    className="p-1.5 rounded hover:bg-slate-200 hover:text-slate-900 transition-colors cursor-pointer"
+                    onMouseDown={(e) => handleFormat(e, 'formatBlock', '<h1>')}
+                    className="p-1.5 rounded hover:bg-slate-200 hover:text-slate-900 transition-colors cursor-pointer font-bold"
                     title="Heading 1"
                 >
                     <Heading1 size={16} />
                 </button>
                 <button
                     type="button"
-                    onClick={() => handleFormat('formatBlock', '<h2>')}
-                    className="p-1.5 rounded hover:bg-slate-200 hover:text-slate-900 transition-colors cursor-pointer"
+                    onMouseDown={(e) => handleFormat(e, 'formatBlock', '<h2>')}
+                    className="p-1.5 rounded hover:bg-slate-200 hover:text-slate-900 transition-colors cursor-pointer font-bold"
                     title="Heading 2"
                 >
                     <Heading2 size={16} />
                 </button>
                 <button
                     type="button"
-                    onClick={() => handleFormat('formatBlock', '<p>')}
+                    onMouseDown={(e) => handleFormat(e, 'formatBlock', '<p>')}
                     className="p-1.5 rounded hover:bg-slate-200 hover:text-slate-900 transition-colors cursor-pointer font-semibold text-xs px-2"
                     title="Paragraph"
                 >
@@ -106,7 +107,7 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
 
                 <button
                     type="button"
-                    onClick={() => handleFormat('insertUnorderedList')}
+                    onMouseDown={(e) => handleFormat(e, 'insertUnorderedList')}
                     className="p-1.5 rounded hover:bg-slate-200 hover:text-slate-900 transition-colors cursor-pointer"
                     title="Bullet List"
                 >
@@ -114,7 +115,7 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
                 </button>
                 <button
                     type="button"
-                    onClick={() => handleFormat('insertOrderedList')}
+                    onMouseDown={(e) => handleFormat(e, 'insertOrderedList')}
                     className="p-1.5 rounded hover:bg-slate-200 hover:text-slate-900 transition-colors cursor-pointer"
                     title="Numbered List"
                 >
@@ -125,7 +126,7 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
 
                 <button
                     type="button"
-                    onClick={() => handleFormat('justifyLeft')}
+                    onMouseDown={(e) => handleFormat(e, 'justifyLeft')}
                     className="p-1.5 rounded hover:bg-slate-200 hover:text-slate-900 transition-colors cursor-pointer"
                     title="Align Left"
                 >
@@ -133,7 +134,7 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
                 </button>
                 <button
                     type="button"
-                    onClick={() => handleFormat('justifyCenter')}
+                    onMouseDown={(e) => handleFormat(e, 'justifyCenter')}
                     className="p-1.5 rounded hover:bg-slate-200 hover:text-slate-900 transition-colors cursor-pointer"
                     title="Align Center"
                 >
@@ -141,7 +142,7 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
                 </button>
                 <button
                     type="button"
-                    onClick={() => handleFormat('justifyRight')}
+                    onMouseDown={(e) => handleFormat(e, 'justifyRight')}
                     className="p-1.5 rounded hover:bg-slate-200 hover:text-slate-900 transition-colors cursor-pointer"
                     title="Align Right"
                 >
