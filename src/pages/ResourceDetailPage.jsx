@@ -1,5 +1,5 @@
 import React from "react";
-import { Star, ChevronRight, FileText, Layers, Tag, User, ArrowLeft, ShieldCheck, Download, Award } from "lucide-react";
+import { Star, ChevronRight, FileText, Layers, Tag, User, ArrowLeft, ShieldCheck, Download, Award, Calendar, Globe } from "lucide-react";
 import { CREATORS } from "../data/mockData";
 
 export default function ResourceDetailPage({ resourceItem, onBuyContent, onBack }) {
@@ -20,7 +20,8 @@ export default function ResourceDetailPage({ resourceItem, onBuyContent, onBack 
     type: "Notes & Code",
     level: "Intermediate",
     tags: ["Java", "Spring Boot", "REST API", "PostgreSQL"],
-    preview_text: "Chapter 1: Introduction to Spring Boot 3.x, Spring Core Annotations, Dependency Injection, and REST Controllers setup with Swagger docs."
+    preview_text: "Chapter 1: Introduction to Spring Boot 3.x, Spring Core Annotations, Dependency Injection, and REST Controllers setup with Swagger docs.",
+    created_at: "2026-06-10"
   };
 
   // Find creator dynamically from mock database to retrieve associated student reviews
@@ -125,10 +126,12 @@ export default function ResourceDetailPage({ resourceItem, onBuyContent, onBack 
               </div>
             </div>
 
-            {/* Specifications Card */}
+            {/* Specifications Card (Synced with mockData fields) */}
             <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs space-y-4">
               <h2 className="text-lg font-bold text-gray-900">Specifications</h2>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                
+                {/* Level */}
                 <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
                   <Layers className="h-5 w-5 text-indigo-500" />
                   <div>
@@ -137,6 +140,7 @@ export default function ResourceDetailPage({ resourceItem, onBuyContent, onBack 
                   </div>
                 </div>
 
+                {/* Type */}
                 <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
                   <FileText className="h-5 w-5 text-indigo-500" />
                   <div>
@@ -144,6 +148,25 @@ export default function ResourceDetailPage({ resourceItem, onBuyContent, onBack 
                     <p className="text-xs font-bold text-gray-800">{item.type || "PDF Document"}</p>
                   </div>
                 </div>
+
+                {/* Created At */}
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                  <Calendar className="h-5 w-5 text-indigo-500" />
+                  <div>
+                    <p className="text-[10px] text-gray-400 uppercase font-semibold">Published Date</p>
+                    <p className="text-xs font-bold text-gray-800">{item.created_at || "2026-06-10"}</p>
+                  </div>
+                </div>
+
+                {/* Language */}
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                  <Globe className="h-5 w-5 text-indigo-500" />
+                  <div>
+                    <p className="text-[10px] text-gray-400 uppercase font-semibold">Language</p>
+                    <p className="text-xs font-bold text-gray-800">English</p>
+                  </div>
+                </div>
+
               </div>
 
               {/* Tags list */}
