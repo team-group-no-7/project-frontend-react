@@ -1,0 +1,302 @@
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Container */
+.container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 0 20px;
+}
+
+/* Header */
+header {
+    border-bottom: 1px solid #ddd;
+}
+
+.navbar {
+    height: 80px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 28px;
+    color: black;
+    font-weight: bolder;
+}
+
+nav {
+    display: flex;
+    gap: 30px;
+}
+
+nav a {
+    text-decoration: none;
+    color: #444;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    width: 250px;
+    height: 35px;
+    border: 1px solid #d1d5db;
+    border-radius: 14px;
+    padding: 0 16px;
+    background: #fff;
+}
+
+.search-icon {
+    color: #9ca3af;
+    margin-right: 10px;
+}
+
+.search-box input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 16px;
+    background: transparent;
+}
+
+.buttons {
+    display: flex;
+    gap: 15px;
+}
+
+button {
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.login {
+    background: white;
+    border: 1px solid #ddd;
+}
+
+.signup {
+    background: #3b5cff;
+    color: white;
+    border: none;
+}
+
+/* Hero */
+.hero {
+    background: #eef2ff;
+    padding: 80px 0;
+}
+
+.hero-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+}
+
+.hero-content h1 {
+    font-size: 60px;
+    line-height: 1.1;
+}
+
+.hero-content span {
+    color: #3b5cff;
+}
+
+.hero-content p {
+    color: #666;
+    line-height: 1.8;
+    margin: 25px 0;
+    font-size: 18px;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 20px;
+}
+
+.primary-btn {
+    background: #3b5cff;
+    color: white;
+    border: none;
+}
+
+.secondary-btn {
+    background: white;
+    border: 1px solid #ddd;
+}
+
+/* Stats */
+.stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 40px;
+    margin-top: 50px;
+    flex-wrap: nowrap;  
+}
+
+.stat {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.stat h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 750;
+}
+
+.stat p {
+    margin: 4px 0 0;
+    color: #666;
+    font-size: 15px;
+}
+
+.icon {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 28px;
+}
+
+.blue {
+    background: #eef2ff;
+}
+
+.green {
+    background: #e9fff2;
+}
+
+.orange {
+    background: #fff2e5;
+}
+
+.yellow {
+    background: #fff9dd;
+}
+
+/* Hero Image */
+.hero-image {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.blob {
+    width: 420px;
+    height: 420px;
+    border-radius: 50%;
+    background: #dde5ff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.image-box {
+    width: 320px;
+    height: 320px;
+    border-radius: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+/* Categories */
+.categories {
+    padding: 80px 0;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.section-header h2 {
+    font-size: 36px;
+}
+
+.section-header a {
+    text-decoration: none;
+    color: #3b5cff;
+}
+
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 25px;
+}
+
+.card {
+    border: 1px solid #ddd;
+    border-radius: 18px;
+    padding: 30px;
+    transition: .3s;
+    background: white;
+}
+
+.card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, .08);
+}
+
+.card-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
+    background: #eef2ff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-container {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-content h1 {
+        font-size: 42px;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+    }
+
+    nav {
+        display: none;
+    }
+
+    .category-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 500px) {
+    .category-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .container {
+        padding: 0 15px;
+    }
+}
