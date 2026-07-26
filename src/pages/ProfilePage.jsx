@@ -9,10 +9,24 @@ import ProfileSidebar from "@/components/ProfileSidebar";
 import LearnerDashboard from "@/components/LearnerDashboard";
 import CreatorDashboard from "@/components/CreatorDashboard";
 
-import { INITIAL_USER } from "@/data/mockData";
+import { INITIAL_USER, PURCHASED_CONTENTS, DOUBT_SESSIONS, UPLOADED_CONTENTS } from "@/data/mockData";
 
-export default function ProfilePage({ activeRole = "LEARNER", onToggleRole, profile: initialProfile, onOpenReader, purchasedContents = [], doubtSessions = [], uploadedContents = [], onJoinCall }) {
+export default function ProfilePage({ 
+  activeRole = "LEARNER", 
+  onToggleRole, 
+  profile: initialProfile, 
+  onOpenReader, 
+  purchasedContents, 
+  doubtSessions, 
+  uploadedContents, 
+  onJoinCall 
+}) {
   const [profile, setProfile] = useState(() => initialProfile || INITIAL_USER);
+
+  // Fallbacks to mockData if props are not supplied
+  const purchases = purchasedContents ?? PURCHASED_CONTENTS;
+  const sessions = doubtSessions ?? DOUBT_SESSIONS;
+  const uploads = uploadedContents ?? UPLOADED_CONTENTS;
 
   // Update profile states when saving settings in Creator dashboard
   const handleSaveProfileSettings = (updatedProfile) => {
@@ -52,9 +66,9 @@ export default function ProfilePage({ activeRole = "LEARNER", onToggleRole, prof
           <ProfileSidebar
             profile={profile}
             activeRole={activeRole}
-            libraryCount={purchasedContents.length}
-            sessionsCount={doubtSessions.length}
-            uploadsCount={uploadedContents.length}
+            libraryCount={purchases.length}
+            sessionsCount={sessions.length}
+            uploadsCount={uploads.length}
           />
         </section>
 
@@ -77,14 +91,14 @@ export default function ProfilePage({ activeRole = "LEARNER", onToggleRole, prof
             </Card>
           ) : activeRole === "LEARNER" ? (
             <LearnerDashboard
-              purchasedContents={purchasedContents}
-              doubtSessions={doubtSessions}
+              purchasedContents={purchases}
+              doubtSessions={sessions}
               onOpenReader={onOpenReader}
               onJoinCall={onJoinCall}
             />
           ) : (
             <CreatorDashboard
-              uploadedContents={uploadedContents}
+              uploadedContents={uploads}
               profile={profile}
               onSaveSettings={handleSaveProfileSettings}
             />
@@ -95,3 +109,4 @@ export default function ProfilePage({ activeRole = "LEARNER", onToggleRole, prof
     </div>
   );
 }
+
