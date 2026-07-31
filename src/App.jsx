@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import api from '@/utils/api';
 
 // Import Module Pages
 import LandingPage from './pages/LandingPage';
@@ -89,6 +90,19 @@ function App() {
   // Global catalog and uploads states
   const [marketplaceContents, setMarketplaceContents] = useState(MARKETPLACE_CONTENTS);
   const [uploadedContents, setUploadedContents] = useState(UPLOADED_CONTENTS);
+
+  // Fetch marketplace catalog items dynamically from backend
+  useEffect(() => {
+    api.get("/api/contents")
+      .then((res) => {
+        if (res.data && res.data.length > 0) {
+          setMarketplaceContents(res.data);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch marketplace contents from backend:", err);
+      });
+  }, [isLoggedIn]);
 
   // Switch view to public creator profile
   const handleOpenCreatorProfile = (id = 202) => {

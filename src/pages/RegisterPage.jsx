@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import AuthLayout from "@/components/AuthLayout";
+import api from "@/utils/api";
 
 /**
  * RegisterPage Component (Module 1: Registration Page)
@@ -32,20 +33,19 @@ export default function RegisterPage({ onRegisterSuccess, onNavigateToLogin }) {
 
     setIsLoading(true);
 
-    // Simulate Spring Boot registration response
-    setTimeout(() => {
-      setIsLoading(false);
-      const newUser = {
-        id: Date.now(),
-        name: name.trim(),
-        email: email.trim(),
-        role: "LEARNER", // Default role — backend assigns on registration
-        token: "jwt_mock_token_" + Date.now()
-      };
-      localStorage.setItem("learnhub_token", newUser.token);
-      localStorage.setItem("learnhub_user", JSON.stringify(newUser));
-      onRegisterSuccess(newUser);
-    }, 800);
+    // Call real Spring Boot JWT register API
+    api.post("/api/auth/register", { name, email, password })
+      .then((res) => {
+        setIsLoading(false);
+        const newUser = res.data;
+        localStorage.setItem("learnhub_token", newUser.token);
+        localStorage.setItem("learnhub_user", JSON.stringify(newUser));
+        onRegisterSuccess(newUser);
+      })
+      .catch((err) => {
+        setIsLoading(false);
+        setErrorMsg(err.response?.data?.message || "Registration failed. Try again.");
+      });
   };
 
   // Reusable field config — same icon+label+input pattern for every field

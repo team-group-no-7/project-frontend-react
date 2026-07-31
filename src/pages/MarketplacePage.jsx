@@ -31,6 +31,28 @@ export default function MarketplacePage({ onNavigateToProfile, onOpenCreatorProf
   // Array of purchased content IDs for current user
   const purchasedContentIds = purchasedContents.map((p) => p.content_id);
 
+  // Dynamically calculate category list counts based on live catalog data
+  const categoriesList = useMemo(() => {
+    const list = [{ id: 0, name: "All", count: marketplaceContents.length }];
+    const counts = {};
+    marketplaceContents.forEach((item) => {
+      const cId = item.category_id || (item.category ? item.category.id : null);
+      if (cId) {
+        counts[cId] = (counts[cId] || 0) + 1;
+      }
+    });
+    CATEGORIES.forEach((cat) => {
+      if (cat.id !== 0) {
+        list.push({
+          id: cat.id,
+          name: cat.name,
+          count: counts[cat.id] || 0
+        });
+      }
+    });
+    return list;
+  }, [marketplaceContents]);
+
   // Filter and sort items based on user selection
   const filteredContents = useMemo(() => {
     return marketplaceContents.filter((item) => {
@@ -91,7 +113,7 @@ export default function MarketplacePage({ onNavigateToProfile, onOpenCreatorProf
 
       {/* Category Pills Bar */}
       <div className="flex items-center gap-2 overflow-x-auto pb-2">
-        {CATEGORIES.map((cat) => (
+        {categoriesList.map((cat) => (
           <button
             key={cat.id}
             onClick={() => setSelectedCategoryId(cat.id)}

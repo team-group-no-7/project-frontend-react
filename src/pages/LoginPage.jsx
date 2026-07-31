@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import AuthLayout from "@/components/AuthLayout";
+import api from "@/utils/api";
 
 /**
  * LoginPage Component (Module 1 - Item 2: Login Page)
@@ -34,21 +35,19 @@ export default function LoginPage({ onLoginSuccess, onNavigateToRegister }) {
 
     setIsLoading(true);
 
-    // Simulate Spring Boot JWT auth response
-    setTimeout(() => {
-      setIsLoading(false);
-      const resolvedRole = email.toLowerCase() === "admin@learnhub.com" ? "ADMIN" : "LEARNER";
-      const mockUser = {
-        id: 101,
-        name: email.split("@")[0].replace(".", " ").toUpperCase(),
-        email,
-        role: resolvedRole,
-        token: "jwt_mock_token_8a9f02341"
-      };
-      localStorage.setItem("learnhub_token", mockUser.token);
-      localStorage.setItem("learnhub_user", JSON.stringify(mockUser));
-      onLoginSuccess(mockUser);
-    }, 800);
+    // Call real Spring Boot JWT login API
+    api.post("/api/auth/login", { email, password })
+      .then((res) => {
+        setIsLoading(false);
+        const user = res.data;
+        localStorage.setItem("learnhub_token", user.token);
+        localStorage.setItem("learnhub_user", JSON.stringify(user));
+        onLoginSuccess(user);
+      })
+      .catch((err) => {
+        setIsLoading(false);
+        setErrorMsg(err.response?.data?.message || "Invalid email or password.");
+      });
   };
 
   return (
