@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ArrowRightLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +22,13 @@ export default function ProfilePage({
   onJoinCall 
 }) {
   const [profile, setProfile] = useState(() => initialProfile || INITIAL_USER);
+
+  // Sync state if initialProfile prop changes (e.g. after login/registration)
+  useEffect(() => {
+    if (initialProfile) {
+      setProfile(initialProfile);
+    }
+  }, [initialProfile]);
 
   // Fallbacks to mockData if props are not supplied
   const purchases = purchasedContents ?? PURCHASED_CONTENTS;
