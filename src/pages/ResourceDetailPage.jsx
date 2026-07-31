@@ -2,7 +2,7 @@ import React from "react";
 import { Star, ChevronRight, FileText, Layers, Tag, User, ArrowLeft, ShieldCheck, Download, Award, Calendar, Globe } from "lucide-react";
 import { CREATORS } from "../data/mockData";
 
-export default function ResourceDetailPage({ resourceItem, onBuyContent, onBack }) {
+export default function ResourceDetailPage({ resourceItem, profile, onBuyContent, onBack }) {
   // Safe fallback to default mock item if none selected
   const item = resourceItem || {
     id: 11,
@@ -24,11 +24,22 @@ export default function ResourceDetailPage({ resourceItem, onBuyContent, onBack 
     created_at: "2026-06-10"
   };
 
+  // Check if current logged in profile is the author/creator of this item
+  const isCreatorOwner = profile && (
+    profile.id === item.creator_id ||
+    profile.id === item.creator?.id ||
+    (profile.role === 'CREATOR' && (profile.name === item.creator_name || profile.name === item.creator))
+  );
+
   // Find creator dynamically from mock database to retrieve associated student reviews
   const creatorProfile = CREATORS.find(c => c.id === item.creator_id) || CREATORS[0];
   const creatorReviews = creatorProfile?.reviews || [];
 
   const handleBuy = () => {
+    if (isCreatorOwner) {
+      alert("As the creator of this resource, you cannot purchase your own content.");
+      return;
+    }
     if (onBuyContent) {
       onBuyContent(item);
     }
@@ -221,13 +232,28 @@ export default function ResourceDetailPage({ resourceItem, onBuyContent, onBack 
                 </div>
               </div>
 
-              <button
-                type="button"
-                onClick={handleBuy}
-                className="w-full rounded-xl bg-indigo-600 py-3 text-sm font-bold text-white shadow-md shadow-indigo-600/20 hover:bg-indigo-700 active:scale-[0.99] transition-all cursor-pointer"
-              >
-                Proceed to Checkout
-              </button>
+              {isCreatorOwner ? (
+                <div className="space-y-2">
+                  <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold">
+                    You are the creator of this resource. Purchasing your own content is disabled.
+                  </div>
+                  <button
+                    type="button"
+                    disabled
+                    className="w-full rounded-xl bg-gray-300 py-3 text-sm font-bold text-gray-500 cursor-not-allowed"
+                  >
+                    Author Access (Owned)
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleBuy}
+                  className="w-full rounded-xl bg-indigo-600 py-3 text-sm font-bold text-white shadow-md shadow-indigo-600/20 hover:bg-indigo-700 active:scale-[0.99] transition-all cursor-pointer"
+                >
+                  Proceed to Checkout
+                </button>
+              )}
 
               <div className="pt-4 border-t border-gray-100 space-y-3">
                 <div className="flex items-center gap-2.5 text-xs text-gray-600">

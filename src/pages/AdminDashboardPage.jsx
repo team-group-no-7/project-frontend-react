@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   ShieldAlert, Users, FileText, DollarSign, CheckCircle2, Lock, Unlock,
   Search, BarChart3, HeartPulse, Flag
@@ -8,16 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { CREATORS, MARKETPLACE_CONTENTS, PURCHASED_CONTENTS, INITIAL_USER } from "@/data/mockData";
+import api from "../utils/api";
 
 /**
  * AdminDashboardPage Component (Module 10: Central Admin Control Panel)
  * Managed by: Shubham (CDAC Final Project)
- * 
- * Provides an executive dashboard for overall platform moderation:
- *  - Tab 1: Platform Analytics & Service Health (uses Shadcn Cards & Grids)
- *  - Tab 2: User Moderation (Role changing, account freezing via Shadcn Select/Table/Buttons)
- *  - Tab 3: Resource Governance (Approving, rejecting, and flagging uploaded PDFs)
- *  - Tab 4: Transaction Ledger (Razorpay checkout logs tracking payment receipts)
  */
 export default function AdminDashboardPage() {
   // Navigation tabs selection state: 'ANALYTICS' | 'USERS' | 'RESOURCES' | 'TRANSACTIONS'
@@ -31,7 +26,10 @@ export default function AdminDashboardPage() {
   const [searchResource, setSearchResource] = useState("");
   const [searchTxn, setSearchTxn] = useState("");
 
-  // 1. Users list — derived from shared CREATORS table + the initial logged-in user
+  // Stats from backend DB
+  const [dbStats, setDbStats] = useState(null);
+
+  // 1. Users list — loaded from DB API with fallback to seed data
   const [usersList, setUsersList] = useState(() => [
     { id: INITIAL_USER.id, name: INITIAL_USER.name, email: INITIAL_USER.email, role: INITIAL_USER.role, status: "ACTIVE", joined: "22-05-2026" },
     ...CREATORS.map(c => ({
@@ -44,7 +42,7 @@ export default function AdminDashboardPage() {
     }))
   ]);
 
-  // 2. Resources list — derived from shared MARKETPLACE_CONTENTS table
+  // 2. Resources list — loaded from DB API with fallback to seed data
   const [resourcesList, setResourcesList] = useState(() =>
     MARKETPLACE_CONTENTS.map(c => ({
       id: c.id,
@@ -52,12 +50,12 @@ export default function AdminDashboardPage() {
       creator: c.creator_name,
       category: c.category_name,
       price: c.price,
-      status: "APPROVED",  // Default — backend will supply real status
+      status: c.approvalStatus || "APPROVED",
       reports: 0
     }))
   );
 
-  // 3. Transactions list — derived from shared PURCHASES table
+  // 3. Transactions list
   const [transactionsList, setTransactionsList] = useState(() =>
     PURCHASED_CONTENTS.map(p => ({
       id: p.transaction_id,
@@ -69,17 +67,72 @@ export default function AdminDashboardPage() {
     }))
   );
 
+  // Load real DB metrics and lists on mount
+  useEffect(() => {
+    // 1. Fetch Analytics Stats
+    api.get("/api/admin/stats")
+      .then(res => setDbStats(res.data?.data || res.data))
+      .catch(err => console.warn("Admin stats API fetch failed:", err));
+
+    // 2. Fetch Users
+    api.get("/api/admin/users")
+      .then(res => {
+        const data = res.data?.data || res.data;
+        if (Array.isArray(data) && data.length > 0) {
+          const mapped = data.map(u => ({
+            id: u.id,
+            name: u.name,
+            email: u.email,
+            role: u.role,
+            status: u.status || "ACTIVE",
+            joined: u.joinedAt ? new Date(u.joinedAt).toLocaleDateString() : "2026-06-01"
+          }));
+          setUsersList(mapped);
+        }
+      })
+      .catch(err => console.warn("Admin users API fetch failed:", err));
+
+    // 3. Fetch Contents
+    api.get("/api/admin/contents")
+      .then(res => {
+        const data = res.data?.data || res.data;
+        if (Array.isArray(data) && data.length > 0) {
+          const mapped = data.map(c => ({
+            id: c.id,
+            title: c.title,
+            creator: c.creatorName || `Creator #${c.creatorId}`,
+            category: c.categoryName || "General",
+            price: c.price,
+            status: c.approvalStatus || "APPROVED",
+            reports: 0
+          }));
+          setResourcesList(mapped);
+        }
+      })
+      .catch(err => console.warn("Admin contents API fetch failed:", err));
+  }, []);
+
   // UI toast notifier trigger
   const triggerNotification = (msg) => {
     setNotification(msg);
     setTimeout(() => setNotification(""), 4000);
   };
 
-  // User Management Actions
+  // User Management Actions — calls DB backend API
   const handleToggleFreeze = (id, currentStatus) => {
     const nextStatus = currentStatus === "ACTIVE" ? "FROZEN" : "ACTIVE";
+    // Optimistic UI update
     setUsersList(prev => prev.map(u => u.id === id ? { ...u, status: nextStatus } : u));
-    triggerNotification(`Account status for User #${id} successfully updated to ${nextStatus}.`);
+    
+    // Call backend API
+    api.post(`/api/admin/users/${id}/freeze`)
+      .then(() => {
+        triggerNotification(`Account status for User #${id} successfully updated to ${nextStatus} in DB.`);
+      })
+      .catch(err => {
+        console.error("Freeze API error:", err);
+        triggerNotification(`Updated status locally for User #${id} to ${nextStatus}.`);
+      });
   };
 
   const handleChangeRole = (id, newRole) => {
@@ -87,15 +140,19 @@ export default function AdminDashboardPage() {
     triggerNotification(`Account role for User #${id} successfully updated to ${newRole}.`);
   };
 
-  // Resource Moderation Actions
+  // Resource Moderation Actions — calls DB backend API
   const handleModerateResource = (id, newStatus) => {
     setResourcesList(prev => prev.map(r => r.id === id ? { ...r, status: newStatus } : r));
-    triggerNotification(`Resource #${id} status changed to ${newStatus}.`);
+    api.post(`/api/admin/contents/${id}/approve`)
+      .then(() => triggerNotification(`Resource #${id} status changed to ${newStatus} in DB.`))
+      .catch(() => triggerNotification(`Resource #${id} status changed to ${newStatus}.`));
   };
 
   const handleFlagResource = (id) => {
     setResourcesList(prev => prev.map(r => r.id === id ? { ...r, status: "FLAGGED", reports: r.reports + 1 } : r));
-    triggerNotification(`Resource #${id} has been flagged for administrative review.`);
+    api.post(`/api/admin/contents/${id}/flag`)
+      .then(() => triggerNotification(`Resource #${id} has been flagged in DB.`))
+      .catch(() => triggerNotification(`Resource #${id} has been flagged for administrative review.`));
   };
 
   // Filter calculations using useMemo for render performance
@@ -177,19 +234,19 @@ export default function AdminDashboardPage() {
                   <span>Total Users</span>
                   <Users className="h-4 w-4 text-blue-500" />
                 </div>
-                <div className="text-xl font-bold">50,420</div>
-                <span className="text-[10px] text-emerald-600 font-bold">+12% this month</span>
+                <div className="text-xl font-bold">{dbStats?.totalUsers ?? usersList.length}</div>
+                <span className="text-[10px] text-emerald-600 font-bold">Registered platform users</span>
               </CardContent>
             </Card>
 
             <Card className="shadow-sm">
               <CardContent className="pt-4 space-y-1.5">
                 <div className="flex justify-between items-center text-xs text-slate-500">
-                  <span>Active Notes (PDFs)</span>
+                  <span>Active Resources</span>
                   <FileText className="h-4 w-4 text-blue-500" />
                 </div>
-                <div className="text-xl font-bold">10,245</div>
-                <span className="text-[10px] text-slate-400">Resource files online</span>
+                <div className="text-xl font-bold">{dbStats?.totalContents ?? resourcesList.length}</div>
+                <span className="text-[10px] text-slate-400">Published contents online</span>
               </CardContent>
             </Card>
 
@@ -199,8 +256,10 @@ export default function AdminDashboardPage() {
                   <span>Sales Volume</span>
                   <DollarSign className="h-4 w-4 text-emerald-500" />
                 </div>
-                <div className="text-xl font-bold text-emerald-600">₹2.45 Cr</div>
-                <span className="text-[10px] text-slate-400">Razorpay processed volume</span>
+                <div className="text-xl font-bold text-emerald-600">
+                  ₹{dbStats?.totalRevenue ? dbStats.totalRevenue.toLocaleString() : transactionsList.reduce((acc, t) => acc + (t.amount || 0), 0).toLocaleString()}
+                </div>
+                <span className="text-[10px] text-slate-400">Total processed revenue</span>
               </CardContent>
             </Card>
 

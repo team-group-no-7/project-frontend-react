@@ -75,14 +75,41 @@ function App() {
   const [selectedReaderItem, setSelectedReaderItem] = useState(null);
   const [selectedResourceItem, setSelectedResourceItem] = useState(null);
 
-  // Persistent states — always start empty, loaded from DB
-  const [purchasedContents, setPurchasedContents] = useState([]);
+  // Persistent states — restored from localStorage and merged with DB
+  const [purchasedContents, setPurchasedContents] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('learnhub_purchases')) || []; } catch (e) { return []; }
+  });
   const [selectedCheckoutItem, setSelectedCheckoutItem] = useState(null);
   const [latestTransaction, setLatestTransaction] = useState(null);
-  const [doubtSessions, setDoubtSessions] = useState([]);
+  const [doubtSessions, setDoubtSessions] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('learnhub_sessions')) || []; } catch (e) { return []; }
+  });
   const [selectedCallSession, setSelectedCallSession] = useState(null);
-  const [marketplaceContents, setMarketplaceContents] = useState(MARKETPLACE_CONTENTS);
-  const [uploadedContents, setUploadedContents] = useState([]);
+  const [marketplaceContents, setMarketplaceContents] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('learnhub_uploads'));
+      if (Array.isArray(saved) && saved.length > 0) {
+        return [...saved, ...MARKETPLACE_CONTENTS];
+      }
+    } catch (e) {}
+    return MARKETPLACE_CONTENTS;
+  });
+  const [uploadedContents, setUploadedContents] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('learnhub_uploads')) || []; } catch (e) { return []; }
+  });
+
+  // Sync states to localStorage whenever they change so refresh never clears user data
+  useEffect(() => {
+    localStorage.setItem('learnhub_purchases', JSON.stringify(purchasedContents));
+  }, [purchasedContents]);
+
+  useEffect(() => {
+    localStorage.setItem('learnhub_sessions', JSON.stringify(doubtSessions));
+  }, [doubtSessions]);
+
+  useEffect(() => {
+    localStorage.setItem('learnhub_uploads', JSON.stringify(uploadedContents));
+  }, [uploadedContents]);
 
   // ─── Backend Data Loaders ─────────────────────────────────────────────────
 
@@ -102,7 +129,7 @@ function App() {
     api.get(`/api/purchases/library/${userId}`)
       .then((res) => {
         const data = res.data?.data || res.data;
-        if (Array.isArray(data)) {
+        if (Array.isArray(data) && data.length > 0) {
           // Normalise to match existing purchasedContents shape used throughout UI
           const normalised = data.map((item, idx) => ({
             id: idx + 1,
@@ -122,7 +149,15 @@ function App() {
               file_url: item.fileUrl,
             }
           }));
-          setPurchasedContents(normalised);
+          setPurchasedContents((prev) => {
+            const combined = [...normalised];
+            prev.forEach(p => {
+              if (!combined.some(c => c.content_id === p.content_id)) {
+                combined.push(p);
+              }
+            });
+            return combined;
+          });
         }
       })
       .catch((err) => console.error("Library fetch failed:", err));
@@ -134,7 +169,7 @@ function App() {
     api.get(`/api/sessions/${userId}`)
       .then((res) => {
         const data = res.data?.data || res.data;
-        if (Array.isArray(data)) {
+        if (Array.isArray(data) && data.length > 0) {
           const normalised = data.map((s) => ({
             id: s.id,
             learner_id: userId,
@@ -149,7 +184,15 @@ function App() {
             jitsi_room_name: s.jitsiRoomName,
             creator_name: s.creatorName
           }));
-          setDoubtSessions(normalised);
+          setDoubtSessions((prev) => {
+            const combined = [...normalised];
+            prev.forEach(s => {
+              if (!combined.some(c => c.id === s.id || (s.transaction_id && c.transaction_id === s.transaction_id))) {
+                combined.push(s);
+              }
+            });
+            return combined;
+          });
         }
       })
       .catch((err) => console.error("Sessions fetch failed:", err));
@@ -161,7 +204,17 @@ function App() {
     api.get(`/api/creator/content/${userId}`)
       .then((res) => {
         const data = res.data?.data || res.data;
-        if (Array.isArray(data) && data.length > 0) setUploadedContents(data);
+        if (Array.isArray(data) && data.length > 0) {
+          setUploadedContents((prev) => {
+            const combined = [...data];
+            prev.forEach(u => {
+              if (!combined.some(c => c.id === u.id || c.title === u.title)) {
+                combined.push(u);
+              }
+            });
+            return combined;
+          });
+        }
       })
       .catch((err) => console.error("Uploads fetch failed:", err));
   }, []);
@@ -455,6 +508,7 @@ function App() {
       {currentPage === 'resource-details' && (
         <ResourceDetailPage
           resourceItem={selectedResourceItem}
+          profile={profile}
           onBuyContent={(item) => {
             setSelectedCheckoutItem(item);
             setCurrentPage('checkout');
