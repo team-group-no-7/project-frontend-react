@@ -30,6 +30,13 @@ export default function LearnerDashboard({ profile, purchasedContents = [], mark
       .slice(0, 3); // display top 3 recommendations
   }, [purchasedContents, marketplaceContents]);
 
+  // Get reading progress from localStorage (0 if never opened)
+  const getProgress = (contentId) => {
+    if (!contentId) return 0;
+    const key = `learnhub_progress_${contentId}`;
+    return parseInt(localStorage.getItem(key) || "0", 10);
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
       
@@ -93,8 +100,8 @@ export default function LearnerDashboard({ profile, purchasedContents = [], mark
             {purchasedContents.map((purchase) => {
               const res = purchase.content;
               if (!res) return null;
-              // Generate a mock progress percentage based on resource id to make it look realistic
-              const progress = ((res.id * 7) % 60) + 30; 
+              // Progress starts at 0% for new purchases; saved in localStorage per content
+              const progress = getProgress(res.id);
 
               return (
                 <div key={purchase.id} className="p-4 rounded-xl border border-gray-100 bg-slate-50 flex flex-col justify-between gap-3">

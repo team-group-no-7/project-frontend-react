@@ -43,6 +43,13 @@ export default function UnifiedContentViewerPage({ contentItem, onBack }) {
     }
   }, [currentPageNum, isPdf]);
 
+  // Save progress to localStorage so dashboard shows real progress
+  useEffect(() => {
+    if (contentItem?.id && progressPercent > 0) {
+      localStorage.setItem(`learnhub_progress_${contentItem.id}`, String(progressPercent));
+    }
+  }, [progressPercent, contentItem?.id]);
+
   // Track Article scroll progress dynamically
   useEffect(() => {
     if (isPdf) return;
