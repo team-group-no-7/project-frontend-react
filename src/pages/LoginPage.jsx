@@ -39,7 +39,7 @@ export default function LoginPage({ onLoginSuccess, onNavigateToRegister }) {
     api.post("/api/auth/login", { email, password })
       .then((res) => {
         setIsLoading(false);
-        const user = res.data;
+        const user = res.data.data;
         localStorage.setItem("learnhub_token", user.token);
         localStorage.setItem("learnhub_user", JSON.stringify(user));
         onLoginSuccess(user);

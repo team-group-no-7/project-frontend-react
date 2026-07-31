@@ -37,7 +37,7 @@ export default function RegisterPage({ onRegisterSuccess, onNavigateToLogin }) {
     api.post("/api/auth/register", { name, email, password })
       .then((res) => {
         setIsLoading(false);
-        const newUser = res.data;
+        const newUser = res.data.data;
         localStorage.setItem("learnhub_token", newUser.token);
         localStorage.setItem("learnhub_user", JSON.stringify(newUser));
         onRegisterSuccess(newUser);
