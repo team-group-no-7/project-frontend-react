@@ -401,10 +401,25 @@ function MarkdownDocumentCanvas({ title, body }) {
 // 🗂️ Real PDF Viewer Canvas Component
 // ==========================================
 function RealPDFCanvas({ fileUrl, title, progressPercent, onProgressUpdate }) {
+  const [loadError, setLoadError] = useState(false);
   const url = fileUrl || "/uploads/sample-spring-boot.pdf";
   const pdfSrc = (url.startsWith('http') || url.startsWith('blob:') || url.startsWith('data:'))
     ? url
     : `http://localhost:8080${url.startsWith('/') ? url : '/' + url}`;
+
+  if (loadError) {
+    return (
+      <PDFDocumentCanvas
+        title={title || "PDF Learning Resource"}
+        currentPageNum={1}
+        zoomLevel={100}
+        totalPages={12}
+        handlePrevPage={() => {}}
+        handleNextPage={() => {}}
+        setZoomLevel={() => {}}
+      />
+    );
+  }
 
   return (
     <div className="space-y-4 w-full">
@@ -420,20 +435,14 @@ function RealPDFCanvas({ fileUrl, title, progressPercent, onProgressUpdate }) {
         </a>
       </div>
       <div className="w-full rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800 shadow-md bg-gray-900">
-        <object
-          data={pdfSrc}
-          type="application/pdf"
+        <iframe
+          src={pdfSrc}
+          title={title || "PDF Document"}
           className="w-full"
           style={{ height: '75vh', minHeight: '500px' }}
-        >
-          <iframe
-            src={pdfSrc}
-            title={title || "PDF Document"}
-            className="w-full"
-            style={{ height: '75vh', minHeight: '500px' }}
-            onLoad={() => onProgressUpdate && onProgressUpdate(10)}
-          />
-        </object>
+          onLoad={() => onProgressUpdate && onProgressUpdate(10)}
+          onError={() => setLoadError(true)}
+        />
       </div>
       <p className="text-[11px] text-gray-400 text-center">
         Embedded PDF Reader • Click "Open / Download PDF" if your browser restricts iframe previews.

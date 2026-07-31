@@ -69,11 +69,33 @@ export default function ContentStudio({ profile, onChangePage, onUploadSuccess }
             };
 
             try {
-                const res = await api.post("/api/creator/content", payload);
-                const savedData = res.data?.data || res.data;
+                let savedData;
+                if (contentType === 'pdf' && uploadedFile) {
+                    const formData = new FormData();
+                    formData.append("file", uploadedFile);
+                    formData.append("title", pdfForm.title);
+                    formData.append("description", pdfForm.description || "");
+                    formData.append("price", parseFloat(pdfForm.price) || 0);
+                    formData.append("level", pdfForm.level || "Beginner");
+                    formData.append("tags", "PDF,Guide");
+                    formData.append("status", "PUBLISHED");
+                    formData.append("creatorId", profile?.id || 101);
+                    formData.append("categoryName", "General");
+
+                    const res = await api.post("/api/creator/content/pdf", formData, {
+                        headers: { "Content-Type": "multipart/form-data" }
+                    });
+                    savedData = res.data?.data || res.data;
+                } else {
+                    const res = await api.post("/api/creator/content", payload);
+                    savedData = res.data?.data || res.data;
+                }
+
                 const finalContent = {
                     ...payload,
                     id: savedData.id || Date.now(),
+                    fileUrl: savedData.fileUrl || payload.fileUrl,
+                    file_url: savedData.fileUrl || payload.fileUrl,
                     category_name: savedData.categoryName || "General",
                     creator_name: profile?.name || "Creator",
                     created_at: new Date().toISOString()
