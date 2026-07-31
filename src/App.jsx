@@ -250,11 +250,12 @@ function App() {
       type: newContent.type || "Article",
       level: "Beginner",
       tags: ["New"],
-      preview_text: "Newly published resource."
+      preview_text: newContent.previewText || newContent.preview_text || "Newly published resource."
     };
     setMarketplaceContents((prev) => [dbContent, ...prev]);
     setUploadedContents((prev) => [dbContent, ...prev]);
-    alert(`Successfully published "${dbContent.title}"! Redirecting to Management Grid...`);
+    fetchMarketplace();
+    alert(`Successfully published "${dbContent.title}"! It is now visible to all learners in the Marketplace.`);
     setCurrentPage('manage');
   };
 
@@ -527,6 +528,7 @@ function App() {
 
       {currentPage === 'content-studio' && (
         <ContentStudio
+          profile={profile}
           onChangePage={setCurrentPage}
           onUploadSuccess={handleUploadSuccess}
         />

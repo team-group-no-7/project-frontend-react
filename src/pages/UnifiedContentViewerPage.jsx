@@ -404,7 +404,9 @@ function MarkdownDocumentCanvas({ title, body }) {
 // 🗂️ Real PDF Iframe Canvas Component
 // ==========================================
 function RealPDFCanvas({ fileUrl, title, progressPercent, onProgressUpdate }) {
-  const pdfSrc = fileUrl.startsWith('http') ? fileUrl : `http://localhost:8080${fileUrl}`;
+  const pdfSrc = (fileUrl.startsWith('http') || fileUrl.startsWith('blob:') || fileUrl.startsWith('data:'))
+    ? fileUrl
+    : `http://localhost:8080${fileUrl.startsWith('/') ? fileUrl : '/' + fileUrl}`;
   return (
     <div className="space-y-4 w-full">
       <div className="flex items-center justify-between">
