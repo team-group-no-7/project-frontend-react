@@ -4,7 +4,7 @@ import { User, Tag, CircleDashed } from 'lucide-react';
 export default function PreviewCard({ data }) {
     const savedUser = localStorage.getItem('learnhub_user');
     const profile = savedUser ? JSON.parse(savedUser) : null;
-    const creatorName = profile?.name || data.creator_name || "Anuj Bhaiya";
+    const creatorName = profile?.name || data.creator_name || data.creatorName || "Creator";
 
     return (
         <div className="rounded-3xl shadow-md bg-white p-5 w-full">

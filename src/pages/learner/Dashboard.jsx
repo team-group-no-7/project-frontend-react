@@ -110,7 +110,7 @@ export default function LearnerDashboard({ profile, purchasedContents = [], mark
                       {res.type || "PDF Guide"}
                     </span>
                     <h3 className="font-bold text-gray-800 text-sm mt-1.5 line-clamp-1">{res.title}</h3>
-                    <p className="text-xs text-gray-400 mt-0.5">By {res.creator_name}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">By {res.creator_name || res.creatorName || "Creator"}</p>
                   </div>
 
                   <div className="space-y-1.5">

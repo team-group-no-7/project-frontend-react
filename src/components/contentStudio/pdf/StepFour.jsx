@@ -13,9 +13,17 @@ export default function StepFourPDF({ file, form }) {
             </div>
             <div className="grid xl:grid-cols-[1.65fr_0.95fr] gap-6">
                 <div className="bg-white rounded-3xl p-6 shadow-sm">
-                    <div className="w-full h-[28rem] bg-slate-100 rounded-3xl border border-slate-200 flex items-center justify-center text-neutral-500">
-                        PDF Viewer Placeholder
-                    </div>
+                    {file ? (
+                        <iframe
+                            src={URL.createObjectURL(file)}
+                            title={file.name || "PDF Document Preview"}
+                            className="w-full h-[28rem] rounded-3xl border border-slate-200 shadow-inner bg-slate-50"
+                        />
+                    ) : (
+                        <div className="w-full h-[28rem] bg-slate-100 rounded-3xl border border-slate-200 flex items-center justify-center text-neutral-500">
+                            No PDF file uploaded for preview
+                        </div>
+                    )}
                     {file && (
                         <div className="mt-5 rounded-3xl border border-slate-200 bg-slate-50 p-4">
                             <div className="flex items-center justify-between gap-4">

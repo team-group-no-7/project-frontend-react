@@ -360,32 +360,48 @@ function App() {
         });
     } else {
       // ── Content Purchase: verify/persist to DB ──
+      const item = transactionData.item;
+      const newPurchase = {
+        id: Date.now(),
+        user_id: profile?.id || 101,
+        content_id: item?.id,
+        amount_paid: transactionData.amountPaid || item?.price || 0,
+        payment_status: "SUCCESS",
+        transaction_id: transactionData.transactionId,
+        purchased_at: transactionData.paidAt || new Date().toISOString(),
+        content: {
+          id: item?.id,
+          title: item?.title || "Purchased Learning Resource",
+          description: item?.description || "",
+          price: item?.price || 0,
+          category_name: item?.category_name || item?.categoryName || "General",
+          creator_name: item?.creator_name || item?.creatorName || "Creator",
+          type: item?.type || "PDF Guide",
+          fileUrl: item?.fileUrl || item?.file_url,
+          file_url: item?.fileUrl || item?.file_url
+        }
+      };
+
+      // Optimistically add to state immediately
+      setPurchasedContents((prev) => {
+        if (prev.some(p => p.content_id === newPurchase.content_id)) return prev;
+        return [newPurchase, ...prev];
+      });
+
       const verifyPayload = {
         razorpayOrderId: transactionData.transactionId,
         razorpayPaymentId: transactionData.transactionId,
         razorpaySignature: "mock_" + transactionData.transactionId,
         userId: profile?.id || 101,
-        contentId: transactionData.item?.id
+        contentId: item?.id
       };
+
       api.post("/api/payment/verify", verifyPayload)
         .then(() => {
-          // Refresh purchases from DB
-          fetchPurchases(profile?.id);
+          fetchPurchases(profile?.id || 101);
         })
         .catch((err) => {
-          console.error("Purchase persist failed:", err);
-          // Optimistic local add as fallback
-          const newPurchase = {
-            id: Date.now(),
-            user_id: profile?.id || 101,
-            content_id: transactionData.item.id,
-            amount_paid: transactionData.amountPaid,
-            payment_status: "SUCCESS",
-            transaction_id: transactionData.transactionId,
-            purchased_at: transactionData.paidAt,
-            content: transactionData.item
-          };
-          setPurchasedContents((prev) => [...prev, newPurchase]);
+          console.error("Purchase persist API warning:", err);
         });
     }
     setLatestTransaction(transactionData);
