@@ -5,10 +5,12 @@ import { Badge } from "@/components/ui/badge";
 
 export default function ProfileSidebar({ profile, activeRole, libraryCount, sessionsCount, uploadsCount }) {
   // Generate user initials for avatar fallback (e.g., "Arjun Mehta" -> "AM")
-  const initials = profile.name
-    .split(" ")
-    .map((n) => n[0])
-    .join("");
+  const initials = (profile.name || "User")
+    .trim()
+    .split(/\s+/)
+    .map((n) => n[0] || "")
+    .join("")
+    .toUpperCase();
 
   return (
     <Card className="border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">

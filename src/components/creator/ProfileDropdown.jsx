@@ -14,9 +14,10 @@ export default function ProfileDropdown({ profile = INITIAL_USER, onLogout, onSw
         return () => document.removeEventListener('click', onDoc)
     }, [])
 
-    const initials = profile.name
-        .split(" ")
-        .map((n) => n[0])
+    const initials = (profile.name || "User")
+        .trim()
+        .split(/\s+/)
+        .map((n) => n[0] || "")
         .join("")
         .toUpperCase();
 
