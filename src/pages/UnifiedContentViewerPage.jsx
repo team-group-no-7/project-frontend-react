@@ -225,25 +225,12 @@ export default function UnifiedContentViewerPage({ contentItem: initialItem, onB
             {/* Document Text / Code Content Renderer */}
             <div className="prose dark:prose-invert max-w-none text-xs sm:text-sm text-gray-800 dark:text-gray-200 leading-relaxed font-normal">
               {isPdf ? (
-                contentItem?.fileUrl || contentItem?.file_url ? (
-                  // Real PDF from backend — render in iframe
-                  <RealPDFCanvas
-                    fileUrl={contentItem.fileUrl || contentItem.file_url}
-                    title={contentItem.title}
-                    progressPercent={progressPercent}
-                    onProgressUpdate={setScrollProgress}
-                  />
-                ) : (
-                  <PDFDocumentCanvas
-                    title={chapters[activeChapterIndex]?.title}
-                    currentPageNum={currentPageNum}
-                    zoomLevel={zoomLevel}
-                    totalPages={totalPages}
-                    handlePrevPage={handlePrevPage}
-                    handleNextPage={handleNextPage}
-                    setZoomLevel={setZoomLevel}
-                  />
-                )
+                <RealPDFCanvas
+                  fileUrl={contentItem?.fileUrl || contentItem?.file_url || contentItem?.thumbnail_url}
+                  title={contentItem?.title}
+                  progressPercent={progressPercent}
+                  onProgressUpdate={setScrollProgress}
+                />
               ) : (
                 <MarkdownDocumentCanvas
                   title={contentItem?.title}
@@ -411,36 +398,45 @@ function MarkdownDocumentCanvas({ title, body }) {
 }
 
 // ==========================================
-// 🗂️ Real PDF Iframe Canvas Component
+// 🗂️ Real PDF Viewer Canvas Component
 // ==========================================
 function RealPDFCanvas({ fileUrl, title, progressPercent, onProgressUpdate }) {
-  const pdfSrc = (fileUrl.startsWith('http') || fileUrl.startsWith('blob:') || fileUrl.startsWith('data:'))
-    ? fileUrl
-    : `http://localhost:8080${fileUrl.startsWith('/') ? fileUrl : '/' + fileUrl}`;
+  const url = fileUrl || "/uploads/sample-spring-boot.pdf";
+  const pdfSrc = (url.startsWith('http') || url.startsWith('blob:') || url.startsWith('data:'))
+    ? url
+    : `http://localhost:8080${url.startsWith('/') ? url : '/' + url}`;
+
   return (
     <div className="space-y-4 w-full">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-bold text-gray-900 dark:text-white line-clamp-1">{title}</h2>
+        <h2 className="text-sm font-bold text-gray-900 dark:text-white line-clamp-1">{title || "PDF Document"}</h2>
         <a
           href={pdfSrc}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs font-semibold text-indigo-600 hover:underline flex items-center gap-1"
+          className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1.5 rounded-lg border border-indigo-100 dark:border-indigo-900"
         >
-          <Download className="h-3 w-3" /> Open / Download PDF
+          <Download className="h-3.5 w-3.5" /> Open / Download PDF
         </a>
       </div>
-      <div className="w-full rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800 shadow-md bg-gray-50">
-        <iframe
-          src={pdfSrc}
-          title={title}
+      <div className="w-full rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800 shadow-md bg-gray-900">
+        <object
+          data={pdfSrc}
+          type="application/pdf"
           className="w-full"
           style={{ height: '75vh', minHeight: '500px' }}
-          onLoad={() => onProgressUpdate && onProgressUpdate(5)}
-        />
+        >
+          <iframe
+            src={pdfSrc}
+            title={title || "PDF Document"}
+            className="w-full"
+            style={{ height: '75vh', minHeight: '500px' }}
+            onLoad={() => onProgressUpdate && onProgressUpdate(10)}
+          />
+        </object>
       </div>
       <p className="text-[11px] text-gray-400 text-center">
-        Scroll within the PDF viewer above to navigate pages. Use Open / Download to view full-screen.
+        Embedded PDF Reader • Click "Open / Download PDF" if your browser restricts iframe previews.
       </p>
     </div>
   );
