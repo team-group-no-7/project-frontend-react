@@ -118,7 +118,38 @@ function App() {
     api.get("/api/contents")
       .then((res) => {
         const data = res.data?.data || res.data;
-        if (Array.isArray(data) && data.length > 0) setMarketplaceContents(data);
+        if (Array.isArray(data) && data.length > 0) {
+          const normalized = data.map((item) => ({
+            id: item.id,
+            title: item.title,
+            description: item.description,
+            price: item.price,
+            type: item.type || "PDF",
+            category_id: item.category_id || 1,
+            category_name: item.category_name || item.category || "General",
+            creator_id: item.creator_id || item.creatorId,
+            creator_name: item.creator_name || item.creatorName || "Creator",
+            creator_avatar: item.creator_avatar || item.creatorAvatar || "",
+            rating: item.rating || 4.8,
+            reviews_count: item.reviews_count || 12,
+            learners_count: item.learners_count || 120,
+            level: item.level || "Beginner",
+            tags: item.tags || ["Guide"],
+            fileUrl: item.fileUrl || item.file_url || item.thumbnail_url,
+            file_url: item.fileUrl || item.file_url || item.thumbnail_url,
+            preview_text: item.description || "Resource content preview."
+          }));
+
+          setMarketplaceContents((prev) => {
+            const combined = [...normalized];
+            prev.forEach((localItem) => {
+              if (!combined.some((c) => c.id === localItem.id || c.title === localItem.title)) {
+                combined.push(localItem);
+              }
+            });
+            return combined;
+          });
+        }
       })
       .catch((err) => console.error("Marketplace fetch failed:", err));
   }, []);
