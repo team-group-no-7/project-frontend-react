@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
  * CheckoutPage Component (Module 3 - Item 9: Checkout & Invoice Summary Page)
  * Simple invoice breakdown with a simulated Razorpay SDK gateway launcher.
  */
-export default function CheckoutPage({ item, onPaymentSuccess, onPaymentFailure, onCancel }) {
+export default function CheckoutPage({ item, profile, onPaymentSuccess, onPaymentFailure, onCancel }) {
   // Default fallback mock item
   const contentItem = item || {
     id: 11,
@@ -20,8 +20,8 @@ export default function CheckoutPage({ item, onPaymentSuccess, onPaymentFailure,
     price: 599.00
   };
 
-  const [userName, setUserName] = useState("Arjun Mehta");
-  const [userEmail, setUserEmail] = useState("arjun.mehta@learnhub.com");
+  const [userName, setUserName] = useState(() => profile?.name || "Arjun Mehta");
+  const [userEmail, setUserEmail] = useState(() => profile?.email || "arjun.mehta@learnhub.com");
   const [showRazorpayModal, setShowRazorpayModal] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 

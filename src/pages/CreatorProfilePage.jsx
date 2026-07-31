@@ -274,7 +274,7 @@ export default function CreatorProfilePage({ creatorId = 202, onBack, onBookSess
                   type="datetime-local" 
                   value={slot}
                   onChange={(e) => setSlot(e.target.value)}
-                  className="w-full border rounded-lg px-3 py-2 bg-transparent text-gray-900 dark:text-white border-gray-200 dark:border-gray-800 focus:outline-indigo-600"
+                  className="w-full h-10 border rounded-lg px-3 py-2 bg-white dark:bg-slate-900 text-gray-900 dark:text-white border-gray-200 dark:border-gray-800 focus:outline-indigo-600 block text-xs"
                 />
               </div>
 

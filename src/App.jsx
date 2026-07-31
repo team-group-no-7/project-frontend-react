@@ -252,7 +252,8 @@ function App() {
   if (currentPage === 'checkout') {
     return (
       <CheckoutPage
-        contentItem={selectedCheckoutItem}
+        item={selectedCheckoutItem}
+        profile={profile}
         onPaymentSuccess={handlePaymentSuccess}
         onPaymentFailure={handlePaymentFailure}
         onCancel={() => setCurrentPage('marketplace')}
