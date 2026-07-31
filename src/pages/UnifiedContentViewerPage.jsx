@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BookOpen, Bookmark, MessageSquare, ArrowLeft, ChevronRight, ChevronLeft, CheckCircle2, Share2, ZoomIn, ZoomOut, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import QAThreadSection from '@/components/QAThreadSection';
@@ -15,6 +15,9 @@ export default function UnifiedContentViewerPage({ contentItem, onBack }) {
   const [showQADrawer, setShowQADrawer] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(100);
 
+  const [viewedPages, setViewedPages] = useState(() => new Set());
+  const [scrollProgress, setScrollProgress] = useState(0);
+
   // Dynamic media check
   const typeLower = contentItem?.type?.toLowerCase() || "";
   const isPdf = typeLower.includes("pdf") || typeLower.includes("sheet");
@@ -29,8 +32,38 @@ export default function UnifiedContentViewerPage({ contentItem, onBack }) {
     { title: "Chapter 5: Summary, Practice & Next Steps", startPage: 12 },
   ];
 
+  // Track PDF viewed pages dynamically
+  useEffect(() => {
+    if (isPdf) {
+      setViewedPages((prev) => {
+        const next = new Set(prev);
+        next.add(currentPageNum);
+        return next;
+      });
+    }
+  }, [currentPageNum, isPdf]);
+
+  // Track Article scroll progress dynamically
+  useEffect(() => {
+    if (isPdf) return;
+    const handleScroll = () => {
+      const doc = document.documentElement;
+      const scrollTotal = doc.scrollHeight - doc.clientHeight;
+      if (scrollTotal <= 0) {
+        setScrollProgress(0);
+      } else {
+        const percent = Math.round((doc.scrollTop / scrollTotal) * 100);
+        setScrollProgress(percent);
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isPdf]);
+
   // Calculate reading progress percentage
-  const progressPercent = Math.round((currentPageNum / totalPages) * 100);
+  const progressPercent = isPdf
+    ? Math.round((viewedPages.size / totalPages) * 100)
+    : scrollProgress;
 
   const handleNextPage = () => {
     if (currentPageNum < totalPages) {
