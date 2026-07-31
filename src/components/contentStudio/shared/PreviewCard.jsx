@@ -2,6 +2,10 @@ import React from 'react';
 import { User, Tag, CircleDashed } from 'lucide-react';
 
 export default function PreviewCard({ data }) {
+    const savedUser = localStorage.getItem('learnhub_user');
+    const profile = savedUser ? JSON.parse(savedUser) : null;
+    const creatorName = profile?.name || data.creator_name || "Anuj Bhaiya";
+
     return (
         <div className="rounded-3xl shadow-md bg-white p-5 w-full">
             <div className="grid gap-4 sm:grid-cols-[0.95fr_0.65fr]">
@@ -15,7 +19,7 @@ export default function PreviewCard({ data }) {
                 </div>
                 <div className="rounded-3xl border border-slate-200 p-4 bg-white">
                     <div className="flex items-center gap-2 text-sm text-neutral-500 mb-4">
-                        <User size={18} /> By Anuj Bhaiya
+                        <User size={18} /> By {creatorName}
                     </div>
                     <div className="flex items-center gap-2 text-sm text-neutral-500 mb-2">
                         <CircleDashed size={18} /> {data.category || 'Programming'} • {data.subcategory || 'JavaScript'}
