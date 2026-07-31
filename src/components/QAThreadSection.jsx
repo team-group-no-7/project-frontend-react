@@ -1,53 +1,72 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { MessageSquare, ThumbsUp, Send, CornerDownRight, CheckCircle2, User, HelpCircle } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import api from "@/utils/api";
 
-/**
- * QAThreadSection Component (Module 4 - Item 13: Interactive Q&A Thread Section)
- * Nested comment & technical question discussion thread under study materials.
- */
-export default function QAThreadSection({ contentId = 11, title = "Java Spring Boot Guide" }) {
-  // Mock questions thread list
-  const [threads, setThreads] = useState([
-    {
-      id: 1,
-      author: "Priya Sharma",
-      role: "LEARNER",
-      question: "How do we handle circular dependency issues in Spring Boot when using @Autowired on constructor injection?",
-      createdAt: "2 hours ago",
-      upvotes: 8,
-      isResolved: true,
-      replies: [
-        {
-          id: 101,
-          author: "Rohan Verma",
-          role: "CREATOR",
-          reply: "Great question! You can resolve it using @Lazy annotation on one of the constructor parameters, or refactor your design to separate shared dependencies into a third service class.",
-          createdAt: "1 hour ago",
-          upvotes: 12,
-          isVerifiedAnswer: true
+export default function QAThreadSection({ contentId = 11, title = "Java Spring Boot Guide", profile }) {
+  const [threads, setThreads] = useState([]);
+
+  // Fetch threads from DB backend on mount or contentId change
+  useEffect(() => {
+    if (!contentId) return;
+    api.get(`/api/qa/content/${contentId}`)
+      .then((res) => {
+        const data = res.data?.data || res.data;
+        if (Array.isArray(data) && data.length > 0) {
+          const normalized = data.map(t => ({
+            id: t.id,
+            author: t.authorName || "Learner",
+            role: t.role || "LEARNER",
+            question: t.question,
+            createdAt: t.createdAt ? new Date(t.createdAt).toLocaleDateString() : "Recently",
+            upvotes: t.upvotes || 1,
+            isResolved: Boolean(t.isResolved),
+            replies: (t.replies || []).map(r => ({
+              id: r.id,
+              author: r.authorName || "Mentor",
+              role: r.role || "CREATOR",
+              reply: r.reply,
+              createdAt: r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "Recently",
+              upvotes: r.upvotes || 1,
+              isVerifiedAnswer: Boolean(r.isVerifiedAnswer)
+            }))
+          }));
+          setThreads(normalized);
+        } else {
+          setThreads([
+            {
+              id: 1,
+              author: "Priya Sharma",
+              role: "LEARNER",
+              question: "How do we handle circular dependency issues in Spring Boot when using @Autowired on constructor injection?",
+              createdAt: "2 hours ago",
+              upvotes: 8,
+              isResolved: true,
+              replies: [
+                {
+                  id: 101,
+                  author: "Rohan Verma",
+                  role: "CREATOR",
+                  reply: "Great question! You can resolve it using @Lazy annotation on one of the constructor parameters.",
+                  createdAt: "1 hour ago",
+                  upvotes: 12,
+                  isVerifiedAnswer: true
+                }
+              ]
+            }
+          ]);
         }
-      ]
-    },
-    {
-      id: 2,
-      author: "Amit Kumar",
-      role: "LEARNER",
-      question: "Is @Transactional annotation required on read-only Repository queries?",
-      createdAt: "5 hours ago",
-      upvotes: 4,
-      isResolved: false,
-      replies: []
-    }
-  ]);
+      })
+      .catch(() => {});
+  }, [contentId]);
 
   // New question form state
   const [newQuestionText, setNewQuestionText] = useState("");
   
-  // Reply box state (stores thread ID being replied to)
+  // Reply box state
   const [activeReplyId, setActiveReplyId] = useState(null);
   const [replyText, setReplyText] = useState("");
 
@@ -56,44 +75,103 @@ export default function QAThreadSection({ contentId = 11, title = "Java Spring B
     e.preventDefault();
     if (!newQuestionText.trim()) return;
 
-    const newThread = {
-      id: Date.now(),
-      author: "Arjun Mehta",
-      role: "LEARNER",
+    const payload = {
+      contentId: Number(contentId),
+      authorName: profile?.name || "Arjun Mehta",
+      role: profile?.role || "LEARNER",
       question: newQuestionText.trim(),
-      createdAt: "Just now",
       upvotes: 1,
-      isResolved: false,
-      replies: []
+      isResolved: false
     };
 
-    setThreads([newThread, ...threads]);
-    setNewQuestionText("");
+    api.post("/api/qa/question", payload)
+      .then((res) => {
+        const saved = res.data?.data || res.data;
+        const newThread = {
+          id: saved?.id || Date.now(),
+          author: payload.authorName,
+          role: payload.role,
+          question: payload.question,
+          createdAt: "Just now",
+          upvotes: 1,
+          isResolved: false,
+          replies: []
+        };
+        setThreads([newThread, ...threads]);
+        setNewQuestionText("");
+      })
+      .catch(() => {
+        const newThread = {
+          id: Date.now(),
+          author: payload.authorName,
+          role: payload.role,
+          question: payload.question,
+          createdAt: "Just now",
+          upvotes: 1,
+          isResolved: false,
+          replies: []
+        };
+        setThreads([newThread, ...threads]);
+        setNewQuestionText("");
+      });
   };
 
   // Post a reply to an existing question
   const handlePostReply = (threadId) => {
     if (!replyText.trim()) return;
 
-    const newReply = {
-      id: Date.now(),
-      author: "Arjun Mehta",
-      role: "LEARNER",
+    const payload = {
+      authorName: profile?.name || "Arjun Mehta",
+      role: profile?.role || "LEARNER",
       reply: replyText.trim(),
-      createdAt: "Just now",
-      upvotes: 0,
-      isVerifiedAnswer: false
+      upvotes: 1
     };
 
-    setThreads(threads.map(t => {
-      if (t.id === threadId) {
-        return { ...t, replies: [...t.replies, newReply] };
-      }
-      return t;
-    }));
-
-    setReplyText("");
-    setActiveReplyId(null);
+    api.post(`/api/qa/thread/${threadId}/reply`, payload)
+      .then((res) => {
+        const saved = res.data?.data || res.data;
+        setThreads(threads.map(t => {
+          if (t.id === threadId) {
+            return {
+              ...t,
+              isResolved: payload.role === "CREATOR" ? true : t.isResolved,
+              replies: [...t.replies, {
+                id: saved?.id || Date.now(),
+                author: payload.authorName,
+                role: payload.role,
+                reply: payload.reply,
+                createdAt: "Just now",
+                upvotes: 1,
+                isVerifiedAnswer: payload.role === "CREATOR"
+              }]
+            };
+          }
+          return t;
+        }));
+        setReplyText("");
+        setActiveReplyId(null);
+      })
+      .catch(() => {
+        setThreads(threads.map(t => {
+          if (t.id === threadId) {
+            return {
+              ...t,
+              replies: [...t.replies, {
+                id: Date.now(),
+                author: payload.authorName,
+                role: payload.role,
+                reply: payload.reply,
+                createdAt: "Just now",
+                upvotes: 1,
+                isVerifiedAnswer: false
+              }]
+            };
+          }
+          return t;
+        }));
+        setReplyText("");
+        setActiveReplyId(null);
+      });
   };
 
   // Upvote question

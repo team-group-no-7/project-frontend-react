@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Plus, Trash2, LayoutGrid, Eye, EyeOff, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Trash2, LayoutGrid, Eye, EyeOff, ChevronLeft, ChevronRight, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import GridToolbar from "@/components/contentStudio/GridToolbar";
 import EditModal from "@/components/contentStudio/EditModal";
@@ -13,7 +13,7 @@ import EditModal from "@/components/contentStudio/EditModal";
  *  - GridToolbar : Search + filter dropdowns (extracted for readability)
  *  - EditModal   : Overlay form for quick title/price edits
  */
-export default function ContentManagementGrid({ onOpenUploadForm, contentsList, onDeleteContent }) {
+export default function ContentManagementGrid({ onOpenUploadForm, contentsList, onDeleteContent, onOpenReader }) {
   // Local resource state — synced from parent prop
   const [resources, setResources] = useState(() => contentsList || []);
   useEffect(() => { if (contentsList) setResources(contentsList); }, [contentsList]);
@@ -176,6 +176,10 @@ export default function ContentManagementGrid({ onOpenUploadForm, contentsList, 
                   </td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1.5">
+                      <button onClick={() => onOpenReader && onOpenReader(item)} title="Open Q&A Discussions"
+                        className="p-1.5 rounded hover:bg-indigo-50 text-indigo-600 transition-colors cursor-pointer flex items-center gap-1 font-bold text-[10px]">
+                        <MessageSquare size={15} /> Q&A
+                      </button>
                       <button onClick={() => handleToggleStatus(item.id)} title={isPublished ? "Unpublish" : "Publish"}
                         className="p-1.5 rounded hover:bg-slate-100 text-slate-500 transition-colors cursor-pointer">
                         {isPublished ? <EyeOff size={16} /> : <Eye size={16} />}

@@ -509,6 +509,7 @@ function App() {
     return (
       <UnifiedContentViewerPage
         contentItem={selectedReaderItem}
+        profile={profile}
         onBack={() => setCurrentPage('learner-dashboard')}
       />
     );
@@ -640,6 +641,10 @@ function App() {
           onOpenUploadForm={() => setCurrentPage('content-studio')}
           contentsList={uploadedContents}
           onDeleteContent={handleDeleteContent}
+          onOpenReader={(item) => {
+            setSelectedReaderItem(item);
+            setCurrentPage('reader');
+          }}
         />
       )}
 

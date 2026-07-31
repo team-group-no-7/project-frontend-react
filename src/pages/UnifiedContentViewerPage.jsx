@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { BookOpen, Bookmark, MessageSquare, ArrowLeft, ChevronRight, ChevronLeft, CheckCircle2, Share2, ZoomIn, ZoomOut, Download } from 'lucide-react';
+import { BookOpen, Bookmark, MessageSquare, ArrowLeft, ChevronRight, ChevronLeft, CheckCircle2, Share2, ZoomIn, ZoomOut, Download, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import QAThreadSection from '@/components/QAThreadSection';
+import ReviewModal from '@/components/ReviewModal';
 
-/**
- * UnifiedContentViewerPage Component (Module 4: Unified Reader Experience)
- * Immersive reader for PDFs & Articles with Reading Progress, Table of Contents, Bookmarks, and in-reader Discussion Drawer.
- */
-export default function UnifiedContentViewerPage({ contentItem: initialItem, onBack }) {
+export default function UnifiedContentViewerPage({ contentItem: initialItem, profile, onBack }) {
   const contentItem = initialItem || {
     id: 1,
     title: "Complete Java Spring Boot Guide",
@@ -21,6 +18,7 @@ export default function UnifiedContentViewerPage({ contentItem: initialItem, onB
   const totalPages = 14;
   const [activeChapterIndex, setActiveChapterIndex] = useState(0);
   const [showQADrawer, setShowQADrawer] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(100);
 
   const [viewedPages, setViewedPages] = useState(() => new Set());
@@ -157,6 +155,16 @@ export default function UnifiedContentViewerPage({ contentItem: initialItem, onB
               {isBookmarked ? 'Bookmarked' : 'Bookmark'}
             </Button>
 
+            {/* Leave Review Button */}
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setShowReviewModal(true)}
+              className="gap-1 text-xs rounded-xl font-semibold border-amber-300 text-amber-600 hover:bg-amber-50"
+            >
+              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" /> Rate Resource
+            </Button>
+
             {/* In-reader Q&A Drawer Toggle */}
             <Button
               size="sm"
@@ -258,12 +266,20 @@ export default function UnifiedContentViewerPage({ contentItem: initialItem, onB
             </div>
 
             <div className="max-h-[500px] overflow-y-auto pr-1">
-              <QAThreadSection />
+              <QAThreadSection contentId={contentItem?.id || 11} title={contentItem?.title} profile={profile} />
             </div>
           </aside>
         )}
 
       </div>
+
+      {/* Interactive Star Rating & Review Modal */}
+      <ReviewModal
+        isOpen={showReviewModal}
+        onClose={() => setShowReviewModal(false)}
+        contentItem={contentItem}
+        profile={profile}
+      />
     </div>
   );
 }
