@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import api from '@/utils/api';
 
 // Import Module Pages
@@ -22,7 +22,7 @@ import LearnerDashboard from './pages/learner/Dashboard';
 // Import Layout Components
 import DashboardLayout from './components/creator/DashboardLayout';
 import { Button } from './components/ui/button';
-import { INITIAL_USER, PURCHASED_CONTENTS, DOUBT_SESSIONS, MARKETPLACE_CONTENTS, UPLOADED_CONTENTS } from './data/mockData';
+import { MARKETPLACE_CONTENTS } from './data/mockData';
 
 const getPageTitle = (page) => {
   const titles = {
@@ -44,25 +44,22 @@ const getPageTitle = (page) => {
  * Main Navigation Orchestrator for LearnHub.
  * Displays Landing, Login, and Register screens full-screen for guests,
  * and handles dynamic role-switching for authenticated users.
+ * All persistent data (purchases, sessions, uploads) is loaded from and saved to the backend DB.
  */
 function App() {
-  // Authentication states
+  // Authentication states — restored from localStorage on refresh
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     return !!localStorage.getItem('learnhub_token');
   });
   const [profile, setProfile] = useState(() => {
     const savedUser = localStorage.getItem('learnhub_user');
     if (savedUser) {
-      try {
-        return JSON.parse(savedUser);
-      } catch (e) {
-        return INITIAL_USER;
-      }
+      try { return JSON.parse(savedUser); } catch (e) { return null; }
     }
-    return localStorage.getItem('learnhub_token') ? INITIAL_USER : null;
+    return null;
   });
 
-  // Current active page state
+  // Current active page state — restored from localStorage
   const [currentPage, setCurrentPage] = useState(() => {
     const savedToken = localStorage.getItem('learnhub_token');
     if (savedToken) {
@@ -78,33 +75,111 @@ function App() {
   const [selectedReaderItem, setSelectedReaderItem] = useState(null);
   const [selectedResourceItem, setSelectedResourceItem] = useState(null);
 
-  // Dynamic purchasing ledger states
-  const [purchasedContents, setPurchasedContents] = useState(PURCHASED_CONTENTS);
+  // Persistent states — always start empty, loaded from DB
+  const [purchasedContents, setPurchasedContents] = useState([]);
   const [selectedCheckoutItem, setSelectedCheckoutItem] = useState(null);
   const [latestTransaction, setLatestTransaction] = useState(null);
-
-  // Mentorship Doubt Sessions state
-  const [doubtSessions, setDoubtSessions] = useState(DOUBT_SESSIONS);
+  const [doubtSessions, setDoubtSessions] = useState([]);
   const [selectedCallSession, setSelectedCallSession] = useState(null);
-
-  // Global catalog and uploads states
   const [marketplaceContents, setMarketplaceContents] = useState(MARKETPLACE_CONTENTS);
-  const [uploadedContents, setUploadedContents] = useState(UPLOADED_CONTENTS);
+  const [uploadedContents, setUploadedContents] = useState([]);
 
-  // Fetch marketplace catalog items dynamically from backend
-  useEffect(() => {
+  // ─── Backend Data Loaders ─────────────────────────────────────────────────
+
+  /** Fetch all marketplace content from DB */
+  const fetchMarketplace = useCallback(() => {
     api.get("/api/contents")
       .then((res) => {
-        if (res.data && res.data.length > 0) {
-          setMarketplaceContents(res.data);
+        const data = res.data?.data || res.data;
+        if (Array.isArray(data) && data.length > 0) setMarketplaceContents(data);
+      })
+      .catch((err) => console.error("Marketplace fetch failed:", err));
+  }, []);
+
+  /** Fetch purchased library from DB for a given user */
+  const fetchPurchases = useCallback((userId) => {
+    if (!userId) return;
+    api.get(`/api/purchases/library/${userId}`)
+      .then((res) => {
+        const data = res.data?.data || res.data;
+        if (Array.isArray(data)) {
+          // Normalise to match existing purchasedContents shape used throughout UI
+          const normalised = data.map((item, idx) => ({
+            id: idx + 1,
+            user_id: userId,
+            content_id: item.contentId,
+            amount_paid: item.price,
+            payment_status: "SUCCESS",
+            purchased_at: new Date().toISOString(),
+            content: {
+              id: item.contentId,
+              title: item.title,
+              description: "",
+              price: item.price,
+              category_name: item.category,
+              type: item.type,
+              fileUrl: item.fileUrl,
+              file_url: item.fileUrl,
+            }
+          }));
+          setPurchasedContents(normalised);
         }
       })
-      .catch((err) => {
-        console.error("Failed to fetch marketplace contents from backend:", err);
-      });
-  }, [isLoggedIn]);
+      .catch((err) => console.error("Library fetch failed:", err));
+  }, []);
 
-  // Switch view to public creator profile
+  /** Fetch doubt sessions from DB for a given learner */
+  const fetchSessions = useCallback((userId) => {
+    if (!userId) return;
+    api.get(`/api/sessions/${userId}`)
+      .then((res) => {
+        const data = res.data?.data || res.data;
+        if (Array.isArray(data)) {
+          const normalised = data.map((s) => ({
+            id: s.id,
+            learner_id: userId,
+            creator_id: s.creatorId,
+            topic: s.topic,
+            scheduled_at: s.scheduledAt,
+            duration_minutes: s.durationMinutes,
+            session_price: s.sessionPrice,
+            booking_status: s.bookingStatus,
+            payment_status: s.paymentStatus,
+            transaction_id: s.transactionId,
+            jitsi_room_name: s.jitsiRoomName,
+            creator_name: s.creatorName
+          }));
+          setDoubtSessions(normalised);
+        }
+      })
+      .catch((err) => console.error("Sessions fetch failed:", err));
+  }, []);
+
+  /** Fetch creator's uploaded content from DB */
+  const fetchUploads = useCallback((userId) => {
+    if (!userId) return;
+    api.get(`/api/creator/content/${userId}`)
+      .then((res) => {
+        const data = res.data?.data || res.data;
+        if (Array.isArray(data) && data.length > 0) setUploadedContents(data);
+      })
+      .catch((err) => console.error("Uploads fetch failed:", err));
+  }, []);
+
+  // ─── Initial Data Load on Login / Page Refresh ────────────────────────────
+  useEffect(() => {
+    fetchMarketplace();
+    if (isLoggedIn && profile?.id) {
+      fetchPurchases(profile.id);
+      fetchSessions(profile.id);
+      if (profile.role === 'CREATOR' || profile.role === 'ADMIN') {
+        fetchUploads(profile.id);
+      }
+    }
+  }, [isLoggedIn, profile?.id, fetchMarketplace, fetchPurchases, fetchSessions, fetchUploads]);
+
+  // ─── Navigation Handlers ──────────────────────────────────────────────────
+
   const handleOpenCreatorProfile = (id = 202) => {
     setSelectedCreatorId(id);
     setCurrentPage('creator-profile');
@@ -112,35 +187,29 @@ function App() {
 
   // Callback when a creator successfully uploads new content
   const handleUploadSuccess = (newContent) => {
-    // Structure metadata conforming to the database model
     const dbContent = {
       ...newContent,
-      creator_name: profile?.name || "Arjun Mehta",
-      creator_avatar: profile?.avatar || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+      creator_name: profile?.name || "Creator",
+      creator_avatar: profile?.avatar || "",
       rating: 5.0,
       reviews_count: 0,
       learners_count: 0,
-      type: newContent.type || "Cheat Sheet PDF",
+      type: newContent.type || "Article",
       level: "Beginner",
       tags: ["New"],
-      preview_text: "Includes course guides, code logs and setup files."
+      preview_text: "Newly published resource."
     };
-
-    // Update global states
     setMarketplaceContents((prev) => [dbContent, ...prev]);
     setUploadedContents((prev) => [dbContent, ...prev]);
-
     alert(`Successfully published "${dbContent.title}"! Redirecting to Management Grid...`);
     setCurrentPage('manage');
   };
 
-  // Callback when a creator deletes published content
   const handleDeleteContent = (id) => {
     setUploadedContents((prev) => prev.filter((item) => item.id !== id));
     setMarketplaceContents((prev) => prev.filter((item) => item.id !== id));
   };
 
-  // Handle switching learner vs creator modes globally
   const handleSwitchRole = () => {
     setProfile((prev) => {
       if (!prev) return null;
@@ -149,68 +218,131 @@ function App() {
         role: prev.role === 'LEARNER' ? 'CREATOR' : 'LEARNER'
       };
       localStorage.setItem("learnhub_user", JSON.stringify(updatedProfile));
-      // Route appropriately
       setCurrentPage(updatedProfile.role === 'CREATOR' ? 'dashboard' : 'learner-dashboard');
       return updatedProfile;
     });
   };
 
-  // Login handler
+  // Login handler — load user data from DB after login
   const handleLoginSuccess = (user) => {
     setProfile(user);
     setIsLoggedIn(true);
-    // If logging in as Admin, route to Admin Panel, otherwise route to Creator Dashboard or Learner Dashboard
+    // Eagerly fetch DB data for this user
+    fetchPurchases(user.id);
+    fetchSessions(user.id);
+    if (user.role === 'CREATOR' || user.role === 'ADMIN') fetchUploads(user.id);
     setCurrentPage(user.role === 'ADMIN' ? 'admin' : (user.role === 'CREATOR' ? 'dashboard' : 'learner-dashboard'));
   };
 
-  // Logout handler
   const handleLogout = () => {
     localStorage.removeItem("learnhub_token");
     localStorage.removeItem("learnhub_user");
     setProfile(null);
     setIsLoggedIn(false);
+    setPurchasedContents([]);
+    setDoubtSessions([]);
+    setUploadedContents([]);
     setCurrentPage('landing');
   };
 
-  // Payment success callback - adds item dynamically to ledger state
+  /**
+   * Payment success callback.
+   * For CONTENT purchases → POST /api/payment/verify to persist in DB, then reload library.
+   * For SESSION bookings  → POST /api/sessions to create in DB, then reload sessions.
+   */
   const handlePaymentSuccess = (transactionData) => {
-    if (transactionData.item.isSession) {
-      const newSession = {
-        id: transactionData.item.id,
+    if (transactionData.item?.isSession) {
+      // ── Session Booking: persist to DB ──
+      const sd = transactionData.item.sessionData;
+      const sessionPayload = {
         learner_id: profile?.id || 101,
-        creator_id: transactionData.item.sessionData.creator.id,
-        topic: transactionData.item.sessionData.topic,
-        scheduled_at: transactionData.item.sessionData.scheduled_at,
-        duration_minutes: transactionData.item.sessionData.duration_minutes,
-        session_price: transactionData.item.sessionData.session_price,
-        booking_status: "APPROVED",
-        payment_status: "PAID",
-        transaction_id: transactionData.transactionId,
-        jitsi_room_name: `learnhub-doubt-${Math.random().toString(36).substr(2, 6)}`
+        creator_id: sd.creator?.id || sd.creator_id,
+        topic: sd.topic,
+        scheduled_at: sd.scheduled_at,
+        duration_minutes: sd.duration_minutes || 30,
+        session_price: sd.session_price || 0
       };
-      setDoubtSessions((prev) => [...prev, newSession]);
+      api.post("/api/sessions", sessionPayload)
+        .then((res) => {
+          const saved = res.data?.data || res.data;
+          // Refresh full list from DB
+          fetchSessions(profile?.id);
+          // Optimistic fallback in case fetch is slow
+          const newSession = {
+            id: saved?.id || Date.now(),
+            learner_id: profile?.id,
+            creator_id: sessionPayload.creator_id,
+            topic: sessionPayload.topic,
+            scheduled_at: sessionPayload.scheduled_at,
+            duration_minutes: sessionPayload.duration_minutes,
+            session_price: sessionPayload.session_price,
+            booking_status: "APPROVED",
+            payment_status: "PAID",
+            transaction_id: transactionData.transactionId,
+            jitsi_room_name: saved?.jitsiRoomName || `learnhub-doubt-${Math.random().toString(36).substr(2, 6)}`
+          };
+          setDoubtSessions((prev) => {
+            if (prev.find((s) => s.id === newSession.id)) return prev;
+            return [...prev, newSession];
+          });
+        })
+        .catch((err) => {
+          console.error("Session booking persist failed:", err);
+          // Optimistic local add as fallback
+          const newSession = {
+            id: Date.now(),
+            learner_id: profile?.id,
+            creator_id: sd.creator?.id || sd.creator_id,
+            topic: sd.topic,
+            scheduled_at: sd.scheduled_at,
+            duration_minutes: sd.duration_minutes || 30,
+            session_price: sd.session_price || 0,
+            booking_status: "APPROVED",
+            payment_status: "PAID",
+            transaction_id: transactionData.transactionId,
+            jitsi_room_name: `learnhub-doubt-${Math.random().toString(36).substr(2, 6)}`
+          };
+          setDoubtSessions((prev) => [...prev, newSession]);
+        });
     } else {
-      const newPurchase = {
-        id: Date.now(),
-        user_id: profile?.id || 101,
-        content_id: transactionData.item.id,
-        amount_paid: transactionData.amountPaid,
-        payment_status: "SUCCESS",
-        transaction_id: transactionData.transactionId,
-        purchased_at: transactionData.paidAt,
-        content: transactionData.item
+      // ── Content Purchase: verify/persist to DB ──
+      const verifyPayload = {
+        razorpayOrderId: transactionData.transactionId,
+        razorpayPaymentId: transactionData.transactionId,
+        razorpaySignature: "mock_" + transactionData.transactionId,
+        userId: profile?.id || 101,
+        contentId: transactionData.item?.id
       };
-      setPurchasedContents((prev) => [...prev, newPurchase]);
+      api.post("/api/payment/verify", verifyPayload)
+        .then(() => {
+          // Refresh purchases from DB
+          fetchPurchases(profile?.id);
+        })
+        .catch((err) => {
+          console.error("Purchase persist failed:", err);
+          // Optimistic local add as fallback
+          const newPurchase = {
+            id: Date.now(),
+            user_id: profile?.id || 101,
+            content_id: transactionData.item.id,
+            amount_paid: transactionData.amountPaid,
+            payment_status: "SUCCESS",
+            transaction_id: transactionData.transactionId,
+            purchased_at: transactionData.paidAt,
+            content: transactionData.item
+          };
+          setPurchasedContents((prev) => [...prev, newPurchase]);
+        });
     }
     setLatestTransaction(transactionData);
     setCurrentPage('result');
   };
 
-  // Payment failure callback
   const handlePaymentFailure = (transactionData) => {
     setLatestTransaction(transactionData);
     setCurrentPage('result');
   };
+
 
   // Guest view routing (Unauthenticated screens)
   if (!isLoggedIn) {

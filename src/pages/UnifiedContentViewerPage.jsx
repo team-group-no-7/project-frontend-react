@@ -208,18 +208,29 @@ export default function UnifiedContentViewerPage({ contentItem, onBack }) {
             {/* Document Text / Code Content Renderer */}
             <div className="prose dark:prose-invert max-w-none text-xs sm:text-sm text-gray-800 dark:text-gray-200 leading-relaxed font-normal">
               {isPdf ? (
-                <PDFDocumentCanvas
-                  title={chapters[activeChapterIndex]?.title}
-                  currentPageNum={currentPageNum}
-                  zoomLevel={zoomLevel}
-                  totalPages={totalPages}
-                  handlePrevPage={handlePrevPage}
-                  handleNextPage={handleNextPage}
-                  setZoomLevel={setZoomLevel}
-                />
+                contentItem?.fileUrl || contentItem?.file_url ? (
+                  // Real PDF from backend — render in iframe
+                  <RealPDFCanvas
+                    fileUrl={contentItem.fileUrl || contentItem.file_url}
+                    title={contentItem.title}
+                    progressPercent={progressPercent}
+                    onProgressUpdate={setScrollProgress}
+                  />
+                ) : (
+                  <PDFDocumentCanvas
+                    title={chapters[activeChapterIndex]?.title}
+                    currentPageNum={currentPageNum}
+                    zoomLevel={zoomLevel}
+                    totalPages={totalPages}
+                    handlePrevPage={handlePrevPage}
+                    handleNextPage={handleNextPage}
+                    setZoomLevel={setZoomLevel}
+                  />
+                )
               ) : (
                 <MarkdownDocumentCanvas
                   title={contentItem?.title}
+                  body={contentItem?.contentBody || contentItem?.content_body}
                 />
               )}
             </div>
@@ -314,7 +325,24 @@ function PDFDocumentCanvas({ title, currentPageNum, zoomLevel, totalPages, handl
 // ==========================================
 // 📝 Local MD Content Canvas Component
 // ==========================================
-function MarkdownDocumentCanvas({ title }) {
+function MarkdownDocumentCanvas({ title, body }) {
+  if (body) {
+    return (
+      <div className="space-y-6">
+        <h2 className="text-lg font-black text-gray-900 dark:text-white">{title || 'Article'}</h2>
+        <div
+          className="prose dark:prose-invert max-w-none"
+          dangerouslySetInnerHTML={{ __html: body }}
+        />
+        <div className="flex items-center justify-between pt-6 border-t border-gray-100 dark:border-gray-800 text-xs text-gray-500 font-bold">
+          <span>Article Reader Mode</span>
+          <span className="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded flex items-center gap-1">
+            <CheckCircle2 className="h-3 w-3" /> Fully Loaded
+          </span>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="space-y-6">
       <div className="space-y-4">
@@ -361,6 +389,40 @@ function MarkdownDocumentCanvas({ title }) {
           <CheckCircle2 className="h-3 w-3" /> Fully Loaded
         </span>
       </div>
+    </div>
+  );
+}
+
+// ==========================================
+// 🗂️ Real PDF Iframe Canvas Component
+// ==========================================
+function RealPDFCanvas({ fileUrl, title, progressPercent, onProgressUpdate }) {
+  const pdfSrc = fileUrl.startsWith('http') ? fileUrl : `http://localhost:8080${fileUrl}`;
+  return (
+    <div className="space-y-4 w-full">
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-bold text-gray-900 dark:text-white line-clamp-1">{title}</h2>
+        <a
+          href={pdfSrc}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs font-semibold text-indigo-600 hover:underline flex items-center gap-1"
+        >
+          <Download className="h-3 w-3" /> Open / Download PDF
+        </a>
+      </div>
+      <div className="w-full rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800 shadow-md bg-gray-50">
+        <iframe
+          src={pdfSrc}
+          title={title}
+          className="w-full"
+          style={{ height: '75vh', minHeight: '500px' }}
+          onLoad={() => onProgressUpdate && onProgressUpdate(5)}
+        />
+      </div>
+      <p className="text-[11px] text-gray-400 text-center">
+        Scroll within the PDF viewer above to navigate pages. Use Open / Download to view full-screen.
+      </p>
     </div>
   );
 }

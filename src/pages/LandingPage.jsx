@@ -1,14 +1,14 @@
 import React from "react";
-import { 
-  Sparkles, 
-  BookOpen, 
-  ShieldCheck, 
-  ArrowRight, 
-  ShoppingBag, 
-  Users, 
-  Zap, 
-  PenSquare, 
-  UploadCloud, 
+import {
+  Sparkles,
+  BookOpen,
+  ShieldCheck,
+  ArrowRight,
+  ShoppingBag,
+  Users,
+  Zap,
+  PenSquare,
+  UploadCloud,
   Wallet,
   Star,
   Globe
@@ -84,7 +84,7 @@ export default function LandingPage({ onExplore, onLogin, onRegister }) {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col justify-between">
-      
+
       {/* Navigation Header */}
       <header className="bg-white/85 backdrop-blur-md border-b border-slate-100 px-6 py-4 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
@@ -157,7 +157,7 @@ export default function LandingPage({ onExplore, onLogin, onRegister }) {
               <h2 className="text-2xl font-black text-slate-900">Explore Top Categories</h2>
               <p className="text-xs text-slate-400 mt-1">Structured learning resources filtered by topics.</p>
             </div>
-            
+
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               {[
                 { title: "Notes", icon: "📘", count: "2,300+ resources" },
@@ -199,7 +199,7 @@ export default function LandingPage({ onExplore, onLogin, onRegister }) {
                     <h3 className="font-bold text-xs text-slate-800 line-clamp-2 min-h-[32px]">{item.title}</h3>
                     <p className="text-[10px] text-slate-400 line-clamp-3 leading-relaxed">{item.description}</p>
                   </div>
-                  
+
                   <div className="pt-2 border-t border-slate-50 flex items-center justify-between text-[11px] text-slate-500 font-medium">
                     <span className="font-extrabold text-slate-900">₹{item.price}</span>
                     <span className="flex items-center gap-0.5 text-amber-500">
@@ -233,7 +233,7 @@ export default function LandingPage({ onExplore, onLogin, onRegister }) {
                     <p className="text-[9px] text-indigo-600 font-bold uppercase tracking-wider mt-0.5">{creator.joinedDate ? "Pro Mentor" : "@author"}</p>
                     <p className="text-[10px] text-slate-400 line-clamp-2 mt-2 leading-relaxed">{creator.headline}</p>
                   </div>
-                  
+
                   <div className="pt-2 flex items-center justify-center gap-3 text-[10px] font-bold text-slate-500">
                     <span className="flex items-center gap-0.5 text-amber-500">
                       <Star size={11} fill="currentColor" /> {creator.rating}
@@ -284,7 +284,7 @@ export default function LandingPage({ onExplore, onLogin, onRegister }) {
               {TESTIMONIALS.map((item) => (
                 <div key={item.id} className="bg-slate-50 border border-slate-100/80 p-6 rounded-2xl space-y-4 flex flex-col justify-between hover:shadow-xs transition">
                   <p className="text-xs text-slate-500 italic leading-relaxed">"{item.review}"</p>
-                  
+
                   <div className="flex items-center gap-3 pt-2">
                     <img src={item.avatar} alt={item.name} className="w-9 h-9 rounded-full object-cover" />
                     <div>
