@@ -62,7 +62,7 @@ export default function UnifiedContentViewerPage({ contentItem, onBack }) {
 
   // Calculate reading progress percentage
   const progressPercent = isPdf
-    ? Math.round((viewedPages.size / totalPages) * 100)
+    ? Math.round(Math.max(0, (viewedPages.size - 1) / (totalPages - 1)) * 100)
     : scrollProgress;
 
   const handleNextPage = () => {
