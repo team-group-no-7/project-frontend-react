@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 // Import components & mock database catalog
 import MarketplaceCard from "@/components/MarketplaceCard";
 import ContentPreviewModal from "@/components/ContentPreviewModal";
-import { MARKETPLACE_CONTENTS, CATEGORIES, PURCHASED_CONTENTS } from "@/data/mockData";
 
 /**
  * MarketplacePage Component (Module 2 - Item 5: Marketplace Catalog / Browse Page)
@@ -19,7 +18,7 @@ import { MARKETPLACE_CONTENTS, CATEGORIES, PURCHASED_CONTENTS } from "@/data/moc
  *  - Grid of Marketplace items
  *  - Resource details preview modal
  */
-export default function MarketplacePage({ onNavigateToProfile, onOpenCreatorProfile, onBuyContent, purchasedContents = PURCHASED_CONTENTS, marketplaceContents = MARKETPLACE_CONTENTS }) {
+export default function MarketplacePage({ onNavigateToProfile, onOpenCreatorProfile, onBuyContent, purchasedContents = [], marketplaceContents = [] }) {
   // State for search query and selected category ID
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState(0); // 0 = All Categories
@@ -34,22 +33,28 @@ export default function MarketplacePage({ onNavigateToProfile, onOpenCreatorProf
   // Dynamically calculate category list counts based on live catalog data
   const categoriesList = useMemo(() => {
     const list = [{ id: 0, name: "All", count: marketplaceContents.length }];
-    const counts = {};
+    const categoryMap = new Map();
+
     marketplaceContents.forEach((item) => {
-      const cId = item.category_id || (item.category ? item.category.id : null);
-      if (cId) {
-        counts[cId] = (counts[cId] || 0) + 1;
+      const name = item.category_name || item.category || "General";
+      const id = item.category_id || 1;
+      if (!categoryMap.has(name)) {
+        categoryMap.set(name, { id, name, count: 0 });
       }
+      categoryMap.get(name).count += 1;
     });
-    CATEGORIES.forEach((cat) => {
-      if (cat.id !== 0) {
-        list.push({
-          id: cat.id,
-          name: cat.name,
-          count: counts[cat.id] || 0
-        });
-      }
-    });
+
+    if (categoryMap.size === 0) {
+      return [
+        { id: 0, name: "All", count: 0 },
+        { id: 1, name: "Java", count: 0 },
+        { id: 2, name: "DSA", count: 0 },
+        { id: 3, name: "System Design", count: 0 },
+        { id: 4, name: "Web Dev", count: 0 }
+      ];
+    }
+
+    categoryMap.forEach((cat) => list.push(cat));
     return list;
   }, [marketplaceContents]);
 

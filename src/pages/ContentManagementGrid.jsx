@@ -74,10 +74,11 @@ export default function ContentManagementGrid({ onOpenUploadForm, contentsList, 
   const processedResources = useMemo(() => {
     return resources
       .filter(item => {
-        const status = item.status || "Published";
+        const title = item?.title || "";
+        const status = item?.status || "Published";
         return (
-          item.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-          (categoryFilter === "All" || (item.category_name || "General") === categoryFilter) &&
+          title.toLowerCase().includes(searchQuery.toLowerCase()) &&
+          (categoryFilter === "All" || (item?.category_name || "General") === categoryFilter) &&
           (statusFilter  === "All" || status === statusFilter)
         );
       })
@@ -154,10 +155,10 @@ export default function ContentManagementGrid({ onOpenUploadForm, contentsList, 
           </thead>
           <tbody className="divide-y divide-gray-100 text-xs text-gray-600">
             {paginatedResources.length > 0 ? paginatedResources.map((item) => {
-              const status = item.status || "Published";
+              const isPublished = (item?.status || "PUBLISHED").toUpperCase() === "PUBLISHED";
               return (
                 <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
-                  <td className="p-4 font-bold text-gray-900">{item.title}</td>
+                  <td className="p-4 font-bold text-gray-900 line-clamp-1">{item.title}</td>
                   <td className="p-4">
                     <span className="bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase">
                       {item.category_name || "General"}
@@ -168,16 +169,16 @@ export default function ContentManagementGrid({ onOpenUploadForm, contentsList, 
                   </td>
                   <td className="p-4">
                     <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                      status === "Published" ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-500"
+                      isPublished ? "bg-emerald-50 text-emerald-600 border border-emerald-200" : "bg-slate-100 text-slate-500"
                     }`}>
-                      {status}
+                      {isPublished ? "Published" : "Draft"}
                     </span>
                   </td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1.5">
-                      <button onClick={() => handleToggleStatus(item.id)} title={status === "Published" ? "Unpublish" : "Publish"}
+                      <button onClick={() => handleToggleStatus(item.id)} title={isPublished ? "Unpublish" : "Publish"}
                         className="p-1.5 rounded hover:bg-slate-100 text-slate-500 transition-colors cursor-pointer">
-                        {status === "Published" ? <EyeOff size={16} /> : <Eye size={16} />}
+                        {isPublished ? <EyeOff size={16} /> : <Eye size={16} />}
                       </button>
                       <button onClick={() => openEditModal(item)} title="Edit Details"
                         className="p-1.5 rounded hover:bg-slate-100 text-slate-500 transition-colors cursor-pointer">

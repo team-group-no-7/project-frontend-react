@@ -106,8 +106,10 @@ export default function ProfilePage({
           ) : (
             <CreatorDashboard
               uploadedContents={uploads}
+              doubtSessions={sessions}
               profile={profile}
               onSaveSettings={handleSaveProfileSettings}
+              onJoinCall={onJoinCall}
             />
           )}
         </section>

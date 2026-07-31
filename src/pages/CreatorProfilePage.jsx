@@ -15,9 +15,23 @@ import { CREATORS, MARKETPLACE_CONTENTS } from '@/data/mockData';
  * 3. Creator's Published Courses / Notes
  * 4. Learner Reviews
  */
-export default function CreatorProfilePage({ creatorId = 202, onBack, onBookSession }) {
-  // Find creator details from mock database (default to Rohan Verma if not found)
-  const creator = CREATORS.find((c) => c.id === Number(creatorId)) || CREATORS[0];
+export default function CreatorProfilePage({ creatorId = 202, marketplaceContents = [], onBack, onBookSession }) {
+  // Find creator details dynamically from live marketplace contents or fallback to mock catalog
+  const creatorItem = (marketplaceContents || []).find(
+    (c) => String(c.creator_id) === String(creatorId) || String(c.creatorId) === String(creatorId)
+  );
+
+  const creator = creatorItem ? {
+    id: creatorItem.creator_id || creatorItem.creatorId || creatorId,
+    name: creatorItem.creator_name || creatorItem.creatorName || "Creator Profile",
+    avatar_url: creatorItem.creator_avatar || creatorItem.creatorAvatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
+    headline: "Staff Educator & Technology Specialist",
+    location: "India",
+    bio: `Content creator and mentor on LearnHub. Specializing in ${creatorItem.category_name || "Software Development"}.`,
+    rating: creatorItem.rating || 4.9,
+    reviews_count: creatorItem.reviews_count || 18,
+    learners_count: creatorItem.learners_count || 120
+  } : (CREATORS.find((c) => c.id === Number(creatorId)) || CREATORS[0]);
   
   // Tab state to switch between 'courses', 'reviews', and 'booking'
   const [activeTab, setActiveTab] = useState('courses');
@@ -55,9 +69,11 @@ export default function CreatorProfilePage({ creatorId = 202, onBack, onBookSess
   };
 
   // Filter resources published by this specific creator
-  const creatorContents = MARKETPLACE_CONTENTS.filter(
-    (item) => item.creator_id === creator.id
-  );
+  const creatorContents = (marketplaceContents && marketplaceContents.length > 0)
+    ? marketplaceContents.filter(
+        (item) => String(item.creator_id) === String(creator.id) || String(item.creatorId) === String(creator.id) || item.creator_name === creator.name
+      )
+    : MARKETPLACE_CONTENTS.filter((item) => item.creator_id === creator.id);
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">

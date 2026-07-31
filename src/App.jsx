@@ -89,10 +89,10 @@ function App() {
     try {
       const saved = JSON.parse(localStorage.getItem('learnhub_uploads'));
       if (Array.isArray(saved) && saved.length > 0) {
-        return [...saved, ...MARKETPLACE_CONTENTS];
+        return saved;
       }
     } catch (e) {}
-    return MARKETPLACE_CONTENTS;
+    return [];
   });
   const [uploadedContents, setUploadedContents] = useState(() => {
     try { return JSON.parse(localStorage.getItem('learnhub_uploads')) || []; } catch (e) { return []; }
@@ -160,10 +160,9 @@ function App() {
     api.get(`/api/purchases/library/${userId}`)
       .then((res) => {
         const data = res.data?.data || res.data;
-        if (Array.isArray(data) && data.length > 0) {
-          // Normalise to match existing purchasedContents shape used throughout UI
+        if (Array.isArray(data)) {
           const normalised = data.map((item, idx) => ({
-            id: idx + 1,
+            id: item.id || idx + 1,
             user_id: userId,
             content_id: item.contentId,
             amount_paid: item.price,
@@ -183,7 +182,7 @@ function App() {
           setPurchasedContents((prev) => {
             const combined = [...normalised];
             prev.forEach(p => {
-              if (!combined.some(c => c.content_id === p.content_id)) {
+              if (p.user_id === userId && !combined.some(c => c.content_id === p.content_id)) {
                 combined.push(p);
               }
             });
@@ -194,26 +193,28 @@ function App() {
       .catch((err) => console.error("Library fetch failed:", err));
   }, []);
 
-  /** Fetch doubt sessions from DB for a given learner */
-  const fetchSessions = useCallback((userId) => {
+  /** Fetch doubt sessions from DB for a given user */
+  const fetchSessions = useCallback((userId, role) => {
     if (!userId) return;
-    api.get(`/api/sessions/${userId}`)
+    const url = role === 'CREATOR' ? `/api/sessions/${userId}?role=CREATOR` : `/api/sessions/${userId}`;
+    api.get(url)
       .then((res) => {
         const data = res.data?.data || res.data;
-        if (Array.isArray(data) && data.length > 0) {
+        if (Array.isArray(data)) {
           const normalised = data.map((s) => ({
             id: s.id,
-            learner_id: userId,
+            learner_id: s.learnerId || userId,
             creator_id: s.creatorId,
             topic: s.topic,
             scheduled_at: s.scheduledAt,
             duration_minutes: s.durationMinutes,
             session_price: s.sessionPrice,
-            booking_status: s.bookingStatus,
-            payment_status: s.paymentStatus,
+            booking_status: s.bookingStatus || "APPROVED",
+            payment_status: s.paymentStatus || "PAID",
             transaction_id: s.transactionId,
             jitsi_room_name: s.jitsiRoomName,
-            creator_name: s.creatorName
+            creator_name: s.creatorName,
+            learner_name: s.learnerName || "Learner"
           }));
           setDoubtSessions((prev) => {
             const combined = [...normalised];
@@ -235,11 +236,28 @@ function App() {
     api.get(`/api/creator/content/${userId}`)
       .then((res) => {
         const data = res.data?.data || res.data;
-        if (Array.isArray(data) && data.length > 0) {
+        if (Array.isArray(data)) {
+          const normalised = data.map(item => ({
+            id: item.id,
+            title: item.title,
+            description: item.description,
+            price: item.price,
+            type: item.type || "PDF Guide",
+            status: item.status || "PUBLISHED",
+            creator_id: userId,
+            creatorId: userId,
+            creator_name: item.creatorName || item.creator_name,
+            category_name: item.categoryName || item.category_name || "General",
+            created_at: item.createdAt || item.created_at || new Date().toISOString(),
+            fileUrl: item.fileUrl || item.file_url,
+            file_url: item.fileUrl || item.file_url,
+            learners_count: item.learnersCount || item.learners_count || 1
+          }));
+
           setUploadedContents((prev) => {
-            const combined = [...data];
+            const combined = [...normalised];
             prev.forEach(u => {
-              if (!combined.some(c => c.id === u.id || c.title === u.title)) {
+              if ((String(u.creator_id) === String(userId) || String(u.creatorId) === String(userId)) && !combined.some(c => c.id === u.id || c.title === u.title)) {
                 combined.push(u);
               }
             });
@@ -255,12 +273,17 @@ function App() {
     fetchMarketplace();
     if (isLoggedIn && profile?.id) {
       fetchPurchases(profile.id);
-      fetchSessions(profile.id);
-      if (profile.role === 'CREATOR' || profile.role === 'ADMIN') {
-        fetchUploads(profile.id);
-      }
+      fetchSessions(profile.id, profile.role);
+      fetchUploads(profile.id);
     }
-  }, [isLoggedIn, profile?.id, fetchMarketplace, fetchPurchases, fetchSessions, fetchUploads]);
+  }, [isLoggedIn, profile?.id, profile?.role, fetchPurchases, fetchSessions, fetchUploads, fetchMarketplace]);
+
+  // Ensure creator uploads are freshly loaded whenever visiting manage or dashboard pages
+  useEffect(() => {
+    if (isLoggedIn && profile?.id && (currentPage === 'manage' || currentPage === 'dashboard')) {
+      fetchUploads(profile.id);
+    }
+  }, [currentPage, isLoggedIn, profile?.id, fetchUploads]);
 
   // ─── Navigation Handlers ──────────────────────────────────────────────────
 
@@ -303,6 +326,9 @@ function App() {
         role: prev.role === 'LEARNER' ? 'CREATOR' : 'LEARNER'
       };
       localStorage.setItem("learnhub_user", JSON.stringify(updatedProfile));
+      if (updatedProfile.role === 'CREATOR' && updatedProfile.id) {
+        fetchUploads(updatedProfile.id);
+      }
       setCurrentPage(updatedProfile.role === 'CREATOR' ? 'dashboard' : 'learner-dashboard');
       return updatedProfile;
     });
@@ -341,11 +367,15 @@ function App() {
     if (transactionData.item?.isSession) {
       // ── Session Booking: persist to DB ──
       const sd = transactionData.item.sessionData;
+      const scheduledDate = (sd.scheduled_at && !isNaN(Date.parse(sd.scheduled_at))) 
+        ? new Date(sd.scheduled_at).toISOString() 
+        : new Date(Date.now() + 86400000).toISOString();
+
       const sessionPayload = {
         learner_id: profile?.id || 101,
         creator_id: sd.creator?.id || sd.creator_id,
         topic: sd.topic,
-        scheduled_at: sd.scheduled_at,
+        scheduled_at: scheduledDate,
         duration_minutes: sd.duration_minutes || 30,
         session_price: sd.session_price || 0
       };
@@ -353,7 +383,7 @@ function App() {
         .then((res) => {
           const saved = res.data?.data || res.data;
           // Refresh full list from DB
-          fetchSessions(profile?.id);
+          fetchSessions(profile?.id, profile?.role);
           // Optimistic fallback in case fetch is slow
           const newSession = {
             id: saved?.id || Date.now(),
@@ -571,6 +601,7 @@ function App() {
         <CreatorDashboardMain 
           profile={profile}
           uploadedContents={uploadedContents}
+          marketplaceContents={marketplaceContents}
           onChangePage={setCurrentPage}
         />
       )}
@@ -586,6 +617,7 @@ function App() {
       {currentPage === 'creator-profile' && (
         <CreatorProfilePage
           creatorId={selectedCreatorId}
+          marketplaceContents={marketplaceContents}
           onBack={() => setCurrentPage('marketplace')}
           onSelectCreator={(id) => setSelectedCreatorId(id)}
           onBookSession={(sessionDetails) => {
