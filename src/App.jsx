@@ -322,6 +322,8 @@ function App() {
   const handleLogout = () => {
     localStorage.removeItem("learnhub_token");
     localStorage.removeItem("learnhub_user");
+    localStorage.removeItem("learnhub_purchases");
+    localStorage.removeItem("learnhub_sessions");
     setProfile(null);
     setIsLoggedIn(false);
     setPurchasedContents([]);
