@@ -7,7 +7,15 @@ import QAThreadSection from '@/components/QAThreadSection';
  * UnifiedContentViewerPage Component (Module 4: Unified Reader Experience)
  * Immersive reader for PDFs & Articles with Reading Progress, Table of Contents, Bookmarks, and in-reader Discussion Drawer.
  */
-export default function UnifiedContentViewerPage({ contentItem, onBack }) {
+export default function UnifiedContentViewerPage({ contentItem: initialItem, onBack }) {
+  const contentItem = initialItem || {
+    id: 1,
+    title: "Complete Java Spring Boot Guide",
+    creator_name: "Rohan Verma",
+    type: "PDF",
+    description: "Sample learning resource guide."
+  };
+
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [currentPageNum, setCurrentPageNum] = useState(1);
   const totalPages = 14;
@@ -20,7 +28,7 @@ export default function UnifiedContentViewerPage({ contentItem, onBack }) {
 
   // Dynamic media check
   const typeLower = contentItem?.type?.toLowerCase() || "";
-  const isPdf = typeLower.includes("pdf") || typeLower.includes("sheet");
+  const isPdf = typeLower.includes("pdf") || typeLower.includes("sheet") || !!(contentItem?.fileUrl || contentItem?.file_url);
 
   // Table of Contents — use chapters from the content item if provided by backend,
   // otherwise show a generic numbered fallback so any resource type works
@@ -31,6 +39,11 @@ export default function UnifiedContentViewerPage({ contentItem, onBack }) {
     { title: "Chapter 4: Advanced Topics & Edge Cases",   startPage: 9  },
     { title: "Chapter 5: Summary, Practice & Next Steps", startPage: 12 },
   ];
+
+  // Calculate reading progress percentage
+  const progressPercent = isPdf
+    ? Math.round(Math.max(0, (viewedPages.size - 1) / (totalPages - 1)) * 100)
+    : scrollProgress;
 
   // Track PDF viewed pages dynamically
   useEffect(() => {
@@ -67,10 +80,7 @@ export default function UnifiedContentViewerPage({ contentItem, onBack }) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [isPdf]);
 
-  // Calculate reading progress percentage
-  const progressPercent = isPdf
-    ? Math.round(Math.max(0, (viewedPages.size - 1) / (totalPages - 1)) * 100)
-    : scrollProgress;
+
 
   const handleNextPage = () => {
     if (currentPageNum < totalPages) {
