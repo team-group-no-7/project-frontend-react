@@ -44,7 +44,14 @@ export default function ProfilePage({
       return;
     }
 
-    api.put(`/api/users/profile/${userId}`, updatedProfile)
+    const payload = {
+      name: updatedProfile.name || profile.name,
+      headline: updatedProfile.headline || "",
+      location: updatedProfile.location || "",
+      avatarUrl: updatedProfile.avatarUrl || updatedProfile.avatar_url || ""
+    };
+
+    api.put(`/api/users/${userId}`, payload)
       .then((res) => {
         const saved = res.data?.data || res.data || updatedProfile;
         setProfile(saved);
