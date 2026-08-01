@@ -317,21 +317,25 @@ function App() {
       } catch (e) {}
     }
 
-    if (refreshToken) {
-      api.post("/api/auth/logout", { refreshToken }).catch(() => {});
-    }
+    const clearLocalSession = () => {
+      localStorage.removeItem("learnhub_token");
+      localStorage.removeItem("learnhub_user");
+      localStorage.removeItem("learnhub_purchases");
+      localStorage.removeItem("learnhub_sessions");
+      localStorage.removeItem("learnhub_uploads");
+      setProfile(null);
+      setIsLoggedIn(false);
+      setPurchasedContents([]);
+      setDoubtSessions([]);
+      setUploadedContents([]);
+      navigate('/');
+    };
 
-    localStorage.removeItem("learnhub_token");
-    localStorage.removeItem("learnhub_user");
-    localStorage.removeItem("learnhub_purchases");
-    localStorage.removeItem("learnhub_sessions");
-    localStorage.removeItem("learnhub_uploads");
-    setProfile(null);
-    setIsLoggedIn(false);
-    setPurchasedContents([]);
-    setDoubtSessions([]);
-    setUploadedContents([]);
-    navigate('/');
+    if (refreshToken) {
+      api.post("/api/auth/logout", { refreshToken }).finally(clearLocalSession);
+    } else {
+      clearLocalSession();
+    }
   };
 
   const handlePaymentSuccess = (transactionData) => {
