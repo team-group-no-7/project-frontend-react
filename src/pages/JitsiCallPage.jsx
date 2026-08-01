@@ -1,14 +1,25 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
 /**
  * JitsiCallPage Component (Module 8: Live Mentorship Call Screen)
  * Developed by: Team Member (CDAC Final Project)
- * 
- * Embedded Jitsi meeting frame launcher.
+ * Managed cleanly using React Router DOM.
  */
-export default function JitsiCallPage({ session, userName = "Learner", onDisconnect }) {
-  if (!session) return null;
+export default function JitsiCallPage({ session, userName = "Learner" }) {
+  const navigate = useNavigate();
+
+  if (!session) {
+    return (
+      <div className="min-h-screen bg-[#0b0a14] text-white flex flex-col items-center justify-center space-y-4">
+        <p className="text-sm text-gray-400">No active doubt session selected.</p>
+        <Button onClick={() => navigate('/profile')} className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs">
+          Return to My Account
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0b0a14] text-white flex flex-col font-sans">
@@ -21,7 +32,7 @@ export default function JitsiCallPage({ session, userName = "Learner", onDisconn
             <p className="text-[10px] text-gray-500">Duration: {session.duration_minutes} Mins • Secure Embed</p>
           </div>
         </div>
-        <Button variant="outline" size="sm" onClick={onDisconnect} className="border-red-500 text-red-500 hover:bg-red-600 hover:text-white text-xs rounded-xl font-bold transition-all">
+        <Button variant="outline" size="sm" onClick={() => navigate('/profile')} className="border-red-500 text-red-500 hover:bg-red-600 hover:text-white text-xs rounded-xl font-bold transition-all">
           Disconnect & Exit
         </Button>
       </header>

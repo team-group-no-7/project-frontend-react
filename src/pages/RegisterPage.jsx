@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { User, Mail, Lock, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,12 +10,10 @@ import api from "@/utils/api";
 /**
  * RegisterPage Component (Module 1: Registration Page)
  * Simple signup form. New accounts default to LEARNER role.
- *
- * Props:
- *  - onRegisterSuccess : Called with new user object on successful registration
- *  - onNavigateToLogin : Switches view to Login page
+ * Managed cleanly using React Router DOM useNavigate.
  */
-export default function RegisterPage({ onRegisterSuccess, onNavigateToLogin }) {
+export default function RegisterPage({ onRegisterSuccess }) {
+  const navigate = useNavigate();
   const [name, setName]                     = useState("");
   const [email, setEmail]                   = useState("");
   const [password, setPassword]             = useState("");
@@ -40,7 +39,11 @@ export default function RegisterPage({ onRegisterSuccess, onNavigateToLogin }) {
         const newUser = res.data.data;
         localStorage.setItem("learnhub_token", newUser.token);
         localStorage.setItem("learnhub_user", JSON.stringify(newUser));
-        onRegisterSuccess(newUser);
+        if (onRegisterSuccess) {
+          onRegisterSuccess(newUser);
+        } else {
+          navigate('/learner/dashboard');
+        }
       })
       .catch((err) => {
         setIsLoading(false);
@@ -48,7 +51,6 @@ export default function RegisterPage({ onRegisterSuccess, onNavigateToLogin }) {
       });
   };
 
-  // Reusable field config — same icon+label+input pattern for every field
   const fields = [
     { id: "r-name",  label: "Full Name *",        icon: User, type: "text",     placeholder: "Enter your full name",   value: name,            onChange: setName },
     { id: "r-email", label: "Email Address *",    icon: Mail, type: "email",    placeholder: "Enter your email",       value: email,           onChange: setEmail },
@@ -63,7 +65,7 @@ export default function RegisterPage({ onRegisterSuccess, onNavigateToLogin }) {
       errorMsg={errorMsg}
       footerText="Already registered?"
       footerLink="Log In Here"
-      onFooterClick={onNavigateToLogin}
+      onFooterClick={() => navigate('/login')}
     >
       <form onSubmit={handleSubmit} className="space-y-4">
 

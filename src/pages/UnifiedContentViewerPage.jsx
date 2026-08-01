@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BookOpen, Bookmark, MessageSquare, ArrowLeft, ChevronRight, ChevronLeft, CheckCircle2, Share2, ZoomIn, ZoomOut, Download, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import QAThreadSection from '@/components/QAThreadSection';
 import ReviewModal from '@/components/ReviewModal';
 
-export default function UnifiedContentViewerPage({ contentItem: initialItem, profile, onBack }) {
+export default function UnifiedContentViewerPage({ contentItem: initialItem, profile }) {
+  const navigate = useNavigate();
+
   const contentItem = initialItem || {
     id: 1,
     title: "Complete Java Spring Boot Guide",
@@ -24,12 +27,9 @@ export default function UnifiedContentViewerPage({ contentItem: initialItem, pro
   const [viewedPages, setViewedPages] = useState(() => new Set());
   const [scrollProgress, setScrollProgress] = useState(0);
 
-  // Dynamic media check
   const typeLower = contentItem?.type?.toLowerCase() || "";
   const isPdf = typeLower.includes("pdf") || typeLower.includes("sheet") || !!(contentItem?.fileUrl || contentItem?.file_url);
 
-  // Table of Contents — use chapters from the content item if provided by backend,
-  // otherwise show a generic numbered fallback so any resource type works
   const chapters = contentItem?.chapters || [
     { title: "Chapter 1: Introduction & Overview",        startPage: 1  },
     { title: "Chapter 2: Core Concepts & Theory",         startPage: 3  },
@@ -38,12 +38,10 @@ export default function UnifiedContentViewerPage({ contentItem: initialItem, pro
     { title: "Chapter 5: Summary, Practice & Next Steps", startPage: 12 },
   ];
 
-  // Calculate reading progress percentage
   const progressPercent = isPdf
     ? Math.round(Math.max(0, (viewedPages.size - 1) / (totalPages - 1)) * 100)
     : scrollProgress;
 
-  // Track PDF viewed pages dynamically
   useEffect(() => {
     if (isPdf) {
       setViewedPages((prev) => {
@@ -54,14 +52,12 @@ export default function UnifiedContentViewerPage({ contentItem: initialItem, pro
     }
   }, [currentPageNum, isPdf]);
 
-  // Save progress to localStorage so dashboard shows real progress
   useEffect(() => {
     if (contentItem?.id && progressPercent > 0) {
       localStorage.setItem(`learnhub_progress_${contentItem.id}`, String(progressPercent));
     }
   }, [progressPercent, contentItem?.id]);
 
-  // Track Article scroll progress dynamically
   useEffect(() => {
     if (isPdf) return;
     const handleScroll = () => {
@@ -77,8 +73,6 @@ export default function UnifiedContentViewerPage({ contentItem: initialItem, pro
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [isPdf]);
-
-
 
   const handleNextPage = () => {
     if (currentPageNum < totalPages) {
@@ -105,16 +99,14 @@ export default function UnifiedContentViewerPage({ contentItem: initialItem, pro
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           
           <div className="flex items-center gap-3">
-            {onBack && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onBack}
-                className="gap-1 text-xs font-semibold text-gray-600 dark:text-gray-300"
-              >
-                <ArrowLeft className="h-4 w-4" /> Library
-              </Button>
-            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/learner/dashboard')}
+              className="gap-1 text-xs font-semibold text-gray-600 dark:text-gray-300"
+            >
+              <ArrowLeft className="h-4 w-4" /> Library
+            </Button>
             <div className="h-5 w-px bg-gray-200 dark:bg-gray-800 hidden sm:block" />
             <div>
               <h1 className="font-extrabold text-sm sm:text-base text-gray-900 dark:text-white line-clamp-1">
@@ -129,7 +121,6 @@ export default function UnifiedContentViewerPage({ contentItem: initialItem, pro
           {/* Reading Controls & Progress Bar */}
           <div className="flex items-center gap-3">
             
-            {/* Reading Progress Indicator */}
             <div className="hidden md:flex items-center gap-2 bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1 rounded-xl border border-indigo-100 dark:border-indigo-900">
               <span className="text-[11px] font-bold text-indigo-700 dark:text-indigo-300">
                 {progressPercent}% Read
@@ -142,7 +133,6 @@ export default function UnifiedContentViewerPage({ contentItem: initialItem, pro
               </div>
             </div>
 
-            {/* Bookmark Toggle Button */}
             <Button
               size="sm"
               variant="outline"
@@ -155,7 +145,6 @@ export default function UnifiedContentViewerPage({ contentItem: initialItem, pro
               {isBookmarked ? 'Bookmarked' : 'Bookmark'}
             </Button>
 
-            {/* Leave Review Button */}
             <Button
               size="sm"
               variant="outline"
@@ -165,7 +154,6 @@ export default function UnifiedContentViewerPage({ contentItem: initialItem, pro
               <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" /> Rate Resource
             </Button>
 
-            {/* In-reader Q&A Drawer Toggle */}
             <Button
               size="sm"
               onClick={() => setShowQADrawer(!showQADrawer)}
@@ -217,10 +205,8 @@ export default function UnifiedContentViewerPage({ contentItem: initialItem, pro
         {/* Center Reader Workspace */}
         <main className={`${showQADrawer ? 'md:col-span-8 lg:col-span-5' : 'md:col-span-8 lg:col-span-9'} flex flex-col space-y-4`}>
           
-          {/* Reader Document Canvas Card */}
           <div className="bg-white dark:bg-[#121124] border border-gray-200 dark:border-gray-800 rounded-2xl p-6 sm:p-8 shadow-md flex-1 space-y-6">
             
-            {/* Page Header Bar inside document */}
             <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-4">
               <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">
                 {chapters[activeChapterIndex]?.title}
@@ -230,7 +216,6 @@ export default function UnifiedContentViewerPage({ contentItem: initialItem, pro
               </span>
             </div>
 
-            {/* Document Text / Code Content Renderer */}
             <div className="prose dark:prose-invert max-w-none text-xs sm:text-sm text-gray-800 dark:text-gray-200 leading-relaxed font-normal">
               {isPdf ? (
                 <RealPDFCanvas
@@ -273,7 +258,6 @@ export default function UnifiedContentViewerPage({ contentItem: initialItem, pro
 
       </div>
 
-      {/* Interactive Star Rating & Review Modal */}
       <ReviewModal
         isOpen={showReviewModal}
         onClose={() => setShowReviewModal(false)}
@@ -284,9 +268,6 @@ export default function UnifiedContentViewerPage({ contentItem: initialItem, pro
   );
 }
 
-// ==========================================
-// 📄 Local PDF Content Canvas Component
-// ==========================================
 function PDFDocumentCanvas({ title, currentPageNum, zoomLevel, totalPages, handlePrevPage, handleNextPage, setZoomLevel }) {
   return (
     <div className="space-y-6">
@@ -309,7 +290,6 @@ function PDFDocumentCanvas({ title, currentPageNum, zoomLevel, totalPages, handl
         </p>
       </div>
 
-      {/* PDF Page Navigation Footer */}
       <div className="flex items-center justify-between pt-6 border-t border-gray-100 dark:border-gray-800">
         <Button
           size="sm"
@@ -342,9 +322,6 @@ function PDFDocumentCanvas({ title, currentPageNum, zoomLevel, totalPages, handl
   );
 }
 
-// ==========================================
-// 📝 Local MD Content Canvas Component
-// ==========================================
 function MarkdownDocumentCanvas({ title, body }) {
   if (body) {
     return (
@@ -402,7 +379,6 @@ function MarkdownDocumentCanvas({ title, body }) {
         </div>
       </div>
 
-      {/* MD Page Info Footer */}
       <div className="flex items-center justify-between pt-6 border-t border-gray-100 dark:border-gray-800 text-xs text-gray-500 font-bold">
         <span>Article Reader Mode</span>
         <span className="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded flex items-center gap-1">
@@ -413,9 +389,6 @@ function MarkdownDocumentCanvas({ title, body }) {
   );
 }
 
-// ==========================================
-// 🗂️ Real PDF Viewer Canvas Component
-// ==========================================
 function RealPDFCanvas({ fileUrl, title, progressPercent, onProgressUpdate }) {
   const [loadError, setLoadError] = useState(false);
   const url = fileUrl || "/uploads/sample-spring-boot.pdf";

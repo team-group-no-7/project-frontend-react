@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { CheckCircle2, XCircle, ArrowRight, RotateCcw, BookOpen, Download, ShieldCheck } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,16 +8,13 @@ import { Badge } from "@/components/ui/badge";
 /**
  * PaymentResultPage Component (Module 3 - Item 10: Payment Redirect Screens)
  * Displays payment outcome feedback (Success vs Failure) after Razorpay transaction completes.
- * 
- * Props:
- *  - transaction: Object containing transaction status, id, amount, timestamp, etc.
- *  - onGoToLibrary: Function to redirect learner to "My Library" page
- *  - onTryAgain: Function to restart checkout
+ * Managed cleanly using React Router DOM useNavigate.
  */
-export default function PaymentResultPage({ transaction, onGoToLibrary, onTryAgain }) {
-  // Default mock transaction data if none passed
+export default function PaymentResultPage({ transaction }) {
+  const navigate = useNavigate();
+
   const txn = transaction || {
-    paymentStatus: "SUCCESS", // "SUCCESS" or "FAILED"
+    paymentStatus: "SUCCESS",
     transactionId: "pay_N8s92f1Kds",
     item: {
       title: "Complete Java Spring Boot Guide",
@@ -115,14 +113,14 @@ export default function PaymentResultPage({ transaction, onGoToLibrary, onTryAga
         <CardFooter className="p-6 bg-gray-50 dark:bg-black/20 border-t border-gray-100 dark:border-gray-800 flex justify-center">
           {isSuccess ? (
             <Button
-              onClick={onGoToLibrary}
+              onClick={() => navigate('/learner/dashboard')}
               className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-3 rounded-xl shadow-md gap-2"
             >
               <BookOpen className="h-4 w-4" /> Go to My Library & Read Now
             </Button>
           ) : (
             <Button
-              onClick={onTryAgain}
+              onClick={() => navigate('/checkout')}
               className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs py-3 rounded-xl shadow-md gap-2"
             >
               <RotateCcw className="h-4 w-4" /> Try Checkout Again

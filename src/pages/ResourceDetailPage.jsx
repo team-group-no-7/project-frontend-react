@@ -1,9 +1,11 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { Star, ChevronRight, FileText, Layers, Tag, User, ArrowLeft, ShieldCheck, Download, Award, Calendar, Globe } from "lucide-react";
 import { CREATORS } from "../data/mockData";
 
-export default function ResourceDetailPage({ resourceItem, profile, onBuyContent, onBack }) {
-  // Safe fallback to default mock item if none selected
+export default function ResourceDetailPage({ resourceItem, profile, onBuyContent }) {
+  const navigate = useNavigate();
+
   const item = resourceItem || {
     id: 11,
     title: "Complete Java Spring Boot Monolith & Microservices",
@@ -24,14 +26,12 @@ export default function ResourceDetailPage({ resourceItem, profile, onBuyContent
     created_at: "2026-06-10"
   };
 
-  // Check if current logged in profile is the author/creator of this item
   const isCreatorOwner = profile && (
     profile.id === item.creator_id ||
     profile.id === item.creator?.id ||
     (profile.role === 'CREATOR' && (profile.name === item.creator_name || profile.name === item.creator))
   );
 
-  // Find creator dynamically from mock database to retrieve associated student reviews
   const creatorProfile = CREATORS.find(c => c.id === item.creator_id) || CREATORS[0];
   const creatorReviews = creatorProfile?.reviews || [];
 
@@ -52,7 +52,7 @@ export default function ResourceDetailPage({ resourceItem, profile, onBuyContent
         {/* Navigation Bar */}
         <div className="flex flex-wrap items-center gap-4 bg-white p-4 rounded-xl shadow-xs border border-gray-100">
           <button 
-            onClick={onBack}
+            onClick={() => navigate('/marketplace')}
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-bold text-gray-600 hover:bg-slate-50 transition cursor-pointer"
           >
             <ArrowLeft className="h-3.5 w-3.5" /> Back to Catalog
@@ -137,7 +137,7 @@ export default function ResourceDetailPage({ resourceItem, profile, onBuyContent
               </div>
             </div>
 
-            {/* Specifications Card — SpecItem helper removes repeated JSX blocks */}
+            {/* Specifications Card */}
             <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs space-y-4">
               <h2 className="text-lg font-bold text-gray-900">Specifications</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -172,7 +172,7 @@ export default function ResourceDetailPage({ resourceItem, profile, onBuyContent
               )}
             </div>
 
-            {/* Reviews Card (Dynamic from mockData.js CREATORS table) */}
+            {/* Reviews Card */}
             <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs space-y-4">
               <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
                 <Star className="h-5 w-5 text-amber-500 fill-amber-500" />

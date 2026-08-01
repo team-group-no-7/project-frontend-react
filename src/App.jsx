@@ -1,52 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import api from '@/utils/api';
-
-// Import Module Pages
-import LandingPage from './pages/LandingPage';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import MarketplacePage from './pages/MarketplacePage';
-import ContentManagementGrid from './pages/ContentManagementGrid';
-import ProfilePage from './pages/ProfilePage';
-import CreatorProfilePage from './pages/CreatorProfilePage';
-import AdminDashboardPage from './pages/AdminDashboardPage';
-import UnifiedContentViewerPage from './pages/UnifiedContentViewerPage';
-import CheckoutPage from './pages/CheckoutPage';
-import PaymentResultPage from './pages/PaymentResultPage';
-import JitsiCallPage from './pages/JitsiCallPage';
-import CreatorDashboardMain from './pages/creator/Dashboard';
-import ContentStudio from './pages/creator/ContentStudio';
-import ResourceDetailPage from './pages/ResourceDetailPage';
-import LearnerDashboard from './pages/learner/Dashboard';
-
-// Import Layout Components
-import DashboardLayout from './components/creator/DashboardLayout';
-import { Button } from './components/ui/button';
-import { MARKETPLACE_CONTENTS } from './data/mockData';
-
-const getPageTitle = (page) => {
-  const titles = {
-    'marketplace': 'Marketplace Catalog',
-    'creator-profile': 'Creator Profile',
-    'manage': 'Management Grid',
-    'profile': 'My Account',
-    'admin': 'Admin Panel',
-    'dashboard': 'Creator Dashboard',
-    'content-studio': 'Content Studio',
-    'resource-details': 'Resource Details',
-    'learner-dashboard': 'Learner Dashboard'
-  };
-  return titles[page] || 'LearnHub';
-};
+import AppRoutes from './routes/AppRoutes';
 
 /**
  * App Root Component
- * Main Navigation Orchestrator for LearnHub.
- * Displays Landing, Login, and Register screens full-screen for guests,
- * and handles dynamic role-switching for authenticated users.
- * All persistent data (purchases, sessions, uploads) is loaded from and saved to the backend DB.
+ * Main Navigation & Data Orchestrator for LearnHub.
+ * Managed cleanly using React Router DOM.
  */
 function App() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   // Authentication states — restored from localStorage on refresh
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     return !!localStorage.getItem('learnhub_token');
@@ -57,18 +22,6 @@ function App() {
       try { return JSON.parse(savedUser); } catch (e) { return null; }
     }
     return null;
-  });
-
-  // Current active page state — restored from localStorage
-  const [currentPage, setCurrentPage] = useState(() => {
-    const savedToken = localStorage.getItem('learnhub_token');
-    if (savedToken) {
-      const savedUser = localStorage.getItem('learnhub_user');
-      const user = savedUser ? JSON.parse(savedUser) : null;
-      if (user?.role === 'ADMIN') return 'admin';
-      return user?.role === 'CREATOR' ? 'dashboard' : 'learner-dashboard';
-    }
-    return 'landing';
   });
 
   const [selectedCreatorId, setSelectedCreatorId] = useState(202);
@@ -98,7 +51,7 @@ function App() {
     try { return JSON.parse(localStorage.getItem('learnhub_uploads')) || []; } catch (e) { return []; }
   });
 
-  // Sync states to localStorage whenever they change so refresh never clears user data
+  // Sync states to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem('learnhub_purchases', JSON.stringify(purchasedContents));
   }, [purchasedContents]);
@@ -113,7 +66,6 @@ function App() {
 
   // ─── Backend Data Loaders ─────────────────────────────────────────────────
 
-  /** Fetch all marketplace content from DB */
   const fetchMarketplace = useCallback(() => {
     api.get("/api/contents")
       .then((res) => {
@@ -154,7 +106,6 @@ function App() {
       .catch((err) => console.error("Marketplace fetch failed:", err));
   }, []);
 
-  /** Fetch purchased library from DB for a given user */
   const fetchPurchases = useCallback((userId) => {
     if (!userId) return;
     api.get(`/api/purchases/library/${userId}`)
@@ -193,7 +144,6 @@ function App() {
       .catch((err) => console.error("Library fetch failed:", err));
   }, []);
 
-  /** Fetch doubt sessions from DB for a given user */
   const fetchSessions = useCallback((userId, role) => {
     if (!userId) return;
     const url = role === 'CREATOR' ? `/api/sessions/${userId}?role=CREATOR` : `/api/sessions/${userId}`;
@@ -230,7 +180,6 @@ function App() {
       .catch((err) => console.error("Sessions fetch failed:", err));
   }, []);
 
-  /** Fetch creator's uploaded content from DB */
   const fetchUploads = useCallback((userId) => {
     if (!userId) return;
     api.get(`/api/creator/content/${userId}`)
@@ -278,21 +227,20 @@ function App() {
     }
   }, [isLoggedIn, profile?.id, profile?.role, fetchPurchases, fetchSessions, fetchUploads, fetchMarketplace]);
 
-  // Ensure creator uploads are freshly loaded whenever visiting manage or dashboard pages
+  // Refetch creator uploads when visiting creator routes
   useEffect(() => {
-    if (isLoggedIn && profile?.id && (currentPage === 'manage' || currentPage === 'dashboard')) {
+    if (isLoggedIn && profile?.id && (location.pathname.startsWith('/creator'))) {
       fetchUploads(profile.id);
     }
-  }, [currentPage, isLoggedIn, profile?.id, fetchUploads]);
+  }, [location.pathname, isLoggedIn, profile?.id, fetchUploads]);
 
-  // ─── Navigation Handlers ──────────────────────────────────────────────────
+  // ─── Navigation & Business Callbacks ──────────────────────────────────────
 
   const handleOpenCreatorProfile = (id = 202) => {
     setSelectedCreatorId(id);
-    setCurrentPage('creator-profile');
+    navigate(`/creator/profile/${id}`);
   };
 
-  // Callback when a creator successfully uploads new content
   const handleUploadSuccess = (newContent) => {
     const dbContent = {
       ...newContent,
@@ -310,7 +258,7 @@ function App() {
     setUploadedContents((prev) => [dbContent, ...prev]);
     fetchMarketplace();
     alert(`Successfully published "${dbContent.title}"! It is now visible to all learners in the Marketplace.`);
-    setCurrentPage('manage');
+    navigate('/creator/manage');
   };
 
   const handleDeleteContent = (id) => {
@@ -329,20 +277,18 @@ function App() {
       if (updatedProfile.role === 'CREATOR' && updatedProfile.id) {
         fetchUploads(updatedProfile.id);
       }
-      setCurrentPage(updatedProfile.role === 'CREATOR' ? 'dashboard' : 'learner-dashboard');
+      navigate(updatedProfile.role === 'CREATOR' ? '/creator/dashboard' : '/learner/dashboard');
       return updatedProfile;
     });
   };
 
-  // Login handler — load user data from DB after login
   const handleLoginSuccess = (user) => {
     setProfile(user);
     setIsLoggedIn(true);
-    // Eagerly fetch DB data for this user
     fetchPurchases(user.id);
     fetchSessions(user.id);
     if (user.role === 'CREATOR' || user.role === 'ADMIN') fetchUploads(user.id);
-    setCurrentPage(user.role === 'ADMIN' ? 'admin' : (user.role === 'CREATOR' ? 'dashboard' : 'learner-dashboard'));
+    navigate(user.role === 'ADMIN' ? '/admin' : (user.role === 'CREATOR' ? '/creator/dashboard' : '/learner/dashboard'));
   };
 
   const handleLogout = () => {
@@ -355,17 +301,11 @@ function App() {
     setPurchasedContents([]);
     setDoubtSessions([]);
     setUploadedContents([]);
-    setCurrentPage('landing');
+    navigate('/');
   };
 
-  /**
-   * Payment success callback.
-   * For CONTENT purchases → POST /api/payment/verify to persist in DB, then reload library.
-   * For SESSION bookings  → POST /api/sessions to create in DB, then reload sessions.
-   */
   const handlePaymentSuccess = (transactionData) => {
     if (transactionData.item?.isSession) {
-      // ── Session Booking: persist to DB ──
       const sd = transactionData.item.sessionData;
       const scheduledDate = (sd.scheduled_at && !isNaN(Date.parse(sd.scheduled_at))) 
         ? new Date(sd.scheduled_at).toISOString() 
@@ -382,9 +322,7 @@ function App() {
       api.post("/api/sessions", sessionPayload)
         .then((res) => {
           const saved = res.data?.data || res.data;
-          // Refresh full list from DB
           fetchSessions(profile?.id, profile?.role);
-          // Optimistic fallback in case fetch is slow
           const newSession = {
             id: saved?.id || Date.now(),
             learner_id: profile?.id,
@@ -405,7 +343,6 @@ function App() {
         })
         .catch((err) => {
           console.error("Session booking persist failed:", err);
-          // Optimistic local add as fallback
           const newSession = {
             id: Date.now(),
             learner_id: profile?.id,
@@ -422,7 +359,6 @@ function App() {
           setDoubtSessions((prev) => [...prev, newSession]);
         });
     } else {
-      // ── Content Purchase: verify/persist to DB ──
       const item = transactionData.item;
       const newPurchase = {
         id: Date.now(),
@@ -445,7 +381,6 @@ function App() {
         }
       };
 
-      // Optimistically add to state immediately
       setPurchasedContents((prev) => {
         if (prev.some(p => p.content_id === newPurchase.content_id)) return prev;
         return [newPurchase, ...prev];
@@ -468,209 +403,53 @@ function App() {
         });
     }
     setLatestTransaction(transactionData);
-    setCurrentPage('result');
+    navigate('/result');
   };
 
   const handlePaymentFailure = (transactionData) => {
     setLatestTransaction(transactionData);
-    setCurrentPage('result');
+    navigate('/result');
   };
 
-
-  // Guest view routing (Unauthenticated screens)
-  if (!isLoggedIn) {
-    return (
-      <>
-        {currentPage === 'landing' && (
-          <LandingPage
-            onExplore={() => setCurrentPage('login')} // prompt login to explore
-            onLogin={() => setCurrentPage('login')}
-            onRegister={() => setCurrentPage('register')}
-          />
-        )}
-        {currentPage === 'login' && (
-          <LoginPage
-            onLoginSuccess={handleLoginSuccess}
-            onNavigateToRegister={() => setCurrentPage('register')}
-          />
-        )}
-        {currentPage === 'register' && (
-          <RegisterPage
-            onRegisterSuccess={handleLoginSuccess}
-            onNavigateToLogin={() => setCurrentPage('login')}
-          />
-        )}
-      </>
-    );
-  }
-
-  // Dashboard layout routing (Authenticated screens)
-  if (currentPage === 'reader') {
-    return (
-      <UnifiedContentViewerPage
-        contentItem={selectedReaderItem}
-        profile={profile}
-        onBack={() => setCurrentPage('learner-dashboard')}
-      />
-    );
-  }
-
-  if (currentPage === 'checkout') {
-    return (
-      <CheckoutPage
-        item={selectedCheckoutItem}
-        profile={profile}
-        onPaymentSuccess={handlePaymentSuccess}
-        onPaymentFailure={handlePaymentFailure}
-        onCancel={() => setCurrentPage('marketplace')}
-      />
-    );
-  }
-
-  if (currentPage === 'result') {
-    return (
-      <PaymentResultPage
-        transaction={latestTransaction}
-        onGoToLibrary={() => setCurrentPage('learner-dashboard')}
-        onTryAgain={() => setCurrentPage('checkout')}
-      />
-    );
-  }
-
-  if (currentPage === 'jitsi') {
-    return (
-      <JitsiCallPage
-        session={selectedCallSession}
-        userName={profile?.name}
-        onDisconnect={() => setCurrentPage('profile')}
-      />
-    );
-  }
-
   return (
-    <DashboardLayout
-      title={getPageTitle(currentPage)}
-      currentPage={currentPage}
-      onChangePage={setCurrentPage}
+    <AppRoutes
+      isLoggedIn={isLoggedIn}
       profile={profile}
-      onSwitchRole={handleSwitchRole}
-      onLogout={handleLogout}
-    >
-      {currentPage === 'learner-dashboard' && (
-        <LearnerDashboard
-          profile={profile}
-          purchasedContents={purchasedContents}
-          marketplaceContents={marketplaceContents}
-          onChangePage={setCurrentPage}
-          onResumeReading={(item) => {
-            setSelectedReaderItem(item);
-            setCurrentPage('reader');
-          }}
-          onViewRecommendation={(item) => {
-            setSelectedResourceItem(item);
-            setCurrentPage('resource-details');
-          }}
-        />
-      )}
-
-      {currentPage === 'marketplace' && (
-        <MarketplacePage
-          onNavigateToProfile={() => setCurrentPage('profile')}
-          onOpenCreatorProfile={(id) => handleOpenCreatorProfile(id)}
-          purchasedContents={purchasedContents}
-          marketplaceContents={marketplaceContents}
-          onBuyContent={(item) => {
-            setSelectedResourceItem(item);
-            setCurrentPage('resource-details');
-          }}
-        />
-      )}
-
-      {currentPage === 'resource-details' && (
-        <ResourceDetailPage
-          resourceItem={selectedResourceItem}
-          profile={profile}
-          onBuyContent={(item) => {
-            setSelectedCheckoutItem(item);
-            setCurrentPage('checkout');
-          }}
-          onBack={() => setCurrentPage('marketplace')}
-        />
-      )}
-
-      {currentPage === 'dashboard' && (
-        <CreatorDashboardMain 
-          profile={profile}
-          uploadedContents={uploadedContents}
-          marketplaceContents={marketplaceContents}
-          onChangePage={setCurrentPage}
-        />
-      )}
-
-      {currentPage === 'content-studio' && (
-        <ContentStudio
-          profile={profile}
-          onChangePage={setCurrentPage}
-          onUploadSuccess={handleUploadSuccess}
-        />
-      )}
-
-      {currentPage === 'creator-profile' && (
-        <CreatorProfilePage
-          creatorId={selectedCreatorId}
-          marketplaceContents={marketplaceContents}
-          onBack={() => setCurrentPage('marketplace')}
-          onSelectCreator={(id) => setSelectedCreatorId(id)}
-          onBookSession={(sessionDetails) => {
-            setSelectedCheckoutItem({
-              id: sessionDetails.id,
-              title: `1:1 Mentorship: ${sessionDetails.topic}`,
-              price: sessionDetails.session_price,
-              category_name: "Live Doubt",
-              creator_name: sessionDetails.creator.name,
-              isSession: true,
-              sessionData: sessionDetails
-            });
-            setCurrentPage('checkout');
-          }}
-        />
-      )}
-
-      {currentPage === 'manage' && (
-        <ContentManagementGrid
-          onOpenUploadForm={() => setCurrentPage('content-studio')}
-          contentsList={uploadedContents}
-          onDeleteContent={handleDeleteContent}
-          onOpenReader={(item) => {
-            setSelectedReaderItem(item);
-            setCurrentPage('reader');
-          }}
-        />
-      )}
-
-      {currentPage === 'profile' && (
-        <ProfilePage 
-          activeRole={profile?.role} 
-          onToggleRole={handleSwitchRole} 
-          profile={profile}
-          purchasedContents={purchasedContents}
-          uploadedContents={uploadedContents}
-          doubtSessions={doubtSessions}
-          onJoinCall={(session) => {
-            setSelectedCallSession(session);
-            setCurrentPage('jitsi');
-          }}
-          onOpenReader={(content) => {
-            setSelectedReaderItem(content);
-            setCurrentPage('reader');
-          }}
-        />
-      )}
-
-      {currentPage === 'admin' && (
-        <AdminDashboardPage />
-      )}
-    </DashboardLayout>
+      purchasedContents={purchasedContents}
+      marketplaceContents={marketplaceContents}
+      uploadedContents={uploadedContents}
+      doubtSessions={doubtSessions}
+      selectedReaderItem={selectedReaderItem}
+      setSelectedReaderItem={(item) => {
+        setSelectedReaderItem(item);
+        navigate('/reader');
+      }}
+      selectedResourceItem={selectedResourceItem}
+      setSelectedResourceItem={(item) => {
+        setSelectedResourceItem(item);
+        navigate(`/resources/${item?.id || 1}`);
+      }}
+      selectedCheckoutItem={selectedCheckoutItem}
+      setSelectedCheckoutItem={(item) => {
+        setSelectedCheckoutItem(item);
+        navigate('/checkout');
+      }}
+      latestTransaction={latestTransaction}
+      selectedCallSession={selectedCallSession}
+      selectedCreatorId={selectedCreatorId}
+      handleLoginSuccess={handleLoginSuccess}
+      handleLogout={handleLogout}
+      handleSwitchRole={handleSwitchRole}
+      handleUploadSuccess={handleUploadSuccess}
+      handleDeleteContent={handleDeleteContent}
+      handleOpenCreatorProfile={handleOpenCreatorProfile}
+      handlePaymentSuccess={handlePaymentSuccess}
+      handlePaymentFailure={handlePaymentFailure}
+      setSelectedCallSession={(session) => {
+        setSelectedCallSession(session);
+        navigate('/jitsi');
+      }}
+    />
   );
 }
 

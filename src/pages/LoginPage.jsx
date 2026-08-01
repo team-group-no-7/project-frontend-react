@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Lock, Mail, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,12 +10,10 @@ import api from "@/utils/api";
 /**
  * LoginPage Component (Module 1 - Item 2: Login Page)
  * Standard form for Email & Password authentication.
- *
- * Props:
- *  - onLoginSuccess      : Called with user object on successful login
- *  - onNavigateToRegister: Switches view to Registration page
+ * Managed cleanly using React Router DOM useNavigate.
  */
-export default function LoginPage({ onLoginSuccess, onNavigateToRegister }) {
+export default function LoginPage({ onLoginSuccess }) {
+  const navigate = useNavigate();
   const [email, setEmail]       = useState("arjun.mehta@learnhub.com");
   const [password, setPassword] = useState("password123");
   const [errorMsg, setErrorMsg] = useState("");
@@ -42,7 +41,11 @@ export default function LoginPage({ onLoginSuccess, onNavigateToRegister }) {
         const user = res.data.data;
         localStorage.setItem("learnhub_token", user.token);
         localStorage.setItem("learnhub_user", JSON.stringify(user));
-        onLoginSuccess(user);
+        if (onLoginSuccess) {
+          onLoginSuccess(user);
+        } else {
+          navigate(user.role === 'ADMIN' ? '/admin' : (user.role === 'CREATOR' ? '/creator/dashboard' : '/learner/dashboard'));
+        }
       })
       .catch((err) => {
         setIsLoading(false);
@@ -57,7 +60,7 @@ export default function LoginPage({ onLoginSuccess, onNavigateToRegister }) {
       errorMsg={errorMsg}
       footerText="Don't have a LearnHub account?"
       footerLink="Register Here"
-      onFooterClick={onNavigateToRegister}
+      onFooterClick={() => navigate('/register')}
     >
       <form onSubmit={handleSubmit} className="space-y-4">
 

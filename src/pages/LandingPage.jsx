@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate, Link } from "react-router-dom";
 import {
   Sparkles,
   BookOpen,
@@ -10,8 +11,7 @@ import {
   PenSquare,
   UploadCloud,
   Wallet,
-  Star,
-  Globe
+  Star
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CREATORS, MARKETPLACE_CONTENTS } from "../data/mockData";
@@ -72,14 +72,12 @@ const TESTIMONIALS = [
 /**
  * LandingPage Component (Module 1: Landing / Onboarding Welcome Page)
  * Displays unauthenticated brand pitch with premium Tailwind styling.
- * Integrates all modular sections from the landing-page branch cleanly.
- * Consumes real data from central mockData.js.
+ * Managed cleanly using React Router DOM useNavigate and Link.
  */
-export default function LandingPage({ onExplore, onLogin, onRegister }) {
-  // Take first 5 featured / trending resources from mock data for showcase
-  const featuredResources = MARKETPLACE_CONTENTS.slice(0, 5);
+export default function LandingPage() {
+  const navigate = useNavigate();
 
-  // Take top creators from mock data
+  const featuredResources = MARKETPLACE_CONTENTS.slice(0, 5);
   const topCreators = CREATORS.slice(0, 5);
 
   return (
@@ -88,17 +86,17 @@ export default function LandingPage({ onExplore, onLogin, onRegister }) {
       {/* Navigation Header */}
       <header className="bg-white/85 backdrop-blur-md border-b border-slate-100 px-6 py-4 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
+          <Link to="/" className="flex items-center gap-2.5">
             <div className="h-9 w-9 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-sm shadow-indigo-200">
               <BookOpen className="h-5 w-5" />
             </div>
             <span className="font-extrabold text-xl tracking-tight text-slate-900">LearnHub</span>
-          </div>
+          </Link>
           <div className="flex items-center gap-3">
-            <Button variant="ghost" onClick={onLogin} className="text-xs font-bold text-slate-600 hover:text-indigo-600 transition cursor-pointer">
+            <Button variant="ghost" onClick={() => navigate('/login')} className="text-xs font-bold text-slate-600 hover:text-indigo-600 transition cursor-pointer">
               Log In
             </Button>
-            <Button onClick={onRegister} className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-xs cursor-pointer">
+            <Button onClick={() => navigate('/register')} className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-xs cursor-pointer">
               Sign Up
             </Button>
           </div>
@@ -127,14 +125,14 @@ export default function LandingPage({ onExplore, onLogin, onRegister }) {
             {/* Hero CTAs */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
               <Button
-                onClick={onExplore}
+                onClick={() => navigate('/login')}
                 className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-6 py-5 rounded-xl shadow-md shadow-indigo-100 gap-2 transition cursor-pointer"
               >
                 <ShoppingBag className="h-4 w-4" /> Browse Catalog
               </Button>
               <Button
                 variant="outline"
-                onClick={onRegister}
+                onClick={() => navigate('/register')}
                 className="w-full sm:w-auto border-slate-200 bg-white text-slate-700 hover:bg-slate-50 font-bold text-xs px-6 py-5 rounded-xl gap-1.5 transition cursor-pointer"
               >
                 Get Started Free <ArrowRight className="h-3.5 w-3.5" />
@@ -166,7 +164,7 @@ export default function LandingPage({ onExplore, onLogin, onRegister }) {
                 { title: "Study Guides", icon: "📚", count: "2,500+ documents" },
                 { title: "Interview Prep", icon: "🎯", count: "900+ cheat sheets" }
               ].map(cat => (
-                <div key={cat.title} onClick={onExplore} className="bg-slate-50 border border-slate-100 p-6 rounded-2xl text-center hover:shadow-md hover:border-slate-200 transition cursor-pointer group">
+                <div key={cat.title} onClick={() => navigate('/login')} className="bg-slate-50 border border-slate-100 p-6 rounded-2xl text-center hover:shadow-md hover:border-slate-200 transition cursor-pointer group">
                   <div className="text-3xl mb-3 group-hover:scale-110 transition duration-300">{cat.icon}</div>
                   <h3 className="font-bold text-xs text-slate-800 uppercase tracking-wider">{cat.title}</h3>
                   <p className="text-[10px] text-slate-400 mt-1">{cat.count}</p>
@@ -184,14 +182,14 @@ export default function LandingPage({ onExplore, onLogin, onRegister }) {
                 <h2 className="text-2xl font-black text-slate-900">Featured Study Materials</h2>
                 <p className="text-xs text-slate-400 mt-1">Highest rated references, interview templates, and codes.</p>
               </div>
-              <button onClick={onExplore} className="hidden sm:flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-700 transition cursor-pointer">
+              <button onClick={() => navigate('/login')} className="hidden sm:flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-700 transition cursor-pointer">
                 View All Catalog <ArrowRight size={14} />
               </button>
             </div>
 
             <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
               {featuredResources.map((item) => (
-                <div key={item.id} onClick={onExplore} className="bg-white border border-slate-100 rounded-2xl p-4 flex flex-col justify-between hover:shadow-md transition cursor-pointer space-y-4">
+                <div key={item.id} onClick={() => navigate('/login')} className="bg-white border border-slate-100 rounded-2xl p-4 flex flex-col justify-between hover:shadow-md transition cursor-pointer space-y-4">
                   <div className="space-y-2">
                     <span className="text-[9px] font-bold text-indigo-600 uppercase tracking-wider bg-indigo-50 px-2 py-0.5 rounded-md inline-block">
                       {item.category_name}
@@ -222,7 +220,7 @@ export default function LandingPage({ onExplore, onLogin, onRegister }) {
 
             <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 justify-center">
               {topCreators.map((creator) => (
-                <div key={creator.id} onClick={onExplore} className="bg-slate-50 border border-slate-100 rounded-2xl p-5 text-center flex flex-col items-center space-y-3 hover:shadow-md transition cursor-pointer">
+                <div key={creator.id} onClick={() => navigate('/login')} className="bg-slate-50 border border-slate-100 rounded-2xl p-5 text-center flex flex-col items-center space-y-3 hover:shadow-md transition cursor-pointer">
                   <img
                     src={creator.avatar}
                     alt={creator.name}
@@ -319,10 +317,10 @@ export default function LandingPage({ onExplore, onLogin, onRegister }) {
                 </p>
 
                 <div className="flex flex-col sm:flex-row justify-center gap-3 pt-2">
-                  <button onClick={onRegister} className="rounded-xl bg-white px-6 py-3 text-xs font-bold text-indigo-600 shadow-md hover:bg-slate-50 transition cursor-pointer">
+                  <button onClick={() => navigate('/register')} className="rounded-xl bg-white px-6 py-3 text-xs font-bold text-indigo-600 shadow-md hover:bg-slate-50 transition cursor-pointer">
                     Get Started Now
                   </button>
-                  <button onClick={onExplore} className="flex items-center justify-center gap-1.5 rounded-xl border border-white/30 bg-white/10 px-6 py-3 text-xs font-bold text-white hover:bg-white/20 transition cursor-pointer">
+                  <button onClick={() => navigate('/login')} className="flex items-center justify-center gap-1.5 rounded-xl border border-white/30 bg-white/10 px-6 py-3 text-xs font-bold text-white hover:bg-white/20 transition cursor-pointer">
                     Explore Catalog <ArrowRight size={14} />
                   </button>
                 </div>

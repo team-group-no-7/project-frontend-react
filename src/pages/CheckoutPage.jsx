@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { CreditCard, ShieldCheck, CheckCircle2, Lock, ArrowLeft, ArrowRight, X, AlertTriangle } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,9 +10,11 @@ import { Badge } from "@/components/ui/badge";
 /**
  * CheckoutPage Component (Module 3 - Item 9: Checkout & Invoice Summary Page)
  * Simple invoice breakdown with a simulated Razorpay SDK gateway launcher.
+ * Managed cleanly using React Router DOM useNavigate.
  */
-export default function CheckoutPage({ item, profile, onPaymentSuccess, onPaymentFailure, onCancel }) {
-  // Default fallback mock item
+export default function CheckoutPage({ item, profile, onPaymentSuccess, onPaymentFailure }) {
+  const navigate = useNavigate();
+
   const contentItem = item || {
     id: 11,
     title: "Complete Java Spring Boot Guide",
@@ -25,12 +28,10 @@ export default function CheckoutPage({ item, profile, onPaymentSuccess, onPaymen
   const [showRazorpayModal, setShowRazorpayModal] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Bill calculations
   const subtotal = contentItem.price;
-  const gstTax = Math.round(subtotal * 0.18); // 18% GST
+  const gstTax = Math.round(subtotal * 0.18);
   const totalAmount = subtotal + gstTax;
 
-  // Launch Simulated Razorpay Modal
   const handleLaunchPayment = (e) => {
     e.preventDefault();
     if (!userName.trim() || !userEmail.trim()) {
@@ -40,7 +41,6 @@ export default function CheckoutPage({ item, profile, onPaymentSuccess, onPaymen
     setShowRazorpayModal(true);
   };
 
-  // Simulate Payment Success Response
   const simulatePaymentSuccess = () => {
     setIsProcessing(true);
     setTimeout(() => {
@@ -58,7 +58,6 @@ export default function CheckoutPage({ item, profile, onPaymentSuccess, onPaymen
     }, 1000);
   };
 
-  // Simulate Payment Failure Response
   const simulatePaymentFailure = () => {
     setIsProcessing(true);
     setTimeout(() => {
@@ -81,7 +80,7 @@ export default function CheckoutPage({ item, profile, onPaymentSuccess, onPaymen
         
         {/* Back Navigation Bar */}
         <div className="flex items-center justify-between">
-          <Button variant="ghost" onClick={onCancel} className="gap-2 text-xs text-gray-600 dark:text-gray-400">
+          <Button variant="ghost" onClick={() => navigate('/marketplace')} className="gap-2 text-xs text-gray-600 dark:text-gray-400">
             <ArrowLeft className="h-4 w-4" /> Cancel Checkout
           </Button>
           <Badge className="bg-indigo-50 text-indigo-600 border border-indigo-200">
