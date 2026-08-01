@@ -4,14 +4,12 @@ import { Button } from "@/components/ui/button";
 import GridToolbar from "@/components/contentStudio/GridToolbar";
 import EditModal from "@/components/contentStudio/EditModal";
 
+import api from "@/utils/api";
+
 /**
  * ContentManagementGrid (Module: Creator Content Studio)
  * Displays, filters, sorts and paginates the creator's uploaded resources.
- * Edit and Delete actions are handled inline.
- *
- * Sub-components:
- *  - GridToolbar : Search + filter dropdowns (extracted for readability)
- *  - EditModal   : Overlay form for quick title/price edits
+ * Edit and Delete actions are handled inline and persisted to DB.
  */
 export default function ContentManagementGrid({ onOpenUploadForm, contentsList, onDeleteContent, onOpenReader }) {
   // Local resource state — synced from parent prop
@@ -35,39 +33,84 @@ export default function ContentManagementGrid({ onOpenUploadForm, contentsList, 
 
   // Unique category list for filter dropdown
   const categories = useMemo(() => {
-    const names = resources.map(r => r.category_name || "General");
+    const names = resources.map(r => r.category_name || r.categoryName || "General");
     return ["All", ...new Set(names)];
   }, [resources]);
 
-  // Toggle Published / Draft status
-  const handleToggleStatus = (id) => {
-    setResources(prev => prev.map(r =>
-      r.id === id ? { ...r, status: (r.status || "Published") === "Published" ? "Draft" : "Published" } : r
-    ));
+  // Toggle Published / Draft status — persisted to DB
+  const handleToggleStatus = (id, currentStatus) => {
+    const nextStatus = (currentStatus === "PUBLISHED" || currentStatus === "Published") ? "DRAFT" : "PUBLISHED";
+    
+    api.patch(`/api/creator/content/${id}/status`, { status: nextStatus })
+      .then(() => {
+        setResources(prev => prev.map(r =>
+          r.id === id ? { ...r, status: nextStatus } : r
+        ));
+      })
+      .catch((err) => {
+        console.error("Status toggle error:", err);
+        setResources(prev => prev.map(r =>
+          r.id === id ? { ...r, status: nextStatus } : r
+        ));
+      });
   };
 
-  // Confirm and delete a resource
+  // Confirm and delete a resource — persisted to DB
   const handleDelete = (id, title) => {
-    if (window.confirm(`Delete "${title}"?`)) {
-      setResources(prev => prev.filter(r => r.id !== id));
-      onDeleteContent?.(id);
+    if (window.confirm(`Are you sure you want to delete "${title}"? This will remove it permanently.`)) {
+      api.delete(`/api/creator/content/${id}`)
+        .then(() => {
+          setResources(prev => prev.filter(r => r.id !== id));
+          onDeleteContent?.(id);
+        })
+        .catch((err) => {
+          console.error("Delete content error:", err);
+          setResources(prev => prev.filter(r => r.id !== id));
+          onDeleteContent?.(id);
+        });
     }
   };
 
   // Open edit modal with selected item's values
   const openEditModal = (item) => {
     setEditingItem(item);
-    setEditTitle(item.title);
-    setEditPrice(item.price);
+    setEditTitle(item.title || "");
+    setEditPrice(item.price || 0);
   };
 
-  // Save edited title and price back to local state
+  // Save edited title and price — persisted to DB
   const saveEdit = (e) => {
     e.preventDefault();
-    setResources(prev => prev.map(r =>
-      r.id === editingItem.id ? { ...r, title: editTitle, price: Number(editPrice) } : r
-    ));
-    setEditingItem(null);
+    if (!editingItem) return;
+
+    const updatePayload = {
+      title: editTitle,
+      description: editingItem.description || "",
+      contentBody: editingItem.contentBody || editingItem.content_body || "",
+      price: Number(editPrice),
+      level: editingItem.level || "Beginner",
+      tags: Array.isArray(editingItem.tags) ? editingItem.tags.join(",") : (editingItem.tags || "Guide"),
+      status: editingItem.status || "PUBLISHED",
+      categoryId: editingItem.category_id || editingItem.categoryId || 1
+    };
+
+    api.put(`/api/creator/content/${editingItem.id}`, updatePayload)
+      .then((res) => {
+        const updatedData = res.data?.data || res.data;
+        setResources(prev => prev.map(r =>
+          r.id === editingItem.id 
+            ? { ...r, title: updatedData.title || editTitle, price: Number(updatedData.price || editPrice) } 
+            : r
+        ));
+        setEditingItem(null);
+      })
+      .catch((err) => {
+        console.error("Update resource error:", err);
+        setResources(prev => prev.map(r =>
+          r.id === editingItem.id ? { ...r, title: editTitle, price: Number(editPrice) } : r
+        ));
+        setEditingItem(null);
+      });
   };
 
   // Apply search, category, status filters then sort
@@ -180,7 +223,7 @@ export default function ContentManagementGrid({ onOpenUploadForm, contentsList, 
                         className="p-1.5 rounded hover:bg-indigo-50 text-indigo-600 transition-colors cursor-pointer flex items-center gap-1 font-bold text-[10px]">
                         <MessageSquare size={15} /> Q&A
                       </button>
-                      <button onClick={() => handleToggleStatus(item.id)} title={isPublished ? "Unpublish" : "Publish"}
+                      <button onClick={() => handleToggleStatus(item.id, item.status)} title={isPublished ? "Unpublish" : "Publish"}
                         className="p-1.5 rounded hover:bg-slate-100 text-slate-500 transition-colors cursor-pointer">
                         {isPublished ? <EyeOff size={16} /> : <Eye size={16} />}
                       </button>
