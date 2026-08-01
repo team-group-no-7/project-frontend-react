@@ -308,10 +308,24 @@ function App() {
   };
 
   const handleLogout = () => {
+    const savedUser = localStorage.getItem("learnhub_user");
+    let refreshToken = "";
+    if (savedUser) {
+      try {
+        const parsed = JSON.parse(savedUser);
+        refreshToken = parsed.refreshToken || parsed.refresh_token || "";
+      } catch (e) {}
+    }
+
+    if (refreshToken) {
+      api.post("/api/auth/logout", { refreshToken }).catch(() => {});
+    }
+
     localStorage.removeItem("learnhub_token");
     localStorage.removeItem("learnhub_user");
     localStorage.removeItem("learnhub_purchases");
     localStorage.removeItem("learnhub_sessions");
+    localStorage.removeItem("learnhub_uploads");
     setProfile(null);
     setIsLoggedIn(false);
     setPurchasedContents([]);
