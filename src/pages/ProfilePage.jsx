@@ -9,6 +9,7 @@ import ProfileSidebar from "@/components/ProfileSidebar";
 import LearnerDashboard from "@/components/LearnerDashboard";
 import CreatorDashboard from "@/components/CreatorDashboard";
 
+import api from "@/utils/api";
 import { INITIAL_USER, PURCHASED_CONTENTS, DOUBT_SESSIONS, UPLOADED_CONTENTS } from "@/data/mockData";
 
 export default function ProfilePage({ 
@@ -35,9 +36,25 @@ export default function ProfilePage({
   const sessions = doubtSessions ?? DOUBT_SESSIONS;
   const uploads = uploadedContents ?? UPLOADED_CONTENTS;
 
-  // Update profile states when saving settings in Creator dashboard
+  // Update profile states when saving settings — persisted to DB
   const handleSaveProfileSettings = (updatedProfile) => {
-    setProfile(updatedProfile);
+    const userId = profile?.id || updatedProfile?.id;
+    if (!userId) {
+      setProfile(updatedProfile);
+      return;
+    }
+
+    api.put(`/api/users/profile/${userId}`, updatedProfile)
+      .then((res) => {
+        const saved = res.data?.data || res.data || updatedProfile;
+        setProfile(saved);
+        localStorage.setItem("learnhub_user", JSON.stringify(saved));
+      })
+      .catch((err) => {
+        console.error("Profile settings update error:", err);
+        setProfile(updatedProfile);
+        localStorage.setItem("learnhub_user", JSON.stringify(updatedProfile));
+      });
   };
 
   return (

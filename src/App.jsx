@@ -267,19 +267,35 @@ function App() {
   };
 
   const handleSwitchRole = () => {
-    setProfile((prev) => {
-      if (!prev) return null;
-      const updatedProfile = {
-        ...prev,
-        role: prev.role === 'LEARNER' ? 'CREATOR' : 'LEARNER'
-      };
+    if (!profile) return;
+    const targetRole = profile.role === 'LEARNER' ? 'CREATOR' : 'LEARNER';
+
+    if (profile.id) {
+      api.patch(`/api/users/${profile.id}/become-creator`)
+        .then((res) => {
+          const updatedUser = res.data?.data || res.data || { ...profile, role: targetRole };
+          setProfile(updatedUser);
+          localStorage.setItem("learnhub_user", JSON.stringify(updatedUser));
+          if (updatedUser.role === 'CREATOR' && updatedUser.id) {
+            fetchUploads(updatedUser.id);
+          }
+          navigate(updatedUser.role === 'CREATOR' ? '/creator/dashboard' : '/learner/dashboard');
+        })
+        .catch(() => {
+          const updatedProfile = { ...profile, role: targetRole };
+          setProfile(updatedProfile);
+          localStorage.setItem("learnhub_user", JSON.stringify(updatedProfile));
+          if (updatedProfile.role === 'CREATOR' && updatedProfile.id) {
+            fetchUploads(updatedProfile.id);
+          }
+          navigate(targetRole === 'CREATOR' ? '/creator/dashboard' : '/learner/dashboard');
+        });
+    } else {
+      const updatedProfile = { ...profile, role: targetRole };
+      setProfile(updatedProfile);
       localStorage.setItem("learnhub_user", JSON.stringify(updatedProfile));
-      if (updatedProfile.role === 'CREATOR' && updatedProfile.id) {
-        fetchUploads(updatedProfile.id);
-      }
-      navigate(updatedProfile.role === 'CREATOR' ? '/creator/dashboard' : '/learner/dashboard');
-      return updatedProfile;
-    });
+      navigate(targetRole === 'CREATOR' ? '/creator/dashboard' : '/learner/dashboard');
+    }
   };
 
   const handleLoginSuccess = (user) => {
