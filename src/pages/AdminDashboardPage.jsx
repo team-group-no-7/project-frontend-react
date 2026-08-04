@@ -7,7 +7,6 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { CREATORS, MARKETPLACE_CONTENTS, PURCHASED_CONTENTS, INITIAL_USER } from "@/data/mockData";
 import api from "../utils/api";
 
 /**
@@ -29,43 +28,14 @@ export default function AdminDashboardPage() {
   // Stats from backend DB
   const [dbStats, setDbStats] = useState(null);
 
-  // 1. Users list — loaded from DB API with fallback to seed data
-  const [usersList, setUsersList] = useState(() => [
-    { id: INITIAL_USER.id, name: INITIAL_USER.name, email: INITIAL_USER.email, role: INITIAL_USER.role, status: "ACTIVE", joined: "22-05-2026" },
-    ...CREATORS.map(c => ({
-      id: c.id,
-      name: c.name,
-      email: `${c.name.toLowerCase().replace(" ", ".")}@learnhub.com`,
-      role: "CREATOR",
-      status: "ACTIVE",
-      joined: c.joinedDate
-    }))
-  ]);
+  // 1. Users list — loaded from DB API
+  const [usersList, setUsersList] = useState([]);
 
-  // 2. Resources list — loaded from DB API with fallback to seed data
-  const [resourcesList, setResourcesList] = useState(() =>
-    MARKETPLACE_CONTENTS.map(c => ({
-      id: c.id,
-      title: c.title,
-      creator: c.creator_name,
-      category: c.category_name,
-      price: c.price,
-      status: c.approvalStatus || "APPROVED",
-      reports: 0
-    }))
-  );
+  // 2. Resources list — loaded from DB API
+  const [resourcesList, setResourcesList] = useState([]);
 
-  // 3. Transactions list
-  const [transactionsList, setTransactionsList] = useState(() =>
-    PURCHASED_CONTENTS.map(p => ({
-      id: p.transaction_id,
-      user: INITIAL_USER.name,
-      item: p.content.title,
-      amount: p.amount_paid,
-      date: new Date(p.purchased_at).toLocaleString(),
-      status: p.payment_status
-    }))
-  );
+  // 3. Transactions list — loaded from DB API
+  const [transactionsList, setTransactionsList] = useState([]);
 
   // Load real DB metrics and lists on mount
   useEffect(() => {

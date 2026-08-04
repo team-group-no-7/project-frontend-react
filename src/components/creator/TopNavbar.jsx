@@ -1,9 +1,7 @@
 import React from 'react'
 import { Bell, HelpCircle } from 'lucide-react';
 import ProfileDropdown from './ProfileDropdown'
-import { INITIAL_USER } from '@/data/mockData'
-
-export default function TopNavbar({ title = 'Creator Dashboard', profile = INITIAL_USER, onSwitchRole, onLogout, notificationsCount = 0 }) {
+export default function TopNavbar({ title = 'Creator Dashboard', profile, onSwitchRole, onLogout, notificationsCount = 0 }) {
     return (
         <header className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-white sticky top-0 z-10">
             <div className="text-lg font-bold tracking-tight text-slate-800">{title}</div>

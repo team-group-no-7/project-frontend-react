@@ -14,7 +14,7 @@ import {
   Star
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CREATORS, MARKETPLACE_CONTENTS } from "../data/mockData";
+import api from "../utils/api";
 
 // Steps Data for "How It Works"
 const HOW_IT_WORKS_STEPS = [
@@ -77,8 +77,24 @@ const TESTIMONIALS = [
 export default function LandingPage() {
   const navigate = useNavigate();
 
-  const featuredResources = MARKETPLACE_CONTENTS.slice(0, 5);
-  const topCreators = CREATORS.slice(0, 5);
+  const [featuredResources, setFeaturedResources] = React.useState([]);
+  const [topCreators, setTopCreators] = React.useState([]);
+
+  React.useEffect(() => {
+    api.get("/api/contents")
+      .then(res => {
+        const list = res.data?.data || res.data || [];
+        setFeaturedResources(list.slice(0, 5));
+      })
+      .catch(err => console.warn("Landing contents fetch failed:", err));
+
+    api.get("/api/creators")
+      .then(res => {
+        const list = res.data?.data || res.data || [];
+        setTopCreators(list.slice(0, 5));
+      })
+      .catch(err => console.warn("Landing creators fetch failed:", err));
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col justify-between">

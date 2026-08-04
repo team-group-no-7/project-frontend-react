@@ -2,21 +2,8 @@ import React, { useState, useMemo } from 'react';
 import { Star, Users, BookOpen, MapPin, ArrowLeft, Mail, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-// Mock Database Data
-import { CREATORS, MARKETPLACE_CONTENTS } from '@/data/mockData';
-
-/**
- * Creator Profile Page (Module 1 - Item 3)
- * Developed by: Shubham (CDAC PGCP-AC Project)
- * 
- * Simple, beginner-friendly component displaying public creator profile details:
- * 1. Creator Information (Name, Avatar, Bio, Headline, Location)
- * 2. Quick Statistics (Rating, Students, Published Items)
- * 3. Creator's Published Courses / Notes
- * 4. Learner Reviews
- */
 export default function CreatorProfilePage({ creatorId = 202, marketplaceContents = [], onBack, onBookSession }) {
-  // Find creator details dynamically from live marketplace contents or fallback to mock catalog
+  // Find creator details dynamically from live marketplace contents
   const creatorItem = (marketplaceContents || []).find(
     (c) => String(c.creator_id) === String(creatorId) || String(c.creatorId) === String(creatorId)
   );
@@ -31,7 +18,17 @@ export default function CreatorProfilePage({ creatorId = 202, marketplaceContent
     rating: creatorItem.rating || 4.9,
     reviews_count: creatorItem.reviews_count || 18,
     learners_count: creatorItem.learners_count || 120
-  } : (CREATORS.find((c) => c.id === Number(creatorId)) || CREATORS[0]);
+  } : {
+    id: creatorId,
+    name: "Rohan Verma",
+    avatar_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
+    headline: "Staff Backend Engineer & Technical Mentor",
+    location: "Bengaluru, India",
+    bio: "Content creator and technology mentor specializing in Spring Boot, Microservices, and System Architecture.",
+    rating: 4.9,
+    reviews_count: 24,
+    learners_count: 150
+  };
   
   // Tab state to switch between 'courses', 'reviews', and 'booking'
   const [activeTab, setActiveTab] = useState('courses');
@@ -48,6 +45,16 @@ export default function CreatorProfilePage({ creatorId = 202, marketplaceContent
     return 350; // 45 mins
   }, [duration]);
 
+  const getMinLocalDatetime = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
   const handleBookSessionSubmit = (e) => {
     e.preventDefault();
     if (!topic.trim()) {
@@ -56,6 +63,10 @@ export default function CreatorProfilePage({ creatorId = 202, marketplaceContent
     }
     if (!slot) {
       alert("Please select a date and time slot.");
+      return;
+    }
+    if (new Date(slot) < new Date()) {
+      alert("Selected session time must be in the future. Please select a future date and time.");
       return;
     }
     onBookSession && onBookSession({
@@ -288,6 +299,7 @@ export default function CreatorProfilePage({ creatorId = 202, marketplaceContent
                 <label className="font-semibold text-gray-700 dark:text-gray-300 block">Preferred Date & Time *</label>
                 <input 
                   type="datetime-local" 
+                  min={getMinLocalDatetime()}
                   value={slot}
                   onChange={(e) => setSlot(e.target.value)}
                   className="w-full h-10 border rounded-lg px-3 py-2 bg-white dark:bg-slate-900 text-gray-900 dark:text-white border-gray-200 dark:border-gray-800 focus:outline-indigo-600 block text-xs"

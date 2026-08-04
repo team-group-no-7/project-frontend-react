@@ -1,8 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { ChevronDown } from 'lucide-react'
-import { INITIAL_USER } from '@/data/mockData'
+const DEFAULT_USER = { name: "User", role: "CREATOR", email: "user@learnhub.com" };
 
-export default function ProfileDropdown({ profile = INITIAL_USER, onLogout, onSwitchMode }) {
+export default function ProfileDropdown({ profile, onLogout, onSwitchMode }) {
+    const activeProfile = profile || (() => {
+        try { return JSON.parse(localStorage.getItem("learnhub_user")) || DEFAULT_USER; }
+        catch (e) { return DEFAULT_USER; }
+    })();
     const [open, setOpen] = useState(false)
     const ref = useRef()
 
@@ -14,7 +18,7 @@ export default function ProfileDropdown({ profile = INITIAL_USER, onLogout, onSw
         return () => document.removeEventListener('click', onDoc)
     }, [])
 
-    const initials = (profile.name || "User")
+    const initials = (activeProfile.name || "User")
         .trim()
         .split(/\s+/)
         .map((n) => n[0] || "")
@@ -26,15 +30,15 @@ export default function ProfileDropdown({ profile = INITIAL_USER, onLogout, onSw
             <button onClick={() => setOpen((s) => !s)} className="flex items-center gap-4 px-3 py-1.5 rounded-md hover:bg-slate-100 cursor-pointer transition-colors">
                 <div className="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">{initials}</div>
                 <div className="text-left leading-4 hidden sm:block">
-                    <div className="text-sm font-semibold text-slate-800">{profile.name}</div>
-                    <div className="text-xs text-slate-400 capitalize">{profile.role?.toLowerCase() || 'User'}</div>
+                    <div className="text-sm font-semibold text-slate-800">{activeProfile.name}</div>
+                    <div className="text-xs text-slate-400 capitalize">{activeProfile.role?.toLowerCase() || 'User'}</div>
                 </div>
                 <ChevronDown size={16} className="text-slate-400" />
             </button>
 
             {open && (
                 <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-100 rounded-lg shadow-lg py-2 z-20 animate-in fade-in slide-in-from-top-1 duration-200">
-                    {profile?.role !== 'ADMIN' && (
+                    {activeProfile?.role !== 'ADMIN' && (
                         <>
                             <button 
                                 onClick={() => { setOpen(false); onSwitchMode && onSwitchMode(); }}

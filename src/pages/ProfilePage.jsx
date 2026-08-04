@@ -9,7 +9,7 @@ import ProfileSidebar from "@/components/ProfileSidebar";
 import LearnerDashboard from "@/components/LearnerDashboard";
 import CreatorDashboard from "@/components/CreatorDashboard";
 
-import { INITIAL_USER, PURCHASED_CONTENTS, DOUBT_SESSIONS, UPLOADED_CONTENTS } from "@/data/mockData";
+const DEFAULT_USER = { name: "Learner User", email: "user@learnhub.com", role: "LEARNER" };
 
 export default function ProfilePage({ 
   activeRole = "LEARNER", 
@@ -21,7 +21,10 @@ export default function ProfilePage({
   uploadedContents, 
   onJoinCall 
 }) {
-  const [profile, setProfile] = useState(() => initialProfile || INITIAL_USER);
+  const [profile, setProfile] = useState(() => initialProfile || (() => {
+    try { return JSON.parse(localStorage.getItem("learnhub_user")) || DEFAULT_USER; }
+    catch (e) { return DEFAULT_USER; }
+  })());
 
   // Sync state if initialProfile prop changes (e.g. after login/registration)
   useEffect(() => {
@@ -30,10 +33,10 @@ export default function ProfilePage({
     }
   }, [initialProfile]);
 
-  // Fallbacks to mockData if props are not supplied
-  const purchases = purchasedContents ?? PURCHASED_CONTENTS;
-  const sessions = doubtSessions ?? DOUBT_SESSIONS;
-  const uploads = uploadedContents ?? UPLOADED_CONTENTS;
+  // Fallbacks to empty arrays if props are not supplied
+  const purchases = purchasedContents ?? [];
+  const sessions = doubtSessions ?? [];
+  const uploads = uploadedContents ?? [];
 
   // Update profile states when saving settings in Creator dashboard
   const handleSaveProfileSettings = (updatedProfile) => {

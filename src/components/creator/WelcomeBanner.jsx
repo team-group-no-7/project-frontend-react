@@ -1,8 +1,9 @@
-import React from 'react'
-import { INITIAL_USER } from '@/data/mockData'
-
-export default function WelcomeBanner({ profile = INITIAL_USER, onCreateResource }) {
-    const firstName = profile?.name ? profile.name.split(' ')[0] : 'Creator';
+export default function WelcomeBanner({ profile, onCreateResource }) {
+    const activeProfile = profile || (() => {
+        try { return JSON.parse(localStorage.getItem("learnhub_user")) || {}; }
+        catch (e) { return {}; }
+    })();
+    const firstName = activeProfile?.name ? activeProfile.name.split(' ')[0] : 'Creator';
     return (
         <div className="bg-white rounded-xl p-6 shadow-sm mb-6 flex items-center justify-between">
             <div>

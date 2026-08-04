@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Star, ChevronRight, FileText, Layers, Tag, User, ArrowLeft, ShieldCheck, Download, Award, Calendar, Globe } from "lucide-react";
-import { CREATORS } from "../data/mockData";
+
 
 export default function ResourceDetailPage({ resourceItem, profile, onBuyContent }) {
   const navigate = useNavigate();
