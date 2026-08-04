@@ -107,8 +107,8 @@ function App() {
   }, []);
 
   const fetchPurchases = useCallback((userId) => {
-    if (!userId) return;
-    api.get(`/api/purchases/library/${userId}`)
+    const url = userId ? `/api/purchases/library/${userId}` : `/api/purchases/library`;
+    api.get(url)
       .then((res) => {
         const data = res.data?.data || res.data;
         if (Array.isArray(data)) {
@@ -145,8 +145,8 @@ function App() {
   }, []);
 
   const fetchSessions = useCallback((userId, role) => {
-    if (!userId) return;
-    const url = role === 'CREATOR' ? `/api/sessions/${userId}?role=CREATOR` : `/api/sessions/${userId}`;
+    const query = role === 'CREATOR' ? '?role=CREATOR' : '';
+    const url = userId ? `/api/sessions/${userId}${query}` : `/api/sessions${query}`;
     api.get(url)
       .then((res) => {
         const data = res.data?.data || res.data;
@@ -181,8 +181,8 @@ function App() {
   }, []);
 
   const fetchUploads = useCallback((userId) => {
-    if (!userId) return;
-    api.get(`/api/creator/content/${userId}`)
+    const url = userId ? `/api/creator/content/${userId}` : `/api/creator/content`;
+    api.get(url)
       .then((res) => {
         const data = res.data?.data || res.data;
         if (Array.isArray(data)) {
