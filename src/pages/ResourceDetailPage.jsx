@@ -53,6 +53,7 @@ export default function ResourceDetailPage({ resourceItem, profile, onBuyContent
         <div className="flex flex-wrap items-center gap-4 bg-white p-4 rounded-xl shadow-xs border border-gray-100">
           <button 
             onClick={() => navigate('/marketplace')}
+            aria-label="Back to Catalog"
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-bold text-gray-600 hover:bg-slate-50 transition cursor-pointer"
           >
             <ArrowLeft className="h-3.5 w-3.5" /> Back to Catalog

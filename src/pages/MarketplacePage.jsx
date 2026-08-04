@@ -97,6 +97,7 @@ export default function MarketplacePage({ onNavigateToProfile, onOpenCreatorProf
             <Input
               type="text"
               placeholder="Search notes, topics..."
+              aria-label="Search catalog resources"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9 text-xs h-9 bg-white dark:bg-gray-900 border-gray-200"

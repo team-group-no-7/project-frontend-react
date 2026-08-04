@@ -40,6 +40,9 @@ export default function LoginPage({ onLoginSuccess }) {
         setIsLoading(false);
         const user = res.data.data;
         localStorage.setItem("learnhub_token", user.token);
+        if (user.refreshToken) {
+          localStorage.setItem("learnhub_refreshToken", user.refreshToken);
+        }
         localStorage.setItem("learnhub_user", JSON.stringify(user));
         if (onLoginSuccess) {
           onLoginSuccess(user);

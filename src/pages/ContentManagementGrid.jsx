@@ -1,22 +1,22 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Plus, Trash2, LayoutGrid, Eye, EyeOff, ChevronLeft, ChevronRight, MessageSquare } from "lucide-react";
+import { Plus, Trash2, LayoutGrid, Eye, EyeOff, ChevronLeft, ChevronRight, MessageSquare, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import GridToolbar from "@/components/contentStudio/GridToolbar";
 import EditModal from "@/components/contentStudio/EditModal";
+import api from "@/utils/api";
 
 /**
  * ContentManagementGrid (Module: Creator Content Studio)
  * Displays, filters, sorts and paginates the creator's uploaded resources.
- * Edit and Delete actions are handled inline.
- *
- * Sub-components:
- *  - GridToolbar : Search + filter dropdowns (extracted for readability)
- *  - EditModal   : Overlay form for quick title/price edits
+ * Status toggling, editing, and deleting are fully persisted via live Spring Boot APIs.
  */
-export default function ContentManagementGrid({ onOpenUploadForm, contentsList, onDeleteContent, onOpenReader }) {
+export default function ContentManagementGrid({ onOpenUploadForm, contentsList, onDeleteContent, onOpenReader, onRefreshResources }) {
   // Local resource state — synced from parent prop
   const [resources, setResources] = useState(() => contentsList || []);
   useEffect(() => { if (contentsList) setResources(contentsList); }, [contentsList]);
+
+  // Loading & Action State
+  const [actionLoadingId, setActionLoadingId] = useState(null);
 
   // Toolbar filter states
   const [searchQuery, setSearchQuery]     = useState("");
@@ -30,8 +30,15 @@ export default function ContentManagementGrid({ onOpenUploadForm, contentsList, 
 
   // Edit modal state
   const [editingItem, setEditingItem] = useState(null);
-  const [editTitle, setEditTitle]     = useState("");
-  const [editPrice, setEditPrice]     = useState(0);
+  const [editFormData, setEditFormData] = useState({
+    title: "",
+    description: "",
+    price: 0,
+    level: "Beginner",
+    tags: "",
+    status: "PUBLISHED"
+  });
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
 
   // Unique category list for filter dropdown
   const categories = useMemo(() => {
@@ -39,35 +46,92 @@ export default function ContentManagementGrid({ onOpenUploadForm, contentsList, 
     return ["All", ...new Set(names)];
   }, [resources]);
 
-  // Toggle Published / Draft status
-  const handleToggleStatus = (id) => {
-    setResources(prev => prev.map(r =>
-      r.id === id ? { ...r, status: (r.status || "Published") === "Published" ? "Draft" : "Published" } : r
-    ));
+  // Helper to re-fetch resources from backend
+  const fetchMyResources = () => {
+    api.get("/api/creator/content/my-resources")
+      .then((res) => {
+        const list = res.data?.data || res.data || [];
+        setResources(list);
+        onRefreshResources?.(list);
+      })
+      .catch((err) => {
+        console.error("Failed to refresh resources", err);
+      });
   };
 
-  // Confirm and delete a resource
+  // Toggle Published / Draft status with live backend persistence
+  const handleToggleStatus = (item) => {
+    const newStatus = (item.status || "PUBLISHED").toUpperCase() === "PUBLISHED" ? "DRAFT" : "PUBLISHED";
+    setActionLoadingId(item.id);
+
+    api.patch(`/api/creator/content/${item.id}/status`, { status: newStatus })
+      .then(() => {
+        setActionLoadingId(null);
+        fetchMyResources();
+      })
+      .catch((err) => {
+        setActionLoadingId(null);
+        alert(err.response?.data?.message || "Failed to update resource status.");
+      });
+  };
+
+  // Confirm and delete a resource with live backend persistence
   const handleDelete = (id, title) => {
-    if (window.confirm(`Delete "${title}"?`)) {
-      setResources(prev => prev.filter(r => r.id !== id));
-      onDeleteContent?.(id);
+    if (window.confirm(`Are you sure you want to permanently delete "${title}"?`)) {
+      setActionLoadingId(id);
+      api.delete(`/api/creator/content/${id}`)
+        .then(() => {
+          setActionLoadingId(null);
+          onDeleteContent?.(id);
+          fetchMyResources();
+        })
+        .catch((err) => {
+          setActionLoadingId(null);
+          alert(err.response?.data?.message || "Failed to delete resource.");
+        });
     }
   };
 
-  // Open edit modal with selected item's values
+  // Open edit modal with selected item's full values
   const openEditModal = (item) => {
     setEditingItem(item);
-    setEditTitle(item.title);
-    setEditPrice(item.price);
+    setEditFormData({
+      title: item.title || "",
+      description: item.description || "",
+      price: item.price !== undefined ? item.price : 0,
+      level: item.level || "Beginner",
+      tags: Array.isArray(item.tags) ? item.tags.join(", ") : (item.tags || ""),
+      status: (item.status || "PUBLISHED").toUpperCase(),
+      categoryName: item.category_name || item.category || "General"
+    });
   };
 
-  // Save edited title and price back to local state
+  // Save edited details to live backend API
   const saveEdit = (e) => {
     e.preventDefault();
-    setResources(prev => prev.map(r =>
-      r.id === editingItem.id ? { ...r, title: editTitle, price: Number(editPrice) } : r
-    ));
-    setEditingItem(null);
+    if (!editingItem) return;
+    setIsSavingEdit(true);
+
+    const payload = {
+      title: editFormData.title,
+      description: editFormData.description,
+      price: Number(editFormData.price),
+      level: editFormData.level,
+      tags: editFormData.tags,
+      status: editFormData.status,
+      categoryName: editFormData.categoryName
+    };
+
+    api.put(`/api/creator/content/${editingItem.id}`, payload)
+      .then(() => {
+        setIsSavingEdit(false);
+        setEditingItem(null);
+        fetchMyResources();
+      })
+      .catch((err) => {
+        setIsSavingEdit(false);
+        alert(err.response?.data?.message || "Failed to update resource details.");
+      });
   };
 
   // Apply search, category, status filters then sort
@@ -180,17 +244,17 @@ export default function ContentManagementGrid({ onOpenUploadForm, contentsList, 
                         className="p-1.5 rounded hover:bg-indigo-50 text-indigo-600 transition-colors cursor-pointer flex items-center gap-1 font-bold text-[10px]">
                         <MessageSquare size={15} /> Q&A
                       </button>
-                      <button onClick={() => handleToggleStatus(item.id)} title={isPublished ? "Unpublish" : "Publish"}
-                        className="p-1.5 rounded hover:bg-slate-100 text-slate-500 transition-colors cursor-pointer">
-                        {isPublished ? <EyeOff size={16} /> : <Eye size={16} />}
+                      <button onClick={() => handleToggleStatus(item)} disabled={actionLoadingId === item.id} title={isPublished ? "Unpublish to Draft" : "Publish to Marketplace"}
+                        className="p-1.5 rounded hover:bg-slate-100 text-slate-500 transition-colors cursor-pointer disabled:opacity-50">
+                        {actionLoadingId === item.id ? <Loader2 size={16} className="animate-spin text-indigo-600" /> : (isPublished ? <EyeOff size={16} /> : <Eye size={16} />)}
                       </button>
-                      <button onClick={() => openEditModal(item)} title="Edit Details"
-                        className="p-1.5 rounded hover:bg-slate-100 text-slate-500 transition-colors cursor-pointer">
+                      <button onClick={() => openEditModal(item)} disabled={actionLoadingId === item.id} title="Edit Details"
+                        className="p-1.5 rounded hover:bg-slate-100 text-slate-500 transition-colors cursor-pointer disabled:opacity-50">
                         ✏️
                       </button>
-                      <button onClick={() => handleDelete(item.id, item.title)} title="Delete"
-                        className="p-1.5 rounded hover:bg-rose-50 text-rose-500 transition-colors cursor-pointer">
-                        <Trash2 size={16} />
+                      <button onClick={() => handleDelete(item.id, item.title)} disabled={actionLoadingId === item.id} title="Delete Resource"
+                        className="p-1.5 rounded hover:bg-rose-50 text-rose-500 transition-colors cursor-pointer disabled:opacity-50">
+                        {actionLoadingId === item.id ? <Loader2 size={16} className="animate-spin text-rose-600" /> : <Trash2 size={16} />}
                       </button>
                     </div>
                   </td>
@@ -229,10 +293,11 @@ export default function ContentManagementGrid({ onOpenUploadForm, contentsList, 
       {/* Edit Modal (extracted sub-component) */}
       {editingItem && (
         <EditModal
-          editTitle={editTitle}   setEditTitle={setEditTitle}
-          editPrice={editPrice}   setEditPrice={setEditPrice}
+          formData={editFormData}
+          setFormData={setEditFormData}
           onSave={saveEdit}
           onClose={() => setEditingItem(null)}
+          isLoading={isSavingEdit}
         />
       )}
 

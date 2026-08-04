@@ -38,6 +38,9 @@ export default function RegisterPage({ onRegisterSuccess }) {
         setIsLoading(false);
         const newUser = res.data.data;
         localStorage.setItem("learnhub_token", newUser.token);
+        if (newUser.refreshToken) {
+          localStorage.setItem("learnhub_refreshToken", newUser.refreshToken);
+        }
         localStorage.setItem("learnhub_user", JSON.stringify(newUser));
         if (onRegisterSuccess) {
           onRegisterSuccess(newUser);

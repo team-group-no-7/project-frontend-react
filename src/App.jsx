@@ -292,7 +292,14 @@ function App() {
   };
 
   const handleLogout = () => {
+    const refreshToken = localStorage.getItem("learnhub_refreshToken");
+    if (refreshToken) {
+      api.post("/api/auth/logout", { refreshToken }).catch((err) => {
+        console.warn("Backend logout notification error:", err);
+      });
+    }
     localStorage.removeItem("learnhub_token");
+    localStorage.removeItem("learnhub_refreshToken");
     localStorage.removeItem("learnhub_user");
     localStorage.removeItem("learnhub_purchases");
     localStorage.removeItem("learnhub_sessions");
