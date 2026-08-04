@@ -14,7 +14,7 @@ export default function PricingSection({ form, onChange }) {
             </div>
             {form.pricing === 'paid' && (
                 <div className="mt-3">
-                    <input type="number" value={form.price || ''} onChange={(e) => onChange({ ...form, price: Number(e.target.value) })} className="rounded border p-2 w-48" placeholder="Price (₹)" />
+                    <input type="number" min="0" value={form.price || ''} onChange={(e) => onChange({ ...form, price: Math.max(0, Number(e.target.value)) })} className="rounded border p-2 w-48" placeholder="Price (₹)" />
                 </div>
             )}
         </div>
