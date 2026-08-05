@@ -22,26 +22,31 @@ export default function ResourceDetailsForm({ form, onChange }) {
 
                     <div className="mt-2 text-xs text-neutral-400">{(form.description || '').length}/500</div>
 
-                    <label className="block text-sm text-neutral-600 font-medium mt-4">Tags</label>
-                    <div className="flex gap-2 mt-3 flex-wrap">
-                        {tagsList.slice(0, 6).map(t => (
-                            <button key={t} className={`text-sm px-3 py-1 rounded-full border ${form.tags?.includes(t) ? 'bg-royal text-white border-royal' : 'bg-white text-neutral-700 border-gray-200'}`} onClick={() => {
-                                const tags = new Set(form.tags || []);
-                                tags.has(t) ? tags.delete(t) : tags.add(t);
-                                onChange({ ...form, tags: Array.from(tags) });
-                            }}>{t}</button>
-                        ))}
-                    </div>
+                    <label className="block text-sm text-neutral-600 font-medium mt-4">Tags (Comma-separated)</label>
+                    <input
+                        type="text"
+                        value={Array.isArray(form.tags) ? form.tags.join(', ') : (form.tags || '')}
+                        onChange={(e) => {
+                            const raw = e.target.value;
+                            const tagArray = raw.split(',').map(t => t.trim()).filter(Boolean);
+                            onChange({ ...form, tags: tagArray });
+                        }}
+                        placeholder="e.g. Java, Spring Boot, Microservices, Security"
+                        className="w-full rounded-3xl border border-gray-200 p-3 mt-2 shadow-sm text-sm"
+                    />
+                    <p className="text-xs text-neutral-400 mt-1">Enter tags separated by commas matching your topic.</p>
                 </div>
 
                 <div>
-                    <label className="block text-sm text-neutral-600 font-medium">Category</label>
+                    <label className="block text-sm text-neutral-600 font-medium">
+                        Category <span className="text-red-500">*</span>
+                    </label>
                     <CategorySelector categories={categories} value={form} onChange={onChange} />
 
                     <label className="block text-sm text-neutral-600 font-medium mt-4">Difficulty Level</label>
                     <div className="grid gap-3 mt-3">
                         {['Beginner', 'Intermediate', 'Advanced'].map(d => (
-                            <label key={d} className="flex items-center gap-3 rounded-3xl border border-gray-200 p-3">
+                            <label key={d} className="flex items-center gap-3 rounded-3xl border border-gray-200 p-3 cursor-pointer">
                                 <input type="radio" name="difficulty" checked={form.difficulty === d} onChange={() => onChange({ ...form, difficulty: d })} />
                                 <span className="text-sm">{d}</span>
                             </label>
@@ -51,12 +56,6 @@ export default function ResourceDetailsForm({ form, onChange }) {
                     <label className="block text-sm text-neutral-600 font-medium mt-4">Language</label>
                     <select value={form.language || ''} onChange={(e) => onChange({ ...form, language: e.target.value })} className="rounded-3xl border border-gray-200 p-3 w-full mt-2 shadow-sm">
                         {languages.map(l => <option key={l.code} value={l.code}>{l.label}</option>)}
-                    </select>
-
-                    <label className="block text-sm text-neutral-600 font-medium mt-4">Visibility</label>
-                    <select value={form.visibility || ''} onChange={(e) => onChange({ ...form, visibility: e.target.value })} className="rounded-3xl border border-gray-200 p-3 w-full mt-2 shadow-sm">
-                        <option>Public</option>
-                        <option>Private</option>
                     </select>
 
                     <div className="mt-6">

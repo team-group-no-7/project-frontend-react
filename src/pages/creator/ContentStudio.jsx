@@ -37,6 +37,8 @@ export default function ContentStudio({ profile, onChangePage, onUploadSuccess }
         if (currentStep === steps.length) {
             setIsSubmitting(true);
             const fileBlobUrl = uploadedFile ? URL.createObjectURL(uploadedFile) : null;
+            const catName = (contentType === 'pdf' ? pdfForm.categoryName || pdfForm.category : articleContent.categoryName || articleContent.category) || 'General';
+
             const payload = contentType === 'pdf' ? {
                 title: pdfForm.title,
                 description: pdfForm.description,
@@ -46,12 +48,12 @@ export default function ContentStudio({ profile, onChangePage, onUploadSuccess }
                 price: parseFloat(pdfForm.price) || 0,
                 type: 'PDF',
                 level: pdfForm.level || 'Beginner',
-                tags: ["PDF", "Guide"],
+                tags: Array.isArray(pdfForm.tags) ? pdfForm.tags.join(",") : (pdfForm.tags || "PDF,Guide"),
                 featured: false,
                 trending: false,
                 approvalStatus: 'APPROVED',
                 creatorId: profile?.id || 101,
-                categoryId: 1
+                categoryName: catName
             } : {
                 title: articleContent.title,
                 description: articleContent.description,
@@ -59,13 +61,13 @@ export default function ContentStudio({ profile, onChangePage, onUploadSuccess }
                 contentBody: articleContent.body,
                 price: parseFloat(articleContent.price) || 0,
                 type: 'ARTICLE',
-                level: 'Beginner',
-                tags: ["Article", "Notes"],
+                level: articleContent.level || 'Beginner',
+                tags: Array.isArray(articleContent.tags) ? articleContent.tags.join(",") : (articleContent.tags || "Article,Notes"),
                 featured: false,
                 trending: false,
                 approvalStatus: 'APPROVED',
                 creatorId: profile?.id || 101,
-                categoryId: 1
+                categoryName: catName
             };
 
             try {
@@ -73,17 +75,20 @@ export default function ContentStudio({ profile, onChangePage, onUploadSuccess }
                 if (contentType === 'pdf' && uploadedFile) {
                     const formData = new FormData();
                     formData.append("file", uploadedFile);
+                    if (pdfForm.thumbnail instanceof File) {
+                        formData.append("thumbnail", pdfForm.thumbnail);
+                    }
                     formData.append("title", pdfForm.title);
                     formData.append("description", pdfForm.description || "");
                     formData.append("price", parseFloat(pdfForm.price) || 0);
                     formData.append("level", pdfForm.level || "Beginner");
-                    formData.append("tags", "PDF,Guide");
+                    formData.append("tags", Array.isArray(pdfForm.tags) ? pdfForm.tags.join(",") : (pdfForm.tags || "PDF,Guide"));
                     formData.append("status", "PUBLISHED");
                     formData.append("creatorId", profile?.id || 101);
-                    formData.append("categoryName", "General");
+                    formData.append("categoryName", catName);
 
                     const res = await api.post("/api/creator/content/pdf", formData, {
-                        headers: { "Content-Type": "multipart/form-data" }
+                        headers: { "Content-Type": undefined }
                     });
                     savedData = res.data?.data || res.data;
                 } else {
@@ -96,21 +101,16 @@ export default function ContentStudio({ profile, onChangePage, onUploadSuccess }
                     id: savedData.id || Date.now(),
                     fileUrl: savedData.fileUrl || payload.fileUrl,
                     file_url: savedData.fileUrl || payload.fileUrl,
-                    category_name: savedData.categoryName || "General",
+                    contentBody: savedData.contentBody || payload.contentBody,
+                    category_name: savedData.categoryName || catName,
                     creator_name: profile?.name || "Creator",
                     created_at: new Date().toISOString()
                 };
                 if (onUploadSuccess) onUploadSuccess(finalContent);
             } catch (err) {
-                console.error("Content API submit error, using local fallback:", err);
-                const fallbackContent = {
-                    ...payload,
-                    id: Date.now(),
-                    category_name: "General",
-                    creator_name: profile?.name || "Creator",
-                    created_at: new Date().toISOString()
-                };
-                if (onUploadSuccess) onUploadSuccess(fallbackContent);
+                console.error("Content API submit error:", err);
+                alert("Failed to submit content to database. Please check all fields.");
+                return;
             } finally {
                 setIsSubmitting(false);
                 setPublished(true);
@@ -149,11 +149,11 @@ export default function ContentStudio({ profile, onChangePage, onUploadSuccess }
         if (currentStep === 1) return !!contentType;
         if (contentType === 'article') {
             if (currentStep === 2) return !!articleContent.title?.trim() && !!articleContent.body?.trim();
-            if (currentStep === 3) return !!articleContent.title && !!articleContent.description;
+            if (currentStep === 3) return !!articleContent.title?.trim() && !!articleContent.description?.trim() && !!(articleContent.categoryName || articleContent.category);
         }
         if (contentType === 'pdf') {
             if (currentStep === 2) return !!uploadedFile;
-            if (currentStep === 3) return !!pdfForm.title && !!pdfForm.description;
+            if (currentStep === 3) return !!pdfForm.title?.trim() && !!pdfForm.description?.trim() && !!(pdfForm.categoryName || pdfForm.category);
         }
         return true;
     }
