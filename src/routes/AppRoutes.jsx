@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 
 // Import All Page Components
 import LandingPage from '../pages/LandingPage';
@@ -63,11 +63,13 @@ export default function AppRoutes({
     handleSwitchRole,
     handleUploadSuccess,
     handleDeleteContent,
+    handleProfileUpdate,
     handleOpenCreatorProfile,
     handlePaymentSuccess,
     handlePaymentFailure,
     setSelectedCallSession
 }) {
+    const navigate = useNavigate();
     return (
         <Routes>
             {/* ── Public / Guest Routes ── */}
@@ -84,8 +86,14 @@ export default function AppRoutes({
                             profile={profile}
                             purchasedContents={purchasedContents}
                             marketplaceContents={marketplaceContents}
-                            onResumeReading={(item) => setSelectedReaderItem(item)}
-                            onViewRecommendation={(item) => setSelectedResourceItem(item)}
+                            onResumeReading={(item) => {
+                                setSelectedReaderItem(item);
+                                navigate('/reader');
+                            }}
+                            onViewRecommendation={(item) => {
+                                setSelectedResourceItem(item);
+                                navigate(`/resources/${item.id}`);
+                            }}
                         />
                     </AuthenticatedLayoutWrapper>
                 }
@@ -99,7 +107,10 @@ export default function AppRoutes({
                             onOpenCreatorProfile={(id) => handleOpenCreatorProfile(id)}
                             purchasedContents={purchasedContents}
                             marketplaceContents={marketplaceContents}
-                            onBuyContent={(item) => setSelectedResourceItem(item)}
+                            onBuyContent={(item) => {
+                                setSelectedResourceItem(item);
+                                navigate(`/resources/${item.id}`);
+                            }}
                         />
                     </AuthenticatedLayoutWrapper>
                 }
@@ -190,6 +201,7 @@ export default function AppRoutes({
                             activeRole={profile?.role}
                             onToggleRole={handleSwitchRole}
                             profile={profile}
+                            onUpdateProfile={handleProfileUpdate}
                             purchasedContents={purchasedContents}
                             uploadedContents={uploadedContents}
                             doubtSessions={doubtSessions}

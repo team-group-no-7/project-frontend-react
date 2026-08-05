@@ -1,13 +1,19 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Star, ChevronRight, FileText, Layers, Tag, User, ArrowLeft, ShieldCheck, Download, Award, Calendar, Globe } from "lucide-react";
+import { CREATORS } from "@/data/mockData";
+import api from "@/utils/api";
 
-
-export default function ResourceDetailPage({ resourceItem, profile, onBuyContent }) {
+export default function ResourceDetailPage({ resourceItem: initialItem, profile, onBuyContent }) {
   const navigate = useNavigate();
+  const { id: routeId } = useParams();
 
-  const item = resourceItem || {
-    id: 11,
+  const [dbItem, setDbItem] = useState(null);
+  const [dbReviews, setDbReviews] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const item = dbItem || initialItem || {
+    id: routeId || 11,
     title: "Complete Java Spring Boot Monolith & Microservices",
     description: "Master Spring Boot backend architecture, REST APIs, Security, JPA, PostgreSQL integration with real-world enterprise code examples.",
     price: 599.00,
@@ -26,6 +32,62 @@ export default function ResourceDetailPage({ resourceItem, profile, onBuyContent
     created_at: "2026-06-10"
   };
 
+  useEffect(() => {
+    const targetId = routeId || initialItem?.id;
+    if (!targetId) return;
+
+    let isMounted = true;
+    setIsLoading(true);
+
+    api.get(`/api/public/resource/${targetId}`)
+      .then((res) => {
+        if (!isMounted) return;
+        const data = res.data?.data || res.data;
+        if (data && data.id) {
+          const formattedItem = {
+            ...initialItem,
+            ...data,
+            id: data.id,
+            title: data.title || initialItem?.title,
+            description: data.description || initialItem?.description,
+            price: data.price !== undefined ? data.price : (initialItem?.price || 0),
+            category_name: data.categoryName || data.category || initialItem?.category_name || "General",
+            creator_id: data.creatorId || initialItem?.creator_id || 202,
+            creator_name: data.creatorName || initialItem?.creator_name || "Rohan Verma",
+            creator_avatar: data.creatorAvatar || initialItem?.creator_avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
+            rating: data.rating !== undefined ? data.rating : (initialItem?.rating || 4.8),
+            reviews_count: data.reviewsCount !== undefined ? data.reviewsCount : (initialItem?.reviews_count || 0),
+            learners_count: data.learnersCount !== undefined ? data.learnersCount : (initialItem?.learners_count || 0),
+            type: data.type || initialItem?.type || "ARTICLE",
+            level: data.level || initialItem?.level || "Intermediate",
+            tags: Array.isArray(data.tags) ? data.tags : (initialItem?.tags || ["Java", "Spring Boot"]),
+            preview_text: data.previewText || data.preview_text || initialItem?.preview_text
+          };
+          setDbItem(formattedItem);
+
+          if (Array.isArray(data.reviews) && data.reviews.length > 0) {
+            const formattedReviews = data.reviews.map(r => ({
+              id: r.id,
+              studentName: r.studentName || r.student_name || "Learner",
+              avatar: r.avatar || r.avatarUrl || r.avatar_url || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100",
+              rating: r.rating || 5,
+              date: r.date || r.reviewDate || r.review_date || "Recently",
+              comment: r.comment || r.reviewText || r.review_text || ""
+            }));
+            setDbReviews(formattedReviews);
+          }
+        }
+      })
+      .catch((err) => {
+        console.warn("Resource detail database fetch notice:", err);
+      })
+      .finally(() => {
+        if (isMounted) setIsLoading(false);
+      });
+
+    return () => { isMounted = false; };
+  }, [routeId, initialItem?.id]);
+
   const isCreatorOwner = profile && (
     profile.id === item.creator_id ||
     profile.id === item.creator?.id ||
@@ -33,7 +95,7 @@ export default function ResourceDetailPage({ resourceItem, profile, onBuyContent
   );
 
   const creatorProfile = CREATORS.find(c => c.id === item.creator_id) || CREATORS[0];
-  const creatorReviews = creatorProfile?.reviews || [];
+  const creatorReviews = (dbReviews && dbReviews.length > 0) ? dbReviews : (creatorProfile?.reviews || []);
 
   const handleBuy = () => {
     if (isCreatorOwner) {
