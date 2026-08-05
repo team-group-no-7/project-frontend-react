@@ -88,9 +88,8 @@ export default function CreatorProfilePage({
       id: item.creator_id || item.creatorId || activeCreatorId,
       name: item.creator_name || item.creatorName || "Creator Profile",
       avatarUrl: item.creator_avatar || item.creatorAvatar || null,
-      headline: "Staff Educator & Technology Specialist",
-      location: "India",
-      bio: `Content creator and mentor on LearnHub. Specializing in ${item.category_name || "Software Development"}.`
+      headline: item.creator_headline || "Technical Creator",
+      location: item.creator_location || "India"
     } : null;
   }, [marketplaceContents, activeCreatorId]);
 
@@ -98,9 +97,8 @@ export default function CreatorProfilePage({
     id: activeCreatorId,
     name: "LearnHub Creator",
     avatarUrl: null,
-    headline: "Senior Technology Educator & Technical Mentor",
-    location: "India",
-    bio: "Passionate software development educator sharing notes, guides, and architecture blueprints."
+    headline: "Technical Creator",
+    location: "India"
   };
 
   // Published resources list (DB first, fallback to props)
@@ -229,12 +227,16 @@ export default function CreatorProfilePage({
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
               {creator.name}
             </h1>
-            <p className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">
-              {creator.headline || "Senior Educator & Technology Specialist"}
-            </p>
-            <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
-              {creator.bio || `Technology educator and author sharing learning resources on LearnHub.`}
-            </p>
+            {creator.headline && (
+              <p className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">
+                {creator.headline}
+              </p>
+            )}
+            {creator.bio && (
+              <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+                {creator.bio}
+              </p>
+            )}
 
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs text-gray-500 pt-1">
               <span className="flex items-center gap-1">

@@ -30,11 +30,6 @@ export default function MarketplaceCard({
                 <Flame className="h-3 w-3" /> Trending
               </span>
             )}
-            {item.featured && (
-              <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">
-                <BadgeCheck className="h-3 w-3" /> Featured
-              </span>
-            )}
           </div>
           {isPurchased ? (
             <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded">

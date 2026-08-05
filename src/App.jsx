@@ -259,6 +259,15 @@ function App() {
     }
   }, [isLoggedIn, fetchProfile, fetchMarketplace]);
 
+  // Route protection guard for authenticated routes
+  useEffect(() => {
+    const publicPaths = ['/', '/login', '/register'];
+    const token = localStorage.getItem('learnhub_token');
+    if (!isLoggedIn && !token && !publicPaths.includes(location.pathname)) {
+      navigate('/login');
+    }
+  }, [isLoggedIn, location.pathname, navigate]);
+
   useEffect(() => {
     if (isLoggedIn && profile?.id) {
       fetchPurchases(profile.id);
