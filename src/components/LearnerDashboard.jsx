@@ -32,11 +32,16 @@ export default function LearnerDashboard({ purchasedContents, marketplaceContent
           <CardContent className="space-y-4">
             {purchasedContents.map((purchase) => {
               const content = purchase.content || purchase;
-              const typeStr = (content?.type || purchase?.type || "").toUpperCase();
-              const isPdfType = typeStr.includes("PDF") || typeStr.includes("SHEET") || !!(content?.fileUrl || content?.file_url);
+              const contentId = content?.id || purchase?.content_id || purchase?.contentId;
+              const matchedCatalogItem = (marketplaceContents || []).find(c => c.id === contentId);
+
+              const typeStr = (content?.type || purchase?.type || matchedCatalogItem?.type || matchedCatalogItem?.content_type || "").toUpperCase();
+              const fileUrl = content?.fileUrl || content?.file_url || purchase?.fileUrl || purchase?.file_url || matchedCatalogItem?.fileUrl || matchedCatalogItem?.file_url;
+              const titleStr = (content?.title || purchase?.title || matchedCatalogItem?.title || "").toLowerCase();
+
+              const isPdfType = typeStr.includes("PDF") || typeStr.includes("SHEET") || !!fileUrl || titleStr.includes(".pdf") || titleStr.includes("cheatsheet") || titleStr.includes("handbook") || titleStr.includes("guide");
               const displayType = isPdfType ? "PDF" : "Article";
               
-              const matchedCatalogItem = (marketplaceContents || []).find(c => c.id === (content?.id || purchase?.content_id || purchase?.contentId));
               const creatorName = content?.creator_name || content?.creatorName || purchase?.creator_name || purchase?.creatorName || content?.creator?.name || matchedCatalogItem?.creator_name || matchedCatalogItem?.creatorName || "Rohan Verma";
 
               return (

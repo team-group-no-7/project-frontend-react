@@ -205,11 +205,16 @@ export default function LearnerDashboard({
                 const res = purchase.content || purchase;
                 if (!res || (!res.title && !res.id)) return null;
 
-                const typeStr = (res.type || res.content_type || "").toUpperCase();
-                const isPdfType = typeStr.includes("PDF") || typeStr.includes("SHEET") || !!(res.fileUrl || res.file_url);
+                const targetContentId = res.id || purchase.content_id || purchase.contentId;
+                const matchedCatalogItem = marketplaceContents.find(c => c.id === targetContentId);
+
+                const typeStr = (res.type || res.content_type || matchedCatalogItem?.type || matchedCatalogItem?.content_type || "").toUpperCase();
+                const fileUrl = res.fileUrl || res.file_url || matchedCatalogItem?.fileUrl || matchedCatalogItem?.file_url;
+                const titleStr = (res.title || purchase.title || matchedCatalogItem?.title || "").toLowerCase();
+
+                const isPdfType = typeStr.includes("PDF") || typeStr.includes("SHEET") || !!fileUrl || titleStr.includes(".pdf") || titleStr.includes("cheatsheet") || titleStr.includes("handbook") || titleStr.includes("guide");
                 const displayType = isPdfType ? "PDF" : "Article";
 
-                const matchedCatalogItem = marketplaceContents.find(c => c.id === (res.id || purchase.content_id || purchase.content?.id));
                 const creatorName = res.creator_name || res.creatorName || res.creator?.name || matchedCatalogItem?.creator_name || matchedCatalogItem?.creatorName || "Rohan Verma";
 
                 const handleOpen = () => {
