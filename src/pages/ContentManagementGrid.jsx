@@ -273,18 +273,41 @@ export default function ContentManagementGrid({ onOpenUploadForm, contentsList, 
 
       {/* Pagination */}
       {processedResources.length > ITEMS_PER_PAGE && (
-        <div className="flex items-center justify-between pt-4">
+        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
           <span className="text-xs text-gray-500">
-            Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong>
+            Showing <strong>{paginatedResources.length}</strong> of <strong>{processedResources.length}</strong> resources (Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong>)
           </span>
-          <div className="flex items-center gap-2">
-            <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}
-              className="p-2 rounded-lg border border-gray-200 text-gray-500 disabled:opacity-50 hover:bg-slate-50 cursor-pointer">
-              <ChevronLeft size={16} />
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1 rounded-lg border border-gray-200 text-xs font-semibold text-gray-600 disabled:opacity-40 hover:bg-slate-50 cursor-pointer flex items-center gap-1"
+            >
+              <ChevronLeft size={14} /> Previous
             </button>
-            <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}
-              className="p-2 rounded-lg border border-gray-200 text-gray-500 disabled:opacity-50 hover:bg-slate-50 cursor-pointer">
-              <ChevronRight size={16} />
+
+            <div className="flex items-center gap-1">
+              {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((pageNum) => (
+                <button
+                  key={pageNum}
+                  onClick={() => setCurrentPage(pageNum)}
+                  className={`w-7 h-7 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                    currentPage === pageNum
+                      ? "bg-indigo-600 text-white"
+                      : "text-gray-600 hover:bg-gray-100"
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1 rounded-lg border border-gray-200 text-xs font-semibold text-gray-600 disabled:opacity-40 hover:bg-slate-50 cursor-pointer flex items-center gap-1"
+            >
+              Next <ChevronRight size={14} />
             </button>
           </div>
         </div>

@@ -37,6 +37,16 @@ export default function LearnerDashboard({ profile, purchasedContents = [], mark
     return parseInt(localStorage.getItem(key) || "0", 10);
   };
 
+  // Pagination state for My Library / Enrolled Resources
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 4;
+  const totalPages = Math.ceil(purchasedContents.length / itemsPerPage) || 1;
+
+  const paginatedPurchases = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return purchasedContents.slice(start, start + itemsPerPage);
+  }, [purchasedContents, currentPage, itemsPerPage]);
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
       
@@ -91,48 +101,91 @@ export default function LearnerDashboard({ profile, purchasedContents = [], mark
 
       </div>
 
-      {/* 3. Continue Learning list */}
+      {/* 3. Continue Learning / My Library Section */}
       <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs space-y-4">
-        <h2 className="text-lg font-bold text-gray-900">Continue Learning</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-bold text-gray-900">Continue Learning (My Library)</h2>
+          {purchasedContents.length > 0 && (
+            <span className="text-xs text-gray-500 font-medium">
+              Showing <strong>{paginatedPurchases.length}</strong> of <strong>{purchasedContents.length}</strong> resources
+            </span>
+          )}
+        </div>
 
         {purchasedContents.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {purchasedContents.map((purchase) => {
-              const res = purchase.content;
-              if (!res) return null;
-              // Progress starts at 0% for new purchases; saved in localStorage per content
-              const progress = getProgress(res.id);
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {paginatedPurchases.map((purchase) => {
+                const res = purchase.content;
+                if (!res) return null;
+                const progress = getProgress(res.id);
 
-              return (
-                <div key={purchase.id} className="p-4 rounded-xl border border-gray-100 bg-slate-50 flex flex-col justify-between gap-3">
-                  <div>
-                    <span className="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-[9px] font-bold uppercase">
-                      {res.type || "PDF Guide"}
-                    </span>
-                    <h3 className="font-bold text-gray-800 text-sm mt-1.5 line-clamp-1">{res.title}</h3>
-                    <p className="text-xs text-gray-400 mt-0.5">By {res.creator_name || res.creatorName || "Creator"}</p>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-gray-400">Progress</span>
-                      <span className="font-bold text-indigo-600">{progress}%</span>
+                return (
+                  <div key={purchase.id} className="p-4 rounded-xl border border-gray-100 bg-slate-50 flex flex-col justify-between gap-3">
+                    <div>
+                      <span className="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-[9px] font-bold uppercase">
+                        {res.type || "PDF Guide"}
+                      </span>
+                      <h3 className="font-bold text-gray-800 text-sm mt-1.5 line-clamp-1">{res.title}</h3>
+                      <p className="text-xs text-gray-400 mt-0.5">By {res.creator_name || res.creatorName || "Creator"}</p>
                     </div>
-                    <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-indigo-600 rounded-full" style={{ width: `${progress}%` }} />
-                    </div>
-                  </div>
 
-                  <button
-                    onClick={() => onResumeReading && onResumeReading(res)}
-                    className="w-full mt-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-white border border-gray-200 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
-                  >
-                    <Play className="h-3 w-3 fill-gray-600 text-gray-600" /> Resume Reading
-                  </button>
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-gray-400">Progress</span>
+                        <span className="font-bold text-indigo-600">{progress}%</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
+                        <div className="h-full bg-indigo-600 rounded-full" style={{ width: `${progress}%` }} />
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => onResumeReading && onResumeReading(res)}
+                      className="w-full mt-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-white border border-gray-200 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
+                    >
+                      <Play className="h-3 w-3 fill-gray-600 text-gray-600" /> Resume Reading
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Pagination Controls for My Library */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 pt-4 border-t border-gray-100">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-semibold text-gray-600 disabled:opacity-40 hover:bg-slate-50 cursor-pointer"
+                >
+                  Previous
+                </button>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((pageNum) => (
+                    <button
+                      key={pageNum}
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`w-7 h-7 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                        currentPage === pageNum
+                          ? "bg-indigo-600 text-white"
+                          : "text-gray-600 hover:bg-gray-100"
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  ))}
                 </div>
-              );
-            })}
-          </div>
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-semibold text-gray-600 disabled:opacity-40 hover:bg-slate-50 cursor-pointer"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
         ) : (
           <div className="text-center p-8 bg-slate-50 rounded-xl border border-slate-100">
             <p className="text-xs text-gray-500 font-medium">You haven't purchased any learning resources yet.</p>
