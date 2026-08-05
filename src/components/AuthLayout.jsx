@@ -1,5 +1,5 @@
 import React from "react";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, BookOpen } from "lucide-react";
 import {
   Card, CardHeader, CardTitle, CardDescription,
   CardContent, CardFooter
@@ -7,7 +7,7 @@ import {
 
 /**
  * AuthLayout — Shared wrapper for LoginPage and RegisterPage.
- * Provides the card shell, gradient header, error banner, and footer link.
+ * Provides the card shell, landing page matching blue gradient header, open book logo, error banner, and footer link.
  * 
  * Props:
  *  - title        : Heading text inside the gradient header
@@ -28,16 +28,17 @@ export default function AuthLayout({
   children
 }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F8F7FF] dark:bg-[#0b0a14] px-4 py-12">
-      <Card className="w-full max-w-md border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#121124] shadow-xl rounded-2xl overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 px-4 py-12">
+      <Card className="w-full max-w-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl rounded-2xl overflow-hidden">
 
-        {/* Gradient Header — same for Login & Register */}
-        <CardHeader className="bg-gradient-to-r from-indigo-900 to-purple-900 text-white p-6 text-center space-y-2">
-          <div className="mx-auto w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center font-bold text-2xl tracking-wider mb-1">
-            LH
+        {/* Gradient Header — matching LandingPage blue theme */}
+        <CardHeader className="bg-gradient-to-r from-indigo-600 to-indigo-800 text-white p-6 text-center space-y-2">
+          <div className="mx-auto w-12 h-12 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center text-white shadow-sm mb-1">
+            <BookOpen className="h-6 w-6" />
           </div>
+          <div className="text-xs font-black uppercase tracking-widest text-indigo-200">LearnHub</div>
           <CardTitle className="text-2xl font-extrabold tracking-tight">{title}</CardTitle>
-          <CardDescription className="text-indigo-200 text-xs">{subtitle}</CardDescription>
+          <CardDescription className="text-indigo-100 text-xs">{subtitle}</CardDescription>
         </CardHeader>
 
         {/* Form Content */}

@@ -82,8 +82,8 @@ export default function MarketplaceCard({
           <span className="flex items-center gap-1 text-amber-500 font-semibold">
             <Star className="h-3.5 w-3.5 fill-amber-400" /> {item.rating}
           </span>
-          <span className="flex items-center gap-1 text-gray-400">
-            <Users className="h-3.5 w-3.5" /> {item.learners_count}
+          <span className="flex items-center gap-1 text-gray-500 font-medium" title="Enrolled Learners">
+            <Users className="h-3.5 w-3.5 text-indigo-500" /> {(item.learners_count || item.learnersCount || 0).toLocaleString()} enrolled
           </span>
         </div>
 

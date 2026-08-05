@@ -86,6 +86,7 @@ export default function AppRoutes({
                             profile={profile}
                             purchasedContents={purchasedContents}
                             marketplaceContents={marketplaceContents}
+                            doubtSessions={doubtSessions}
                             onResumeReading={(item) => {
                                 setSelectedReaderItem(item);
                                 navigate('/reader');
@@ -123,7 +124,24 @@ export default function AppRoutes({
                         <ResourceDetailPage
                             resourceItem={selectedResourceItem}
                             profile={profile}
+                            purchasedContents={purchasedContents}
                             onBuyContent={(item) => setSelectedCheckoutItem(item)}
+                            onOpenCreatorProfile={(id) => handleOpenCreatorProfile(id)}
+                        />
+                    </AuthenticatedLayoutWrapper>
+                }
+            />
+
+            <Route
+                path="/resource/:id"
+                element={
+                    <AuthenticatedLayoutWrapper title="Resource Details" profile={profile} onSwitchRole={handleSwitchRole} onLogout={handleLogout}>
+                        <ResourceDetailPage
+                            resourceItem={selectedResourceItem}
+                            profile={profile}
+                            purchasedContents={purchasedContents}
+                            onBuyContent={(item) => setSelectedCheckoutItem(item)}
+                            onOpenCreatorProfile={(id) => handleOpenCreatorProfile(id)}
                         />
                     </AuthenticatedLayoutWrapper>
                 }
@@ -191,6 +209,29 @@ export default function AppRoutes({
                     </AuthenticatedLayoutWrapper>
                 }
             />
+            <Route
+                path="/creator/:id"
+                element={
+                    <AuthenticatedLayoutWrapper title="Creator Profile" profile={profile} onSwitchRole={handleSwitchRole} onLogout={handleLogout}>
+                        <CreatorProfilePage
+                            creatorId={selectedCreatorId}
+                            marketplaceContents={marketplaceContents}
+                            onSelectCreator={(id) => handleOpenCreatorProfile(id)}
+                            onBookSession={(sessionDetails) => {
+                                setSelectedCheckoutItem({
+                                    id: sessionDetails.id,
+                                    title: `1:1 Mentorship: ${sessionDetails.topic}`,
+                                    price: sessionDetails.session_price,
+                                    category_name: "Live Doubt",
+                                    creator_name: sessionDetails.creator.name,
+                                    isSession: true,
+                                    sessionData: sessionDetails
+                                });
+                            }}
+                        />
+                    </AuthenticatedLayoutWrapper>
+                }
+            />
 
             {/* ── User Account & Admin Routes ── */}
             <Route
@@ -224,6 +265,15 @@ export default function AppRoutes({
             {/* ── Fullscreen Reader, Checkout & Video Call Routes ── */}
             <Route
                 path="/reader"
+                element={
+                    <UnifiedContentViewerPage
+                        contentItem={selectedReaderItem}
+                        profile={profile}
+                    />
+                }
+            />
+            <Route
+                path="/reader/:id"
                 element={
                     <UnifiedContentViewerPage
                         contentItem={selectedReaderItem}

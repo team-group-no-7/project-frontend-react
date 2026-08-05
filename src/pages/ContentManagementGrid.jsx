@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { Plus, Trash2, LayoutGrid, Eye, EyeOff, ChevronLeft, ChevronRight, MessageSquare, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import GridToolbar from "@/components/contentStudio/GridToolbar";
@@ -11,9 +12,31 @@ import api from "@/utils/api";
  * Status toggling, editing, and deleting are fully persisted via live Spring Boot APIs.
  */
 export default function ContentManagementGrid({ onOpenUploadForm, contentsList, onDeleteContent, onOpenReader, onRefreshResources }) {
-  // Local resource state — synced from parent prop
+  const navigate = useNavigate();
+
+  // Local resource state — synced from parent prop & auto-fetched from backend API
   const [resources, setResources] = useState(() => contentsList || []);
-  useEffect(() => { if (contentsList) setResources(contentsList); }, [contentsList]);
+
+  // Merge parent contentsList without overwriting live backend items
+  useEffect(() => {
+    if (Array.isArray(contentsList) && contentsList.length > 0) {
+      setResources((prev) => {
+        if (prev.length === 0) return contentsList;
+        const merged = [...prev];
+        contentsList.forEach((item) => {
+          if (!merged.some((m) => String(m.id) === String(item.id) || (m.title && m.title === item.title))) {
+            merged.push(item);
+          }
+        });
+        return merged;
+      });
+    }
+  }, [contentsList]);
+
+  // Fetch creator resources from backend on component mount
+  useEffect(() => {
+    fetchMyResources();
+  }, []);
 
   // Loading & Action State
   const [actionLoadingId, setActionLoadingId] = useState(null);
@@ -42,7 +65,7 @@ export default function ContentManagementGrid({ onOpenUploadForm, contentsList, 
 
   // Unique category list for filter dropdown
   const categories = useMemo(() => {
-    const names = resources.map(r => r.category_name || "General");
+    const names = resources.map(r => r.category_name || r.categoryName || "General");
     return ["All", ...new Set(names)];
   }, [resources]);
 
@@ -51,8 +74,20 @@ export default function ContentManagementGrid({ onOpenUploadForm, contentsList, 
     api.get("/api/creator/content/my-resources")
       .then((res) => {
         const list = res.data?.data || res.data || [];
-        setResources(list);
-        onRefreshResources?.(list);
+        if (Array.isArray(list)) {
+          const normalized = list.map(item => ({
+            ...item,
+            id: item.id,
+            title: item.title || "Untitled Resource",
+            description: item.description || "",
+            price: item.price !== undefined ? item.price : 0,
+            status: (item.status || "PUBLISHED").toUpperCase(),
+            category_name: item.categoryName || item.category_name || "General",
+            created_at: item.createdAt || item.created_at || new Date().toISOString()
+          }));
+          setResources(normalized);
+          if (onRefreshResources) onRefreshResources(normalized);
+        }
       })
       .catch((err) => {
         console.error("Failed to refresh resources", err);
@@ -138,13 +173,15 @@ export default function ContentManagementGrid({ onOpenUploadForm, contentsList, 
   const processedResources = useMemo(() => {
     return resources
       .filter(item => {
-        const title = item?.title || "";
-        const status = item?.status || "Published";
-        return (
-          title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-          (categoryFilter === "All" || (item?.category_name || "General") === categoryFilter) &&
-          (statusFilter  === "All" || status === statusFilter)
-        );
+        const title = item?.title || item?.name || "";
+        const status = (item?.status || "PUBLISHED").toUpperCase();
+        const category = item?.category_name || item?.categoryName || item?.category || "General";
+        
+        const matchesSearch = !searchQuery.trim() || title.toLowerCase().includes(searchQuery.toLowerCase().trim());
+        const matchesCategory = categoryFilter === "All" || category.toLowerCase() === categoryFilter.toLowerCase();
+        const matchesStatus = statusFilter === "All" || (statusFilter.toUpperCase() === "UNPUBLISHED" ? status !== "PUBLISHED" : status === statusFilter.toUpperCase());
+
+        return matchesSearch && matchesCategory && matchesStatus;
       })
       .sort((a, b) => {
         if (sortBy === "price-low")  return a.price - b.price;
@@ -162,9 +199,9 @@ export default function ContentManagementGrid({ onOpenUploadForm, contentsList, 
 
   // Summary stats
   const stats = useMemo(() => ({
-    totalPublished: resources.filter(r => (r.status || "Published") === "Published").length,
-    totalDrafts:    resources.filter(r => r.status === "Draft").length,
-    totalRevenue:   resources.reduce((sum, r) => sum + (r.revenue || 0), 0),
+    totalPublished:   resources.filter(r => (r.status || "PUBLISHED").toUpperCase() === "PUBLISHED").length,
+    totalUnpublished: resources.filter(r => (r.status || "").toUpperCase() !== "PUBLISHED").length,
+    totalRevenue:     resources.reduce((sum, r) => sum + (r.revenue || 0), 0),
   }), [resources]);
 
   return (
@@ -178,7 +215,7 @@ export default function ContentManagementGrid({ onOpenUploadForm, contentsList, 
           </h1>
           <p className="text-xs text-gray-500 mt-1">Manage status, sort uploads, and track metrics.</p>
         </div>
-        <Button onClick={onOpenUploadForm} className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs gap-2 shadow-xs">
+        <Button onClick={() => (onOpenUploadForm ? onOpenUploadForm() : navigate('/creator/studio'))} className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs gap-2 shadow-xs cursor-pointer">
           <Plus className="h-4 w-4" /> Upload New Content
         </Button>
       </div>
@@ -187,7 +224,7 @@ export default function ContentManagementGrid({ onOpenUploadForm, contentsList, 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
           { label: "Published Items",    value: stats.totalPublished,                  color: "text-gray-900" },
-          { label: "Draft Items",        value: stats.totalDrafts,                     color: "text-indigo-600" },
+          { label: "Unpublished Items",  value: stats.totalUnpublished,                color: "text-indigo-600" },
           { label: "Total Sales Revenue",value: `₹${stats.totalRevenue.toLocaleString()}`, color: "text-emerald-600" },
         ].map(({ label, value, color }) => (
           <div key={label} className="bg-white border border-gray-100 rounded-2xl p-4 shadow-xs text-center">
@@ -235,7 +272,7 @@ export default function ContentManagementGrid({ onOpenUploadForm, contentsList, 
                     <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                       isPublished ? "bg-emerald-50 text-emerald-600 border border-emerald-200" : "bg-slate-100 text-slate-500"
                     }`}>
-                      {isPublished ? "Published" : "Draft"}
+                      {isPublished ? "Published" : "Unpublished"}
                     </span>
                   </td>
                   <td className="p-4 text-right">

@@ -44,7 +44,7 @@ export default function GridToolbar({
       <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className={selectClass}>
         <option value="All">All Status</option>
         <option value="Published">Published</option>
-        <option value="Draft">Draft</option>
+        <option value="Unpublished">Unpublished</option>
       </select>
 
       {/* Sort */}

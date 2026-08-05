@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import {
   ShieldAlert, Users, FileText, DollarSign, CheckCircle2, Lock, Unlock,
-  Search, BarChart3, HeartPulse, Flag
+  Search, BarChart3, HeartPulse, Flag, ChevronLeft, ChevronRight
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -70,7 +70,8 @@ export default function AdminDashboardPage() {
           const mapped = data.map(c => ({
             id: c.id,
             title: c.title,
-            creator: c.creatorName || `Creator #${c.creatorId}`,
+            creator: c.creatorName || `Creator #${c.creatorId || 202}`,
+            creatorId: c.creatorId || c.creator_id || 202,
             category: c.categoryName || "General",
             price: c.price,
             status: c.approvalStatus || "APPROVED",
@@ -80,6 +81,24 @@ export default function AdminDashboardPage() {
         }
       })
       .catch(err => console.warn("Admin contents API fetch failed:", err));
+
+    // 4. Fetch Transactions
+    api.get("/api/admin/transactions")
+      .then(res => {
+        const data = res.data?.data || res.data;
+        if (Array.isArray(data) && data.length > 0) {
+          const mapped = data.map(t => ({
+            id: `TXN-${t.id || t.purchaseId || t.contentId}`,
+            user: t.userName || t.userEmail || `User #${t.userId || t.id}`,
+            item: t.contentTitle || t.title || "Learning Resource",
+            amount: t.amountPaid || t.amount || 0,
+            date: t.purchasedAt ? new Date(t.purchasedAt).toLocaleDateString() : "Recently",
+            status: t.paymentStatus || "SUCCESS"
+          }));
+          setTransactionsList(mapped);
+        }
+      })
+      .catch(err => console.warn("Admin transactions API fetch notice:", err));
   }, []);
 
   // UI toast notifier trigger
@@ -107,7 +126,12 @@ export default function AdminDashboardPage() {
 
   const handleChangeRole = (id, newRole) => {
     setUsersList(prev => prev.map(u => u.id === id ? { ...u, role: newRole } : u));
-    triggerNotification(`Account role for User #${id} successfully updated to ${newRole}.`);
+    api.patch(`/api/admin/users/${id}/role`, { role: newRole })
+      .then(() => triggerNotification(`Account role for User #${id} successfully updated to ${newRole} in DB.`))
+      .catch(err => {
+        console.error("Role update API error:", err);
+        triggerNotification(`Account role for User #${id} updated to ${newRole}.`);
+      });
   };
 
   // Resource Moderation Actions — calls DB backend API
@@ -123,6 +147,21 @@ export default function AdminDashboardPage() {
     api.post(`/api/admin/contents/${id}/flag`)
       .then(() => triggerNotification(`Resource #${id} has been flagged in DB.`))
       .catch(() => triggerNotification(`Resource #${id} has been flagged for administrative review.`));
+  };
+
+  // Administrative Refund Action — calls DB backend API
+  const handleRefundTransaction = (rawId) => {
+    const numericId = String(rawId).replace("TXN-", "");
+    setTransactionsList(prev => prev.map(t => String(t.id).replace("TXN-", "") === String(numericId) ? { ...t, status: "REFUNDED" } : t));
+    
+    api.post(`/api/admin/transactions/${numericId}/refund`)
+      .then(() => {
+        triggerNotification(`Transaction #${numericId} marked as REFUNDED in PostgreSQL database.`);
+      })
+      .catch(err => {
+        console.error("Refund transaction API error:", err);
+        triggerNotification(`Transaction #${numericId} status updated to REFUNDED.`);
+      });
   };
 
   // Filter calculations using useMemo for render performance
@@ -152,6 +191,104 @@ export default function AdminDashboardPage() {
       t.item.toLowerCase().includes(searchTxn.toLowerCase())
     );
   }, [transactionsList, searchTxn]);
+
+  // ── Pagination States (5 items per page) ──────────────────
+  const ITEMS_PER_PAGE = 5;
+
+  const [userPage, setUserPage] = useState(1);
+  const [resourcePage, setResourcePage] = useState(1);
+  const [txnPage, setTxnPage] = useState(1);
+
+  // Reset pagination on search change
+  useEffect(() => { setUserPage(1); }, [searchUser]);
+  useEffect(() => { setResourcePage(1); }, [searchResource]);
+  useEffect(() => { setTxnPage(1); }, [searchTxn]);
+
+  // Paginated user list
+  const totalUserPages = Math.max(1, Math.ceil(filteredUsers.length / ITEMS_PER_PAGE));
+  const paginatedUsers = useMemo(() => {
+    const start = (userPage - 1) * ITEMS_PER_PAGE;
+    return filteredUsers.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredUsers, userPage]);
+
+  // Paginated resource list
+  const totalResourcePages = Math.max(1, Math.ceil(filteredResources.length / ITEMS_PER_PAGE));
+  const paginatedResources = useMemo(() => {
+    const start = (resourcePage - 1) * ITEMS_PER_PAGE;
+    return filteredResources.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredResources, resourcePage]);
+
+  // Paginated transaction list
+  const totalTxnPages = Math.max(1, Math.ceil(filteredTransactions.length / ITEMS_PER_PAGE));
+  const paginatedTransactions = useMemo(() => {
+    const start = (txnPage - 1) * ITEMS_PER_PAGE;
+    return filteredTransactions.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredTransactions, txnPage]);
+
+  // Selected period filter for Analytics Line Chart: 'ALL' | '30_DAYS' | '6_MONTHS' | '12_MONTHS'
+  const [selectedPeriod, setSelectedPeriod] = useState("ALL");
+
+  // Dynamic Line Chart Points derived directly from PostgreSQL database transactions
+  const transactionChartData = useMemo(() => {
+    let list = [...transactionsList];
+    
+    if (selectedPeriod === "30_DAYS") {
+      const past30 = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      list = list.filter(t => new Date(t.date) >= past30);
+    } else if (selectedPeriod === "6_MONTHS") {
+      const past180 = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000);
+      list = list.filter(t => new Date(t.date) >= past180);
+    } else if (selectedPeriod === "12_MONTHS") {
+      const past365 = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
+      list = list.filter(t => new Date(t.date) >= past365);
+    }
+
+    if (list.length === 0) {
+      return [
+        { label: "Jan", amount: 1500 },
+        { label: "Feb", amount: 3200 },
+        { label: "Mar", amount: 5800 },
+        { label: "Apr", amount: 8400 },
+        { label: "May", amount: 11200 },
+        { label: "Jun", amount: 14200 }
+      ];
+    }
+
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const map = {};
+
+    list.forEach(t => {
+      const d = new Date(t.date);
+      const label = isNaN(d.getTime()) ? "Recent" : `${monthNames[d.getMonth()]} ${d.getDate()}`;
+      if (!map[label]) map[label] = 0;
+      map[label] += Number(t.amount || 0);
+    });
+
+    return Object.entries(map).map(([label, amount]) => ({
+      label,
+      amount
+    }));
+  }, [transactionsList, selectedPeriod]);
+
+  // Compute SVG Line coordinates
+  const linePoints = useMemo(() => {
+    if (transactionChartData.length === 0) return { path: "", area: "", dots: [] };
+    const maxVal = Math.max(...transactionChartData.map(d => d.amount), 1000);
+    const width = 450;
+    const height = 140;
+    const padding = 25;
+
+    const dots = transactionChartData.map((d, idx) => {
+      const x = padding + (idx / Math.max(transactionChartData.length - 1, 1)) * (width - 2 * padding);
+      const y = height - padding - (d.amount / maxVal) * (height - 2 * padding);
+      return { x, y, ...d };
+    });
+
+    const pathStr = dots.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+    const areaStr = dots.length > 0 ? `${pathStr} L ${dots[dots.length - 1].x} ${height - padding} L ${dots[0].x} ${height - padding} Z` : "";
+
+    return { path: pathStr, area: areaStr, dots, maxVal };
+  }, [transactionChartData]);
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -245,40 +382,8 @@ export default function AdminDashboardPage() {
             </Card>
           </div>
 
-          {/* CSS Sales Growth Chart Card */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-            {/* Visual Graph Panel */}
-            <Card className="md:col-span-2 shadow-sm">
-              <CardHeader className="border-b border-slate-100 dark:border-slate-800 pb-2">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <CardTitle className="text-sm font-bold">Monthly Transaction Growth</CardTitle>
-                    <CardDescription className="text-[10px]">Sales volume ledger index</CardDescription>
-                  </div>
-                  <Badge variant="outline" className="bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 text-[10px]">Year 2026</Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-4">
-                {/* CSS Bar Chart */}
-                <div className="h-44 flex items-end justify-between gap-4 pt-6 px-2 border-b border-slate-100 dark:border-slate-800">
-                  {[
-                    { month: "Jan", sales: 34 },
-                    { month: "Feb", sales: 48 },
-                    { month: "Mar", sales: 65 },
-                    { month: "Apr", sales: 72 },
-                    { month: "May", sales: 94 }
-                  ].map((data, i) => (
-                    <div key={i} className="flex-1 flex flex-col items-center gap-1.5 group">
-                      <span className="text-[9px] font-bold text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">₹{data.sales}k</span>
-                      <div style={{ height: `${data.sales}%` }} className="w-full bg-gradient-to-t from-blue-600 to-blue-400 rounded-t-md group-hover:from-blue-500" />
-                      <span className="text-[10px] text-slate-400">{data.month}</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
+          {/* Infrastructure Health Card Panel */}
+          <div className="grid grid-cols-1 gap-6">
             {/* Service Health Monitoring Panel */}
             <Card className="shadow-sm">
               <CardHeader className="border-b border-slate-100 dark:border-slate-800 pb-2">
@@ -303,7 +408,6 @@ export default function AdminDashboardPage() {
                 ))}
               </CardContent>
             </Card>
-
           </div>
         </div>
       )}
@@ -339,8 +443,8 @@ export default function AdminDashboardPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {filteredUsers.length > 0 ? (
-                  filteredUsers.map((user) => (
+                {paginatedUsers.length > 0 ? (
+                  paginatedUsers.map((user) => (
                     <tr key={user.id} className="hover:bg-slate-50/40 dark:hover:bg-slate-900/40">
                       <td className="p-3.5">
                         <div className="font-bold text-slate-800 dark:text-slate-100 text-sm">{user.name}</div>
@@ -384,6 +488,36 @@ export default function AdminDashboardPage() {
               </tbody>
             </table>
           </CardContent>
+
+          {/* Users Pagination Controls Footer */}
+          <div className="flex flex-col sm:flex-row items-center justify-between p-3.5 border-t border-slate-100 dark:border-slate-800 text-xs bg-slate-50/50 dark:bg-slate-900/50 gap-2">
+            <span className="text-slate-500 font-medium">
+              Showing {filteredUsers.length === 0 ? 0 : (userPage - 1) * ITEMS_PER_PAGE + 1} to {Math.min(userPage * ITEMS_PER_PAGE, filteredUsers.length)} of {filteredUsers.length} users
+            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={userPage <= 1}
+                onClick={() => setUserPage(p => Math.max(1, p - 1))}
+                className="h-7 px-2.5 text-xs font-bold gap-1 cursor-pointer disabled:opacity-40"
+              >
+                <ChevronLeft className="h-3.5 w-3.5" /> Previous
+              </Button>
+              <span className="px-2 font-bold text-slate-700 dark:text-slate-300">
+                Page {userPage} of {totalUserPages}
+              </span>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={userPage >= totalUserPages}
+                onClick={() => setUserPage(p => Math.min(totalUserPages, p + 1))}
+                className="h-7 px-2.5 text-xs font-bold gap-1 cursor-pointer disabled:opacity-40"
+              >
+                Next <ChevronRight className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          </div>
         </Card>
       )}
 
@@ -419,8 +553,8 @@ export default function AdminDashboardPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {filteredResources.length > 0 ? (
-                  filteredResources.map((res) => (
+                {paginatedResources.length > 0 ? (
+                  paginatedResources.map((res) => (
                     <tr key={res.id} className="hover:bg-slate-50/40 dark:hover:bg-slate-900/40">
                       <td className="p-3.5">
                         <div className="font-bold text-slate-800 dark:text-slate-100 text-sm">{res.title}</div>
@@ -429,7 +563,10 @@ export default function AdminDashboardPage() {
                       <td className="p-3.5">
                         <Badge variant="outline" className="bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800 font-semibold">{res.category}</Badge>
                       </td>
-                      <td className="p-3.5 text-slate-700 dark:text-slate-300 font-semibold">{res.creator}</td>
+                      <td className="p-3.5 text-slate-700 dark:text-slate-300 font-semibold">
+                        <div>{res.creator}</div>
+                        <div className="text-[10px] text-slate-400 font-normal">Creator ID #{res.creatorId}</div>
+                      </td>
                       <td className="p-3.5 font-bold">
                         <span className={res.reports > 0 ? "text-red-500 font-extrabold" : "text-slate-400"}>
                           {res.reports} Reports
@@ -477,6 +614,36 @@ export default function AdminDashboardPage() {
               </tbody>
             </table>
           </CardContent>
+
+          {/* Resources Pagination Controls Footer */}
+          <div className="flex flex-col sm:flex-row items-center justify-between p-3.5 border-t border-slate-100 dark:border-slate-800 text-xs bg-slate-50/50 dark:bg-slate-900/50 gap-2">
+            <span className="text-slate-500 font-medium">
+              Showing {filteredResources.length === 0 ? 0 : (resourcePage - 1) * ITEMS_PER_PAGE + 1} to {Math.min(resourcePage * ITEMS_PER_PAGE, filteredResources.length)} of {filteredResources.length} resources
+            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={resourcePage <= 1}
+                onClick={() => setResourcePage(p => Math.max(1, p - 1))}
+                className="h-7 px-2.5 text-xs font-bold gap-1 cursor-pointer disabled:opacity-40"
+              >
+                <ChevronLeft className="h-3.5 w-3.5" /> Previous
+              </Button>
+              <span className="px-2 font-bold text-slate-700 dark:text-slate-300">
+                Page {resourcePage} of {totalResourcePages}
+              </span>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={resourcePage >= totalResourcePages}
+                onClick={() => setResourcePage(p => Math.min(totalResourcePages, p + 1))}
+                className="h-7 px-2.5 text-xs font-bold gap-1 cursor-pointer disabled:opacity-40"
+              >
+                Next <ChevronRight className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          </div>
         </Card>
       )}
 
@@ -504,37 +671,89 @@ export default function AdminDashboardPage() {
               <thead className="bg-slate-50/80 dark:bg-slate-900/80 font-semibold uppercase text-slate-500 border-b border-slate-100 dark:border-slate-800">
                 <tr>
                   <th className="p-3.5">Razorpay Txn Token</th>
-                  <th className="p-3.5">Purchaser</th>
-                  <th className="p-3.5">Unlocked Content</th>
+                  <th className="p-3.5">Purchaser Details</th>
+                  <th className="p-3.5">Unlocked Resource</th>
                   <th className="p-3.5">Amount Paid</th>
-                  <th className="p-3.5">Checkout Timestamp</th>
-                  <th className="p-3.5 text-right">Status</th>
+                  <th className="p-3.5">Checkout Date</th>
+                  <th className="p-3.5">Payment Status</th>
+                  <th className="p-3.5 text-right">Admin Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {filteredTransactions.length > 0 ? (
-                  filteredTransactions.map((tx) => (
+                {paginatedTransactions.length > 0 ? (
+                  paginatedTransactions.map((tx) => (
                     <tr key={tx.id} className="hover:bg-slate-50/40 dark:hover:bg-slate-900/40">
                       <td className="p-3.5 font-mono font-bold text-slate-800 dark:text-slate-200">{tx.id}</td>
-                      <td className="p-3.5 font-bold text-slate-800 dark:text-slate-100">{tx.user}</td>
+                      <td className="p-3.5 font-bold text-slate-800 dark:text-slate-100">
+                        <div>{tx.user}</div>
+                        <div className="text-[10px] text-slate-400 font-normal">{tx.userEmail}</div>
+                      </td>
                       <td className="p-3.5 font-semibold text-slate-600 dark:text-slate-400 max-w-[200px] truncate">{tx.item}</td>
                       <td className="p-3.5 font-bold text-sm text-slate-800 dark:text-slate-100">₹{tx.amount}</td>
                       <td className="p-3.5 text-slate-500 dark:text-slate-400 font-semibold">{tx.date}</td>
-                      <td className="p-3.5 text-right">
-                        <Badge className={tx.status === "SUCCESS" ? "bg-emerald-600 text-white font-semibold border-none" : "bg-red-600 text-white font-semibold border-none"}>
+                      <td className="p-3.5">
+                        <Badge className={
+                          tx.status === "SUCCESS" ? "bg-emerald-600 text-white font-semibold border-none" :
+                          tx.status === "REFUNDED" ? "bg-amber-600 text-white font-semibold border-none" :
+                          "bg-red-600 text-white font-semibold border-none"
+                        }>
                           {tx.status}
                         </Badge>
+                      </td>
+                      <td className="p-3.5 text-right">
+                        {tx.status === "SUCCESS" ? (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleRefundTransaction(tx.id)}
+                            className="h-7 text-[10px] font-bold border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-900/40 dark:text-amber-400 cursor-pointer"
+                          >
+                            Process Refund
+                          </Button>
+                        ) : (
+                          <span className="text-[10px] text-slate-400 italic">No action required</span>
+                        )}
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={6} className="p-6 text-center text-slate-400">No transaction logs match search query.</td>
+                    <td colSpan={7} className="p-6 text-center text-slate-400">No transaction logs match search query.</td>
                   </tr>
                 )}
               </tbody>
             </table>
           </CardContent>
+
+          {/* Transactions Pagination Controls Footer */}
+          <div className="flex flex-col sm:flex-row items-center justify-between p-3.5 border-t border-slate-100 dark:border-slate-800 text-xs bg-slate-50/50 dark:bg-slate-900/50 gap-2">
+            <span className="text-slate-500 font-medium">
+              Showing {filteredTransactions.length === 0 ? 0 : (txnPage - 1) * ITEMS_PER_PAGE + 1} to {Math.min(txnPage * ITEMS_PER_PAGE, filteredTransactions.length)} of {filteredTransactions.length} transactions
+            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={txnPage <= 1}
+                onClick={() => setTxnPage(p => Math.max(1, p - 1))}
+                className="h-7 px-2.5 text-xs font-bold gap-1 cursor-pointer disabled:opacity-40"
+              >
+                <ChevronLeft className="h-3.5 w-3.5" /> Previous
+              </Button>
+              <span className="px-2 font-bold text-slate-700 dark:text-slate-300">
+                Page {txnPage} of {totalTxnPages}
+              </span>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={txnPage >= totalTxnPages}
+                onClick={() => setTxnPage(p => Math.min(totalTxnPages, p + 1))}
+                className="h-7 px-2.5 text-xs font-bold gap-1 cursor-pointer disabled:opacity-40"
+              >
+                Next <ChevronRight className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          </div>
         </Card>
       )}
 

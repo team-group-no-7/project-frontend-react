@@ -53,6 +53,12 @@ export default function ProfilePage({
     }
   };
 
+  const creatorRevenue = uploads.reduce((sum, item) => {
+    const learnersCount = Number(item.learnersCount || item.learners_count || 0);
+    const price = parseFloat(item.price) || 0;
+    return sum + (learnersCount * price);
+  }, 0);
+
   return (
     <div className="max-w-6xl mx-auto space-y-6">
 
@@ -89,6 +95,7 @@ export default function ProfilePage({
             libraryCount={purchases.length}
             sessionsCount={sessions.length}
             uploadsCount={uploads.length}
+            creatorRevenue={creatorRevenue}
           />
         </section>
 

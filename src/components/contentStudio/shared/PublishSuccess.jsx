@@ -1,61 +1,107 @@
 import React from 'react';
-import { CheckCircle2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { CheckCircle2, LayoutGrid, ArrowRight, PlusCircle } from 'lucide-react';
 
-export default function PublishSuccess({ title, type = 'article', category = 'Programming', subcategory = 'JavaScript', price = 299, difficulty = 'Beginner', onNavigate }) {
-    const resourceType = type === 'pdf' ? 'PDF resource' : 'resource';
+export default function PublishSuccess({
+    title,
+    type = 'article',
+    category = 'General',
+    description,
+    price = 0,
+    difficulty = 'Beginner',
+    onNavigate
+}) {
+    const navigate = useNavigate();
+    const isPdf = String(type).toLowerCase() === 'pdf';
+    const priceDisplay = parseFloat(price) > 0 ? `₹${price}` : 'FREE';
+
+    const handleGoToResources = () => {
+        if (onNavigate) onNavigate('manage');
+        navigate('/creator/manage');
+    };
+
+    const handleViewDashboard = () => {
+        if (onNavigate) onNavigate('dashboard');
+        navigate('/creator/dashboard');
+    };
+
+    const handleCreateAnother = () => {
+        if (onNavigate) onNavigate('content-studio');
+    };
 
     return (
-        <div className="space-y-8">
-            <div className="bg-white rounded-3xl shadow-sm p-10 text-center">
-                <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-                    <CheckCircle2 size={40} />
+        <div className="max-w-4xl mx-auto space-y-6">
+            {/* Top Success Banner */}
+            <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-8 text-center flex flex-col items-center justify-center space-y-3">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                    <CheckCircle2 size={36} />
                 </div>
-                <h2 className="text-3xl font-semibold text-slate-900">Congratulations!</h2>
-                <p className="mt-3 text-sm text-neutral-500 max-w-2xl mx-auto">
-                    Your {resourceType} has been published successfully. It is now live on the platform and visible to learners.
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 text-center">Congratulations!</h2>
+                <p className="text-sm text-neutral-500 max-w-lg mx-auto text-center leading-relaxed">
+                    Your content has been published successfully and is now live on the marketplace.
                 </p>
             </div>
 
-            <div className="grid gap-6">
-                <div className="bg-white rounded-3xl p-6 shadow-sm grid gap-4 md:grid-cols-[0.85fr_1.15fr] items-center">
-                    <div className="rounded-3xl bg-slate-900 h-36 flex items-center justify-center text-white text-xl font-semibold">{type === 'pdf' ? 'PDF' : 'ART'}</div>
-                    <div>
-                        <div className="text-lg font-semibold text-slate-900">{title}</div>
-                        <div className="text-sm text-neutral-500 mt-2">{category} • {subcategory} • {difficulty} • ₹{price}</div>
-                        <div className="mt-4 flex flex-wrap gap-3 text-sm text-royal">
-                            <span className="rounded-full border border-blue-200 px-3 py-1 bg-blue-50">View Live Resource</span>
-                            <span className="rounded-full border border-slate-200 px-3 py-1">Share</span>
-                        </div>
+            {/* Clean Resource Summary (Matching Step 4/5 Preview UI) */}
+            <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                    <span className="bg-indigo-600 text-white px-3 py-1 rounded-lg text-xs font-extrabold uppercase">
+                        {category}
+                    </span>
+                    <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1 rounded-lg">
+                            Level: {difficulty}
+                        </span>
+                        <span className="text-sm font-black text-emerald-600 bg-emerald-50 px-3 py-0.5 rounded-lg border border-emerald-200">
+                            {priceDisplay}
+                        </span>
                     </div>
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                    <button 
-                        onClick={() => onNavigate && onNavigate('manage')}
-                        className="rounded-3xl border border-blue-100 bg-blue-50 px-5 py-4 text-left hover:bg-blue-100 transition cursor-pointer"
-                    >
-                        <div className="text-sm font-semibold text-slate-900">Go to My Resources</div>
-                        <div className="text-xs text-neutral-500 mt-1">View and manage your published resources.</div>
-                    </button>
-                    <button 
-                        onClick={() => onNavigate && onNavigate('dashboard')}
-                        className="rounded-3xl border border-slate-200 bg-white px-5 py-4 text-left hover:shadow-sm transition cursor-pointer"
-                    >
-                        <div className="text-sm font-semibold text-slate-900">View Dashboard</div>
-                        <div className="text-xs text-neutral-500 mt-1">Check the overall performance of your resources.</div>
-                    </button>
-                    <div className="rounded-3xl border border-slate-200 bg-white px-5 py-4 text-left opacity-50 cursor-not-allowed">
-                        <div className="text-sm font-semibold text-slate-900">Edit Resource</div>
-                        <div className="text-xs text-neutral-500 mt-1">Make changes to your resource anytime.</div>
-                    </div>
-                    <button 
-                        onClick={() => onNavigate && onNavigate('content-studio')}
-                        className="rounded-3xl border border-slate-200 bg-white px-5 py-4 text-left hover:shadow-sm transition cursor-pointer"
-                    >
-                        <div className="text-sm font-semibold text-slate-900">Create Another</div>
-                        <div className="text-xs text-neutral-500 mt-1">Start creating another resource.</div>
-                    </button>
+                <div>
+                    <h3 className="text-xl font-bold text-slate-900">{title || 'Untitled Resource'}</h3>
+                    {description && (
+                        <p className="text-xs text-slate-600 leading-relaxed mt-2 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            {description}
+                        </p>
+                    )}
                 </div>
+            </div>
+
+            {/* Action Buttons (3 Clean Buttons — Edit Resource Removed) */}
+            <div className="grid gap-4 sm:grid-cols-3">
+                <button
+                    onClick={handleGoToResources}
+                    className="rounded-2xl border border-indigo-100 bg-indigo-50/70 p-5 text-left hover:bg-indigo-100/80 transition cursor-pointer group"
+                >
+                    <div className="flex items-center justify-between">
+                        <span className="text-sm font-bold text-slate-900">Go to My Resources</span>
+                        <LayoutGrid className="h-4 w-4 text-indigo-600 group-hover:translate-x-0.5 transition-transform" />
+                    </div>
+                    <p className="text-xs text-neutral-500 mt-1.5">View & manage all your published contents.</p>
+                </button>
+
+                <button
+                    onClick={handleViewDashboard}
+                    className="rounded-2xl border border-slate-200 bg-white p-5 text-left hover:border-slate-300 hover:shadow-xs transition cursor-pointer group"
+                >
+                    <div className="flex items-center justify-between">
+                        <span className="text-sm font-bold text-slate-900">View Dashboard</span>
+                        <ArrowRight className="h-4 w-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+                    </div>
+                    <p className="text-xs text-neutral-500 mt-1.5">Check performance & earnings dashboard.</p>
+                </button>
+
+                <button
+                    onClick={handleCreateAnother}
+                    className="rounded-2xl border border-slate-200 bg-white p-5 text-left hover:border-slate-300 hover:shadow-xs transition cursor-pointer group"
+                >
+                    <div className="flex items-center justify-between">
+                        <span className="text-sm font-bold text-slate-900">Create Another</span>
+                        <PlusCircle className="h-4 w-4 text-slate-400 group-hover:rotate-90 transition-transform" />
+                    </div>
+                    <p className="text-xs text-neutral-500 mt-1.5">Start authoring another learning resource.</p>
+                </button>
             </div>
         </div>
     );

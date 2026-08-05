@@ -1,81 +1,100 @@
 import React from 'react';
-import PreviewCard from '../shared/PreviewCard';
-import { Bookmark, Clock3, Star } from 'lucide-react';
 
 export default function StepFive({ form }) {
+    const formattedTags = Array.isArray(form.tags) 
+        ? form.tags 
+        : (typeof form.tags === 'string' && form.tags.trim() ? form.tags.split(',').map(t => t.trim()) : []);
+
+    const priceDisplay = parseFloat(form.price) > 0 ? `₹${form.price}` : 'FREE';
+
+    // Helper for shorter article preview text snippet
+    const createShorterPreviewHtml = (htmlContent) => {
+        if (!htmlContent) return '';
+        const trimmed = htmlContent.length > 600 ? htmlContent.substring(0, 600) + '...' : htmlContent;
+        return trimmed;
+    };
+
     return (
-        <div>
-            <div className="flex items-center justify-between mb-6">
+        <div className="max-w-4xl mx-auto space-y-6">
+            <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-lg font-semibold">Resource preview</h2>
-                    <p className="text-sm text-neutral-500 mt-1">See the final layout exactly as learners will view it.</p>
+                    <h2 className="text-xl font-bold text-slate-900">Article Preview</h2>
+                    <p className="text-sm text-neutral-500 mt-1">Review the resource summary and article content preview before publishing.</p>
+                </div>
+                <div className="bg-indigo-50 border border-indigo-100 text-indigo-700 px-4 py-1.5 rounded-full text-xs font-extrabold uppercase">
+                    {form.type || 'ARTICLE'} PREVIEW
                 </div>
             </div>
 
-            <div className="grid xl:grid-cols-[1.5fr_0.85fr] gap-6">
-                <div className="bg-white rounded-3xl p-6 shadow-sm">
-                    <div className="grid gap-6">
-                        <div className="rounded-3xl bg-slate-100 p-6">
-                            <div className="text-sm uppercase tracking-[0.2em] text-royal font-semibold">Resource Preview</div>
-                            <div className="mt-5 grid gap-4 lg:grid-cols-[1.3fr_0.75fr] items-start">
-                                <div>
-                                    <h3 className="text-3xl font-semibold text-slate-900">{form.title}</h3>
-                                    <p className="mt-3 text-sm text-neutral-500">{form.subtitle || 'A complete guide with examples and use cases.'}</p>
-                                </div>
-                                <div className="rounded-3xl bg-white border border-slate-200 p-4">
-                                    <div className="text-xs uppercase tracking-[0.2em] text-neutral-500">{form.category || 'Programming'} • {form.subcategory || 'JavaScript'}</div>
-                                    <div className="mt-3 text-sm font-semibold text-slate-900">{form.difficulty}</div>
-                                </div>
-                            </div>
+            <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-6">
+                {/* 1. Article Header Summary (Title, Category, Price, Level, Tags) */}
+                <div className="rounded-2xl bg-slate-50 p-6 border border-slate-100 space-y-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                        <span className="bg-indigo-600 text-white px-3 py-1 rounded-lg text-xs font-extrabold uppercase tracking-wider">
+                            {form.categoryName || form.category || 'General'}
+                        </span>
+                        <div className="flex items-center gap-3">
+                            <span className="text-xs font-bold text-slate-600 bg-white px-3 py-1 rounded-lg border border-slate-200">
+                                Level: {form.difficulty || 'Beginner'}
+                            </span>
+                            <span className="text-sm font-black text-emerald-600 bg-emerald-50 px-3.5 py-1 rounded-lg border border-emerald-200">
+                                {priceDisplay}
+                            </span>
                         </div>
+                    </div>
 
-                        <div className="grid gap-4 sm:grid-cols-2">
-                            <div className="rounded-3xl bg-white border border-slate-200 p-4">
-                                <div className="flex items-center gap-3 text-sm text-neutral-600">
-                                    <Clock3 size={18} /> <span>25 min read</span>
-                                </div>
-                            </div>
-                            <div className="rounded-3xl bg-white border border-slate-200 p-4">
-                                <div className="flex items-center gap-3 text-sm text-neutral-600">
-                                    <Star size={18} /> <span>4.8 (120 reviews)</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="rounded-3xl bg-white border border-slate-200 p-6">
-                            <div className="font-semibold text-slate-900 mb-3">What learners will get</div>
-                            <div className="grid gap-3 text-sm text-neutral-600">
-                                <div className="flex items-start gap-3"><span className="mt-1 h-2 w-2 rounded-full bg-royal" />Practical examples and exercises</div>
-                                <div className="flex items-start gap-3"><span className="mt-1 h-2 w-2 rounded-full bg-royal" />Clear concept explanations</div>
-                                <div className="flex items-start gap-3"><span className="mt-1 h-2 w-2 rounded-full bg-royal" />Downloadable resources</div>
-                            </div>
-                        </div>
-
-                        {form.body && (
-                            <div className="rounded-3xl bg-white border border-slate-200 p-6">
-                                <div className="font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-100 text-lg">Article Content Preview</div>
-                                <div 
-                                    className="prose max-w-none text-slate-700 space-y-4 text-sm leading-relaxed overflow-x-auto"
-                                    dangerouslySetInnerHTML={{ __html: form.body }}
-                                />
-                            </div>
+                    <div>
+                        <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900">{form.title || 'Untitled Article'}</h3>
+                        {form.subtitle && (
+                            <p className="mt-1.5 text-sm text-slate-500 font-medium">{form.subtitle}</p>
                         )}
                     </div>
+
+                    {formattedTags.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 pt-2">
+                            {formattedTags.map((tag, idx) => (
+                                <span key={idx} className="bg-white border border-slate-200 text-slate-600 text-[11px] font-semibold px-2.5 py-0.5 rounded-full">
+                                    #{tag}
+                                </span>
+                            ))}
+                        </div>
+                    )}
                 </div>
-                <div className="bg-white rounded-3xl p-6 shadow-sm">
-                    <PreviewCard data={form} />
-                    <div className="mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-5">
-                        <div className="font-semibold text-slate-900 mb-3">Table of contents</div>
-                        <ol className="space-y-3 text-sm text-neutral-600 list-decimal list-inside">
-                            <li>What is a Closure?</li>
-                            <li>How Closures Work</li>
-                            <li>Practical Examples</li>
-                            <li>Use Cases</li>
-                            <li>Common Questions</li>
-                            <li>Exercises</li>
-                            <li>Summary</li>
-                        </ol>
+
+                {/* 2. Description Section */}
+                {form.description && (
+                    <div className="space-y-2">
+                        <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Description</h4>
+                        <p className="text-sm text-slate-600 leading-relaxed bg-white p-4 rounded-xl border border-slate-100">
+                            {form.description}
+                        </p>
                     </div>
+                )}
+
+                {/* 3. Shorter Article Content Preview */}
+                <div className="space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                        <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Article Content Preview (Shortened)</h4>
+                        <span className="text-xs text-neutral-400 font-medium">Shorter Preview</span>
+                    </div>
+
+                    {form.body ? (
+                        <div className="relative rounded-2xl bg-white border border-slate-200 p-6 overflow-hidden">
+                            <div 
+                                className="prose max-w-none text-slate-700 text-sm leading-relaxed"
+                                dangerouslySetInnerHTML={{ __html: createShorterPreviewHtml(form.body) }}
+                            />
+                            {form.body.length > 600 && (
+                                <div className="mt-4 pt-4 border-t border-dashed border-slate-200 text-center text-xs font-semibold text-indigo-600">
+                                    Full article content will be published and accessible to enrolled learners.
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="p-6 bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-center text-xs text-slate-400 italic">
+                            No article body content added yet. Return to the Editor step to add content.
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

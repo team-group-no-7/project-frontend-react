@@ -6,22 +6,25 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import api from "@/utils/api";
 
-export default function QAThreadSection({ contentId = 11, title = "Java Spring Boot Guide", profile }) {
+export default function QAThreadSection({ contentId, title = "Resource Q&A", profile }) {
   const [threads, setThreads] = useState([]);
 
   // Fetch threads from DB backend on mount or contentId change
   useEffect(() => {
-    if (!contentId) return;
+    if (!contentId) {
+      setThreads([]);
+      return;
+    }
     api.get(`/api/qa/content/${contentId}`)
       .then((res) => {
         const data = res.data?.data || res.data;
-        if (Array.isArray(data) && data.length > 0) {
+        if (Array.isArray(data)) {
           const normalized = data.map(t => ({
             id: t.id,
             author: t.authorName || "Learner",
             role: t.role || "LEARNER",
             question: t.question,
-            createdAt: t.createdAt ? new Date(t.createdAt).toLocaleDateString() : "Recently",
+            createdAt: t.createdAt ? new Date(t.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : "Recently",
             upvotes: t.upvotes || 1,
             isResolved: Boolean(t.isResolved),
             replies: (t.replies || []).map(r => ({
@@ -29,38 +32,17 @@ export default function QAThreadSection({ contentId = 11, title = "Java Spring B
               author: r.authorName || "Mentor",
               role: r.role || "CREATOR",
               reply: r.reply,
-              createdAt: r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "Recently",
+              createdAt: r.createdAt ? new Date(r.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : "Recently",
               upvotes: r.upvotes || 1,
               isVerifiedAnswer: Boolean(r.isVerifiedAnswer)
             }))
           }));
           setThreads(normalized);
-        } else {
-          setThreads([
-            {
-              id: 1,
-              author: "Priya Sharma",
-              role: "LEARNER",
-              question: "How do we handle circular dependency issues in Spring Boot when using @Autowired on constructor injection?",
-              createdAt: "2 hours ago",
-              upvotes: 8,
-              isResolved: true,
-              replies: [
-                {
-                  id: 101,
-                  author: "Rohan Verma",
-                  role: "CREATOR",
-                  reply: "Great question! You can resolve it using @Lazy annotation on one of the constructor parameters.",
-                  createdAt: "1 hour ago",
-                  upvotes: 12,
-                  isVerifiedAnswer: true
-                }
-              ]
-            }
-          ]);
         }
       })
-      .catch(() => {});
+      .catch((err) => {
+        console.error("Q&A fetch notice:", err);
+      });
   }, [contentId]);
 
   // New question form state

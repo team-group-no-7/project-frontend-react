@@ -234,10 +234,8 @@ function App() {
       const data = response.data?.data || response.data;
       if (data && data.id) {
         setProfile((prev) => {
-          let activeRole = prev?.role || data.role;
-          if (data.role === 'LEARNER') {
-            activeRole = 'LEARNER';
-          }
+          // Default to LEARNER UI mode on initial load unless user switched
+          const activeRole = prev?.role || 'LEARNER';
           const merged = normalizeProfile({
             ...prev,
             ...data,
@@ -294,15 +292,14 @@ function App() {
       reviews_count: 0,
       learners_count: 0,
       type: newContent.type || "Article",
-      level: "Beginner",
-      tags: ["New"],
+      level: newContent.level || "Beginner",
+      tags: newContent.tags || "New",
       preview_text: newContent.previewText || newContent.preview_text || "Newly published resource."
     };
     setMarketplaceContents((prev) => [dbContent, ...prev]);
     setUploadedContents((prev) => [dbContent, ...prev]);
     fetchMarketplace();
-    alert(`Successfully published "${dbContent.title}"! It is now visible to all learners in the Marketplace.`);
-    navigate('/creator/manage');
+    if (profile?.id) fetchUploads(profile.id);
   };
 
   const handleProfileUpdate = async (updatedProfile) => {
@@ -375,12 +372,19 @@ function App() {
   };
 
   const handleLoginSuccess = (user) => {
-    setProfile(user);
+    const defaultActiveRole = user.role === 'ADMIN' ? 'ADMIN' : 'LEARNER';
+    const userWithActiveRole = normalizeProfile({
+      ...user,
+      baseRole: user.role,
+      role: defaultActiveRole
+    });
+    setProfile(userWithActiveRole);
     setIsLoggedIn(true);
+    localStorage.setItem("learnhub_user", JSON.stringify(userWithActiveRole));
     fetchPurchases(user.id);
-    fetchSessions(user.id);
+    fetchSessions(user.id, defaultActiveRole);
     if (user.role === 'CREATOR' || user.role === 'ADMIN') fetchUploads(user.id);
-    navigate(user.role === 'ADMIN' ? '/admin' : (user.role === 'CREATOR' ? '/creator/dashboard' : '/learner/dashboard'));
+    navigate(defaultActiveRole === 'ADMIN' ? '/admin' : '/learner/dashboard');
   };
 
   const handleLogout = () => {
@@ -521,7 +525,12 @@ function App() {
       selectedReaderItem={selectedReaderItem}
       setSelectedReaderItem={(item) => {
         setSelectedReaderItem(item);
-        navigate('/reader');
+        if (item && item.id) {
+          try { localStorage.setItem("learnhub_last_reader_item", JSON.stringify(item)); } catch (e) {}
+          navigate(`/reader/${item.id}`);
+        } else {
+          navigate('/reader');
+        }
       }}
       selectedResourceItem={selectedResourceItem}
       setSelectedResourceItem={(item) => {

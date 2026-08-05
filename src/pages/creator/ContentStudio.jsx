@@ -27,8 +27,8 @@ export default function ContentStudio({ profile, onChangePage, onUploadSuccess }
     const [published, setPublished] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const articleSteps = ['Type', 'Content', 'Details', 'Preview', 'Publish'];
-    const pdfSteps = ['Type', 'Upload', 'Details', 'Preview', 'Publish'];
+    const articleSteps = ['Type', 'Content', 'Details', 'Preview'];
+    const pdfSteps = ['Type', 'Upload', 'Details', 'Preview'];
     const steps = contentType === 'pdf' ? pdfSteps : articleSteps;
 
     async function next() {
@@ -148,12 +148,12 @@ export default function ContentStudio({ profile, onChangePage, onUploadSuccess }
     function canProceed() {
         if (currentStep === 1) return !!contentType;
         if (contentType === 'article') {
-            if (currentStep === 2) return !!articleContent.title?.trim() && !!articleContent.body?.trim();
-            if (currentStep === 3) return !!articleContent.title?.trim() && !!articleContent.description?.trim() && !!(articleContent.categoryName || articleContent.category);
+            if (currentStep === 2) return !!articleContent.body?.trim();
+            if (currentStep === 3) return !!articleContent.title?.trim() && !!articleContent.description?.trim();
         }
         if (contentType === 'pdf') {
             if (currentStep === 2) return !!uploadedFile;
-            if (currentStep === 3) return !!pdfForm.title?.trim() && !!pdfForm.description?.trim() && !!(pdfForm.categoryName || pdfForm.category);
+            if (currentStep === 3) return !!pdfForm.title?.trim() && !!pdfForm.description?.trim();
         }
         return true;
     }
@@ -162,11 +162,6 @@ export default function ContentStudio({ profile, onChangePage, onUploadSuccess }
         <div className="p-6 max-w-6xl mx-auto space-y-6">
             <div className="flex items-start justify-between">
                 <PageHeader title="Create New Resource" subtitle="Share your knowledge with thousands of learners." />
-                <div className="mt-2">
-                    <button onClick={saveDraft} className="bg-white border rounded-lg px-4 py-2 text-sm shadow hover:bg-slate-50 transition cursor-pointer">
-                        Save Draft
-                    </button>
-                </div>
             </div>
 
             <Stepper steps={steps} current={currentStep} />
@@ -176,7 +171,10 @@ export default function ContentStudio({ profile, onChangePage, onUploadSuccess }
                     <PublishSuccess 
                         title={contentType === 'pdf' ? pdfForm.title : articleContent.title} 
                         type={contentType}
+                        category={contentType === 'pdf' ? (pdfForm.categoryName || pdfForm.category) : (articleContent.categoryName || articleContent.category)}
+                        description={contentType === 'pdf' ? pdfForm.description : articleContent.description}
                         price={contentType === 'pdf' ? pdfForm.price : articleContent.price}
+                        difficulty={contentType === 'pdf' ? pdfForm.level : articleContent.level}
                         onNavigate={(page) => {
                             if (page === 'content-studio') {
                                 setPublished(false);
@@ -185,7 +183,7 @@ export default function ContentStudio({ profile, onChangePage, onUploadSuccess }
                                 setArticleContent({ ...articleDummy, body: '' });
                                 setPdfForm({ ...pdfDummy });
                                 setUploadedFile(null);
-                            } else {
+                            } else if (onChangePage) {
                                 onChangePage(page);
                             }
                         }}
@@ -200,7 +198,6 @@ export default function ContentStudio({ profile, onChangePage, onUploadSuccess }
                         {contentType === 'pdf' && currentStep === 2 && <PDFStepTwo file={uploadedFile} onFile={(f) => setUploadedFile(f)} />}
                         {contentType === 'pdf' && currentStep === 3 && <PDFStepThree form={pdfForm} onChange={setPdfForm} />}
                         {contentType === 'pdf' && currentStep === 4 && <PDFStepFour file={uploadedFile} form={pdfForm} />}
-                        {contentType === 'pdf' && currentStep === 5 && <PDFStepFive title={pdfForm.title} />}
                     </>
                 )}
             </div>

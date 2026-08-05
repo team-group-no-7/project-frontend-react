@@ -16,11 +16,11 @@ function Step({ idx, label, active, done }) {
 
 export default function Stepper({ steps = [], current = 1 }) {
     return (
-        <div className="flex items-center gap-8 overflow-x-auto py-4">
+        <div className="flex items-center justify-center gap-6 sm:gap-8 overflow-x-auto py-4 max-w-4xl mx-auto">
             {steps.map((s, i) => (
-                <div key={s} className="flex items-center gap-4">
+                <div key={s} className="flex items-center gap-3 sm:gap-4 shrink-0">
                     <Step idx={i + 1} label={s} active={current === i + 1} done={current > i + 1} />
-                    {i < steps.length - 1 && <div className="w-12 h-0.5 bg-gray-200" />}
+                    {i < steps.length - 1 && <div className="w-8 sm:w-12 h-0.5 bg-gray-200" />}
                 </div>
             ))}
         </div>
