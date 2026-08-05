@@ -88,8 +88,16 @@ export default function AppRoutes({
                             marketplaceContents={marketplaceContents}
                             doubtSessions={doubtSessions}
                             onResumeReading={(item) => {
-                                setSelectedReaderItem(item);
-                                navigate('/reader');
+                                const targetContent = item?.content || item;
+                                const normalized = {
+                                    ...targetContent,
+                                    id: item?.content_id || item?.contentId || targetContent?.id,
+                                    title: targetContent?.title || item?.title,
+                                    fileUrl: targetContent?.fileUrl || targetContent?.file_url || item?.fileUrl || item?.file_url,
+                                    contentBody: targetContent?.contentBody || targetContent?.content_body || item?.contentBody || item?.content_body,
+                                    type: targetContent?.type || item?.type || "PDF"
+                                };
+                                setSelectedReaderItem(normalized);
                             }}
                             onViewRecommendation={(item) => {
                                 setSelectedResourceItem(item);

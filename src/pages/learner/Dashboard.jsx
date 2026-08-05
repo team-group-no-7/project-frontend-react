@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { BookOpen, Calendar, Clock, Star, Play, ChevronRight, GraduationCap, IndianRupee } from "lucide-react";
 import api from "@/utils/api";
+import MarketplaceCard from "@/components/MarketplaceCard";
 
 export default function LearnerDashboard({ 
   profile, 
@@ -203,39 +204,40 @@ export default function LearnerDashboard({
               {paginatedPurchases.map((purchase) => {
                 const res = purchase.content || purchase;
                 if (!res || (!res.title && !res.id)) return null;
-                const progress = getProgress(res.id);
+
+                const typeStr = (res.type || res.content_type || "").toUpperCase();
+                const isPdfType = typeStr.includes("PDF") || typeStr.includes("SHEET") || !!(res.fileUrl || res.file_url);
+                const displayType = isPdfType ? "PDF" : "Article";
+
+                const matchedCatalogItem = marketplaceContents.find(c => c.id === (res.id || purchase.content_id || purchase.content?.id));
+                const creatorName = res.creator_name || res.creatorName || res.creator?.name || matchedCatalogItem?.creator_name || matchedCatalogItem?.creatorName || "Rohan Verma";
+
+                const handleOpen = () => {
+                  if (onResumeReading) {
+                    onResumeReading(purchase);
+                  } else {
+                    const targetId = res.id || purchase.content_id || purchase.contentId;
+                    navigate(`/reader/${targetId}`);
+                  }
+                };
 
                 return (
-                  <div key={purchase.id || res.id} className="p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-slate-50 dark:bg-slate-900/50 flex flex-col justify-between gap-3">
+                  <div
+                    key={purchase.id || res.id}
+                    className="p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-slate-50 dark:bg-slate-900/50 flex flex-col justify-between gap-3 transition"
+                  >
                     <div>
                       <span className="bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded text-[9px] font-bold uppercase">
-                        {res.type || "PDF Guide"}
+                        {displayType}
                       </span>
                       <h3 className="font-bold text-gray-800 dark:text-gray-100 text-sm mt-1.5 line-clamp-1">{res.title}</h3>
-                      <p className="text-xs text-gray-400 mt-0.5">By {res.creator_name || res.creatorName || "Creator"}</p>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-gray-400">Progress</span>
-                        <span className="font-bold text-indigo-600 dark:text-indigo-400">{progress}%</span>
-                      </div>
-                      <div className="h-1.5 w-full bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
-                        <div className="h-full bg-indigo-600 rounded-full" style={{ width: `${progress}%` }} />
-                      </div>
                     </div>
 
                     <button
-                      onClick={() => {
-                        if (onResumeReading) {
-                          onResumeReading(res);
-                        } else {
-                          navigate(`/reader/${res.id}`);
-                        }
-                      }}
-                      className="w-full mt-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition cursor-pointer"
+                      onClick={handleOpen}
+                      className="w-full mt-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition cursor-pointer shadow-xs"
                     >
-                      <Play className="h-3 w-3 fill-indigo-600 text-indigo-600" /> Resume Reading
+                      <BookOpen className="h-3.5 w-3.5" /> Open Content
                     </button>
                   </div>
                 );
@@ -304,35 +306,26 @@ export default function LearnerDashboard({
 
         {recommendations.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {recommendations.map((item) => (
-              <div 
-                key={item.id} 
-                onClick={() => {
-                  if (onViewRecommendation) {
-                    onViewRecommendation(item);
-                  } else {
-                    navigate(`/resources/${item.id}`);
-                  }
-                }}
-                className="p-4 rounded-xl border border-gray-100 dark:border-gray-800 hover:shadow-sm hover:border-gray-200 dark:hover:border-gray-700 transition bg-white dark:bg-slate-900/50 flex flex-col justify-between gap-4 cursor-pointer"
-              >
-                <div>
-                  <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded text-[9px] font-bold uppercase">
-                    {item.category_name || item.category || "General"}
-                  </span>
-                  <h3 className="font-bold text-gray-900 dark:text-gray-100 text-xs mt-2 line-clamp-2 leading-relaxed">{item.title}</h3>
-                </div>
-
-                <div className="flex items-center justify-between text-xs pt-2 border-t border-gray-50 dark:border-gray-800">
-                  <span className="font-extrabold text-gray-900 dark:text-white">
-                    {item.price === 0 ? "FREE" : `₹${item.price}`}
-                  </span>
-                  <div className="flex items-center gap-0.5 text-amber-500 font-bold text-[10px]">
-                    <Star className="h-3 w-3 fill-amber-400 text-amber-400" /> {item.rating || "4.8"}
-                  </div>
-                </div>
-              </div>
-            ))}
+            {recommendations.map((item) => {
+              const isPurchased = purchasesList.some((p) => (p.content?.id || p.content_id || p.id) === item.id);
+              return (
+                <MarketplaceCard
+                  key={item.id}
+                  item={item}
+                  isPurchased={isPurchased}
+                  onPreview={(res) => {
+                    if (onViewRecommendation) {
+                      onViewRecommendation(res);
+                    } else {
+                      navigate(`/resources/${res.id}`);
+                    }
+                  }}
+                  onOpenCreatorProfile={(creatorId) => {
+                    navigate(`/creator/${creatorId || item.creator_id || 202}`);
+                  }}
+                />
+              );
+            })}
           </div>
         ) : (
           <p className="text-xs text-gray-400 italic">No recommendations available at this time.</p>

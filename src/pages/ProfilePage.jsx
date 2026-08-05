@@ -18,6 +18,7 @@ export default function ProfilePage({
   onUpdateProfile,
   onOpenReader, 
   purchasedContents, 
+  marketplaceContents = [],
   doubtSessions, 
   uploadedContents, 
   onJoinCall 
@@ -120,6 +121,7 @@ export default function ProfilePage({
             <LearnerDashboard
               profile={profile}
               purchasedContents={purchases}
+              marketplaceContents={marketplaceContents}
               doubtSessions={sessions}
               onOpenReader={onOpenReader}
               onJoinCall={onJoinCall}

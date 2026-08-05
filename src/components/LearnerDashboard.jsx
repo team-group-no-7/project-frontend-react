@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import AccountSettingsForm from "@/components/AccountSettingsForm";
 
-export default function LearnerDashboard({ purchasedContents, doubtSessions, profile, onOpenReader, onJoinCall, onSaveProfile }) {
+export default function LearnerDashboard({ purchasedContents, marketplaceContents = [], doubtSessions, profile, onOpenReader, onJoinCall, onSaveProfile }) {
 
   return (
     <Tabs defaultValue="library" className="w-full">
@@ -30,25 +30,41 @@ export default function LearnerDashboard({ purchasedContents, doubtSessions, pro
             <CardDescription>Courses, notes, and guides purchased on LearnHub.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {purchasedContents.map((purchase) => (
-              <div key={purchase.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 border border-slate-100 dark:border-slate-800/80 rounded-lg gap-3 hover:shadow-sm transition-shadow bg-white dark:bg-slate-900">
-                <div>
-                    {purchase.content.category_name || "General"}
-                  <h4 className="font-semibold text-base text-gray-900 dark:text-white">{purchase.content.title}</h4>
+            {purchasedContents.map((purchase) => {
+              const content = purchase.content || purchase;
+              const typeStr = (content?.type || purchase?.type || "").toUpperCase();
+              const isPdfType = typeStr.includes("PDF") || typeStr.includes("SHEET") || !!(content?.fileUrl || content?.file_url);
+              const displayType = isPdfType ? "PDF" : "Article";
+              
+              const matchedCatalogItem = (marketplaceContents || []).find(c => c.id === (content?.id || purchase?.content_id || purchase?.contentId));
+              const creatorName = content?.creator_name || content?.creatorName || purchase?.creator_name || purchase?.creatorName || content?.creator?.name || matchedCatalogItem?.creator_name || matchedCatalogItem?.creatorName || "Rohan Verma";
 
+              return (
+                <div key={purchase.id || content?.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 border border-slate-100 dark:border-slate-800/80 rounded-lg gap-3 hover:shadow-sm transition-shadow bg-white dark:bg-slate-900">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 px-2 py-0.5 rounded uppercase">
+                        {content?.category_name || content?.categoryName || "General"}
+                      </span>
+                      <span className="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded uppercase">
+                        {displayType}
+                      </span>
+                    </div>
+                    <h4 className="font-bold text-base text-gray-900 dark:text-white line-clamp-1">{content?.title || purchase.title}</h4>
+                  </div>
+                  <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                    <span className="font-bold text-gray-900 dark:text-white">₹{purchase.amount_paid || content?.price || 0}</span>
+                    <Button 
+                      onClick={() => onOpenReader && onOpenReader(content)} 
+                      size="sm" 
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-xs cursor-pointer gap-1.5"
+                    >
+                      <BookOpen className="h-3.5 w-3.5" /> Open Content
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
-                  <span className="font-bold text-gray-900 dark:text-white">₹{purchase.amount_paid}</span>
-                  <Button 
-                    onClick={() => onOpenReader && onOpenReader(purchase.content)} 
-                    size="sm" 
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm"
-                  >
-                    Open Content
-                  </Button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </CardContent>
         </Card>
       </TabsContent>
