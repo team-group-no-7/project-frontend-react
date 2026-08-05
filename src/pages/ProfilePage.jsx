@@ -15,6 +15,7 @@ export default function ProfilePage({
   activeRole = "LEARNER", 
   onToggleRole, 
   profile: initialProfile, 
+  onUpdateProfile,
   onOpenReader, 
   purchasedContents, 
   doubtSessions, 
@@ -38,9 +39,18 @@ export default function ProfilePage({
   const sessions = doubtSessions ?? [];
   const uploads = uploadedContents ?? [];
 
-  // Update profile states when saving settings in Creator dashboard
-  const handleSaveProfileSettings = (updatedProfile) => {
-    setProfile(updatedProfile);
+  const handleSaveProfileSettings = async (updatedProfile) => {
+    if (onUpdateProfile) {
+      try {
+        const savedProfile = await onUpdateProfile(updatedProfile);
+        if (savedProfile) setProfile(savedProfile);
+      } catch (err) {
+        console.error('Profile save failed:', err);
+        alert('Unable to save profile changes. Please try again.');
+      }
+    } else {
+      setProfile(updatedProfile);
+    }
   };
 
   return (
@@ -54,7 +64,7 @@ export default function ProfilePage({
               ? "bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800"
               : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700"
               }`}>
-              {activeRole} MODE
+              {activeRole === 'CREATOR' ? 'CREATOR' : (activeRole === 'ADMIN' ? 'ADMIN' : 'LEARNER')} MODE
             </Badge>
             <Button
               onClick={onToggleRole}
@@ -101,10 +111,12 @@ export default function ProfilePage({
             </Card>
           ) : activeRole === "LEARNER" ? (
             <LearnerDashboard
+              profile={profile}
               purchasedContents={purchases}
               doubtSessions={sessions}
               onOpenReader={onOpenReader}
               onJoinCall={onJoinCall}
+              onSaveProfile={handleSaveProfileSettings}
             />
           ) : (
             <CreatorDashboard

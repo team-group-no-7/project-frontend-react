@@ -31,7 +31,7 @@ export default function ProfileDropdown({ profile, onLogout, onSwitchMode }) {
                 <div className="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">{initials}</div>
                 <div className="text-left leading-4 hidden sm:block">
                     <div className="text-sm font-semibold text-slate-800">{activeProfile.name}</div>
-                    <div className="text-xs text-slate-400 capitalize">{activeProfile.role?.toLowerCase() || 'User'}</div>
+                    <div className="text-xs text-slate-400 capitalize">{(activeProfile.role?.includes('CREATOR') ? 'creator' : (activeProfile.role?.includes('ADMIN') ? 'admin' : 'learner'))}</div>
                 </div>
                 <ChevronDown size={16} className="text-slate-400" />
             </button>

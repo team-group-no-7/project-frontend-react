@@ -1,20 +1,24 @@
 import React from "react";
-import { BookOpen, Calendar, ExternalLink } from "lucide-react";
+import { BookOpen, Calendar, ExternalLink, Settings } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import AccountSettingsForm from "@/components/AccountSettingsForm";
 
-export default function LearnerDashboard({ purchasedContents, doubtSessions, onOpenReader, onJoinCall }) {
+export default function LearnerDashboard({ purchasedContents, doubtSessions, profile, onOpenReader, onJoinCall, onSaveProfile }) {
 
   return (
     <Tabs defaultValue="library" className="w-full">
-      <TabsList className="grid grid-cols-2 mb-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-1 rounded-lg">
+      <TabsList className="grid grid-cols-3 mb-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-1 rounded-lg">
         <TabsTrigger value="library" className="gap-2 py-2.5 rounded-md text-sm font-semibold">
           <BookOpen className="h-4 w-4" /> My Library
         </TabsTrigger>
         <TabsTrigger value="sessions" className="gap-2 py-2.5 rounded-md text-sm font-semibold">
           <Calendar className="h-4 w-4" /> Doubt Sessions
+        </TabsTrigger>
+        <TabsTrigger value="settings" className="gap-2 py-2.5 rounded-md text-sm font-semibold">
+          <Settings className="h-4 w-4" /> Account Settings
         </TabsTrigger>
       </TabsList>
 
@@ -90,6 +94,10 @@ export default function LearnerDashboard({ purchasedContents, doubtSessions, onO
             ))}
           </CardContent>
         </Card>
+      </TabsContent>
+
+      <TabsContent value="settings">
+        <AccountSettingsForm profile={profile} onSaveProfile={onSaveProfile} />
       </TabsContent>
     </Tabs>
   );

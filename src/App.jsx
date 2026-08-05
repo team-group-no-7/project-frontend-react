@@ -217,15 +217,59 @@ function App() {
       .catch((err) => console.error("Uploads fetch failed:", err));
   }, []);
 
+  const normalizeProfile = (userObj) => {
+    if (!userObj) return null;
+    const avatar = userObj.avatarUrl || userObj.avatar_url || userObj.avatar || "";
+    return {
+      ...userObj,
+      avatarUrl: avatar,
+      avatar_url: avatar,
+      avatar: avatar
+    };
+  };
+
+  const fetchProfile = useCallback(async () => {
+    try {
+      const response = await api.get('/api/users/profile');
+      const data = response.data?.data || response.data;
+      if (data && data.id) {
+        setProfile((prev) => {
+          let activeRole = prev?.role || data.role;
+          if (data.role === 'LEARNER') {
+            activeRole = 'LEARNER';
+          }
+          const merged = normalizeProfile({
+            ...prev,
+            ...data,
+            baseRole: data.role,
+            role: activeRole
+          });
+          localStorage.setItem('learnhub_user', JSON.stringify(merged));
+          return merged;
+        });
+      }
+    } catch (err) {
+      console.warn('Profile sync from database failed:', err);
+    }
+  }, []);
+
   // ─── Initial Data Load on Login / Page Refresh ────────────────────────────
   useEffect(() => {
     fetchMarketplace();
+    if (isLoggedIn) {
+      fetchProfile();
+    }
+  }, [isLoggedIn, fetchProfile, fetchMarketplace]);
+
+  useEffect(() => {
     if (isLoggedIn && profile?.id) {
       fetchPurchases(profile.id);
       fetchSessions(profile.id, profile.role);
-      fetchUploads(profile.id);
+      if (profile.role === 'CREATOR' || profile.baseRole === 'CREATOR' || profile.role === 'ADMIN') {
+        fetchUploads(profile.id);
+      }
     }
-  }, [isLoggedIn, profile?.id, profile?.role, fetchPurchases, fetchSessions, fetchUploads, fetchMarketplace]);
+  }, [isLoggedIn, profile?.id, profile?.role, fetchPurchases, fetchSessions, fetchUploads]);
 
   // Refetch creator uploads when visiting creator routes
   useEffect(() => {
@@ -261,25 +305,73 @@ function App() {
     navigate('/creator/manage');
   };
 
+  const handleProfileUpdate = async (updatedProfile) => {
+    if (!profile?.id) return null;
+    const payload = {
+      name: updatedProfile.name,
+      headline: updatedProfile.headline,
+      location: updatedProfile.location,
+      avatarUrl: updatedProfile.avatarUrl || updatedProfile.avatar
+    };
+
+    try {
+      const response = await api.put(`/api/users/${profile.id}`, payload);
+      const savedProfile = response.data?.data || response.data;
+      const mergedProfile = normalizeProfile({
+        ...profile,
+        ...savedProfile
+      });
+      setProfile(mergedProfile);
+      localStorage.setItem('learnhub_user', JSON.stringify(mergedProfile));
+      return mergedProfile;
+    } catch (err) {
+      console.error('Profile update failed:', err);
+      throw err;
+    }
+  };
+
   const handleDeleteContent = (id) => {
     setUploadedContents((prev) => prev.filter((item) => item.id !== id));
     setMarketplaceContents((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const handleSwitchRole = () => {
-    setProfile((prev) => {
-      if (!prev) return null;
-      const updatedProfile = {
-        ...prev,
-        role: prev.role === 'LEARNER' ? 'CREATOR' : 'LEARNER'
-      };
-      localStorage.setItem("learnhub_user", JSON.stringify(updatedProfile));
-      if (updatedProfile.role === 'CREATOR' && updatedProfile.id) {
-        fetchUploads(updatedProfile.id);
+  const handleSwitchRole = async () => {
+    if (!profile) return;
+    const targetRole = profile.role === 'LEARNER' ? 'CREATOR' : 'LEARNER';
+
+    // If user is LEARNER and wants to become CREATOR in DB, trigger become-creator API
+    if (targetRole === 'CREATOR' && profile.baseRole !== 'CREATOR' && profile.baseRole !== 'ADMIN') {
+      try {
+        const response = await api.patch(`/api/users/${profile.id}/become-creator`);
+        const updated = response.data?.data || response.data;
+        const normalized = normalizeProfile({
+          ...profile,
+          ...updated,
+          baseRole: 'CREATOR',
+          role: 'CREATOR'
+        });
+        setProfile(normalized);
+        localStorage.setItem('learnhub_user', JSON.stringify(normalized));
+        fetchUploads(profile.id);
+        navigate('/creator/dashboard');
+        return;
+      } catch (err) {
+        console.warn('Become creator DB call failed, proceeding with UI mode toggle:', err);
       }
-      navigate(updatedProfile.role === 'CREATOR' ? '/creator/dashboard' : '/learner/dashboard');
-      return updatedProfile;
+    }
+
+    // Toggle active role mode locally for users with CREATOR or ADMIN capabilities
+    const updatedProfile = normalizeProfile({
+      ...profile,
+      role: targetRole
     });
+    setProfile(updatedProfile);
+    localStorage.setItem("learnhub_user", JSON.stringify(updatedProfile));
+
+    if (targetRole === 'CREATOR' && updatedProfile.id) {
+      fetchUploads(updatedProfile.id);
+    }
+    navigate(targetRole === 'CREATOR' ? '/creator/dashboard' : '/learner/dashboard');
   };
 
   const handleLoginSuccess = (user) => {
@@ -449,6 +541,7 @@ function App() {
       handleSwitchRole={handleSwitchRole}
       handleUploadSuccess={handleUploadSuccess}
       handleDeleteContent={handleDeleteContent}
+      handleProfileUpdate={handleProfileUpdate}
       handleOpenCreatorProfile={handleOpenCreatorProfile}
       handlePaymentSuccess={handlePaymentSuccess}
       handlePaymentFailure={handlePaymentFailure}

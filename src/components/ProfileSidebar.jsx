@@ -26,11 +26,10 @@ export default function ProfileSidebar({ profile, activeRole, libraryCount, sess
         <div className="flex gap-2 mt-3">
           {activeRole === "ADMIN" ? (
             <Badge className="bg-red-600 hover:bg-red-700 text-white font-semibold">Administrator</Badge>
+          ) : activeRole === "CREATOR" ? (
+            <Badge className="bg-slate-700 hover:bg-slate-800 text-white font-semibold dark:bg-slate-800 dark:hover:bg-slate-700">Creator</Badge>
           ) : (
-            <>
-              <Badge className="bg-blue-600 hover:bg-blue-700 text-white font-semibold">Learner</Badge>
-              <Badge className="bg-slate-700 hover:bg-slate-800 text-white font-semibold dark:bg-slate-800 dark:hover:bg-slate-700">Creator</Badge>
-            </>
+            <Badge className="bg-blue-600 hover:bg-blue-700 text-white font-semibold">Learner</Badge>
           )}
         </div>
       </CardHeader>

@@ -1,22 +1,12 @@
-import React, { useState } from "react";
-import { BookOpen, Settings, Save, Calendar, Video, CheckCircle2 } from "lucide-react";
+import React from "react";
+import { BookOpen, Settings, Calendar, Video, CheckCircle2 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import AccountSettingsForm from "@/components/AccountSettingsForm";
 
 export default function CreatorDashboard({ uploadedContents = [], doubtSessions = [], profile, onSaveSettings, onJoinCall }) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({ ...profile });
-
-  // Handle settings form save
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSaveSettings(formData);
-    setIsEditing(false);
-  };
 
   return (
     <Tabs defaultValue="uploads" className="w-full">
@@ -114,55 +104,7 @@ export default function CreatorDashboard({ uploadedContents = [], doubtSessions 
 
       {/* Account Settings Tab */}
       <TabsContent value="settings">
-        <Card className="border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
-          <CardHeader className="flex flex-row justify-between items-center space-y-0">
-            <div>
-              <CardTitle className="text-lg font-bold">Account Settings</CardTitle>
-              <CardDescription>Update your credentials mapped to the USERS table.</CardDescription>
-            </div>
-            {!isEditing && (
-              <Button size="sm" variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white dark:border-blue-400 dark:text-blue-400 font-semibold shadow-sm" onClick={() => setIsEditing(true)}>
-                Edit Profile
-              </Button>
-            )}
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="u-name">Full Name</Label>
-                  <Input
-                    id="u-name"
-                    disabled={!isEditing}
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="u-email">Email Address</Label>
-                  <Input
-                    id="u-email"
-                    type="email"
-                    disabled={!isEditing}
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              {isEditing && (
-                <div className="flex gap-2 justify-end pt-3">
-                  <Button type="button" variant="ghost" onClick={() => { setIsEditing(false); setFormData({ ...profile }); }}>
-                    Cancel
-                  </Button>
-                  <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white gap-2 font-semibold shadow-sm">
-                    <Save className="h-4 w-4" /> Save Changes
-                  </Button>
-                </div>
-              )}
-            </form>
-          </CardContent>
-        </Card>
+        <AccountSettingsForm profile={profile} onSaveProfile={onSaveSettings} />
       </TabsContent>
     </Tabs>
   );
