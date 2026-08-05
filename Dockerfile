@@ -3,8 +3,8 @@
 # Simple & Beginner-Friendly Configuration for CDAC Project Viva
 # ====================================================================
 
-# Step 1: Use official Node.js 18 base image (Alpine version for fast download)
-FROM node:18-alpine
+# Step 1: Use official Node.js 22 LTS base image (Alpine version for fast download & Vite 8 support)
+FROM node:22-alpine
 
 # Step 2: Set working directory inside the container
 WORKDIR /app
