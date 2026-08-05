@@ -1,122 +1,574 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import api from '@/utils/api';
+import AppRoutes from './routes/AppRoutes';
 
+/**
+ * App Root Component
+ * Main Navigation & Data Orchestrator for LearnHub.
+ * Managed cleanly using React Router DOM.
+ */
 function App() {
-  const [count, setCount] = useState(0)
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Authentication states — restored from localStorage on refresh
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return !!localStorage.getItem('learnhub_token');
+  });
+  const [profile, setProfile] = useState(() => {
+    const savedUser = localStorage.getItem('learnhub_user');
+    if (savedUser) {
+      try { return JSON.parse(savedUser); } catch (e) { return null; }
+    }
+    return null;
+  });
+
+  const [selectedCreatorId, setSelectedCreatorId] = useState(202);
+  const [selectedReaderItem, setSelectedReaderItem] = useState(null);
+  const [selectedResourceItem, setSelectedResourceItem] = useState(null);
+
+  // Persistent states — restored from localStorage and merged with DB
+  const [purchasedContents, setPurchasedContents] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('learnhub_purchases')) || []; } catch (e) { return []; }
+  });
+  const [selectedCheckoutItem, setSelectedCheckoutItem] = useState(null);
+  const [latestTransaction, setLatestTransaction] = useState(null);
+  const [doubtSessions, setDoubtSessions] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('learnhub_sessions')) || []; } catch (e) { return []; }
+  });
+  const [selectedCallSession, setSelectedCallSession] = useState(null);
+  const [marketplaceContents, setMarketplaceContents] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('learnhub_uploads'));
+      if (Array.isArray(saved) && saved.length > 0) {
+        return saved;
+      }
+    } catch (e) {}
+    return [];
+  });
+  const [uploadedContents, setUploadedContents] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('learnhub_uploads')) || []; } catch (e) { return []; }
+  });
+
+  // Sync states to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('learnhub_purchases', JSON.stringify(purchasedContents));
+  }, [purchasedContents]);
+
+  useEffect(() => {
+    localStorage.setItem('learnhub_sessions', JSON.stringify(doubtSessions));
+  }, [doubtSessions]);
+
+  useEffect(() => {
+    localStorage.setItem('learnhub_uploads', JSON.stringify(uploadedContents));
+  }, [uploadedContents]);
+
+  // ─── Backend Data Loaders ─────────────────────────────────────────────────
+
+  const fetchMarketplace = useCallback(() => {
+    api.get("/api/contents")
+      .then((res) => {
+        const data = res.data?.data || res.data;
+        if (Array.isArray(data) && data.length > 0) {
+          const normalized = data.map((item) => ({
+            id: item.id,
+            title: item.title,
+            description: item.description,
+            price: item.price,
+            type: item.type || "PDF",
+            category_id: item.category_id || 1,
+            category_name: item.category_name || item.category || "General",
+            creator_id: item.creator_id || item.creatorId,
+            creator_name: item.creator_name || item.creatorName || "Creator",
+            creator_avatar: item.creator_avatar || item.creatorAvatar || "",
+            rating: item.rating || 4.8,
+            reviews_count: item.reviews_count || 12,
+            learners_count: item.learners_count || 120,
+            level: item.level || "Beginner",
+            tags: item.tags || ["Guide"],
+            fileUrl: item.fileUrl || item.file_url || item.thumbnail_url,
+            file_url: item.fileUrl || item.file_url || item.thumbnail_url,
+            preview_text: item.description || "Resource content preview."
+          }));
+
+          setMarketplaceContents((prev) => {
+            const combined = [...normalized];
+            prev.forEach((localItem) => {
+              if (!combined.some((c) => c.id === localItem.id || c.title === localItem.title)) {
+                combined.push(localItem);
+              }
+            });
+            return combined;
+          });
+        }
+      })
+      .catch((err) => console.error("Marketplace fetch failed:", err));
+  }, []);
+
+  const fetchPurchases = useCallback((userId) => {
+    const url = userId ? `/api/purchases/library/${userId}` : `/api/purchases/library`;
+    api.get(url)
+      .then((res) => {
+        const data = res.data?.data || res.data;
+        if (Array.isArray(data)) {
+          const normalised = data.map((item, idx) => ({
+            id: item.id || idx + 1,
+            user_id: userId,
+            content_id: item.contentId,
+            amount_paid: item.price,
+            payment_status: "SUCCESS",
+            purchased_at: new Date().toISOString(),
+            content: {
+              id: item.contentId,
+              title: item.title,
+              description: "",
+              price: item.price,
+              category_name: item.category,
+              type: item.type,
+              fileUrl: item.fileUrl,
+              file_url: item.fileUrl,
+            }
+          }));
+          setPurchasedContents((prev) => {
+            const combined = [...normalised];
+            prev.forEach(p => {
+              if (p.user_id === userId && !combined.some(c => c.content_id === p.content_id)) {
+                combined.push(p);
+              }
+            });
+            return combined;
+          });
+        }
+      })
+      .catch((err) => console.error("Library fetch failed:", err));
+  }, []);
+
+  const fetchSessions = useCallback((userId, role) => {
+    const query = role === 'CREATOR' ? '?role=CREATOR' : '';
+    const url = userId ? `/api/sessions/${userId}${query}` : `/api/sessions${query}`;
+    api.get(url)
+      .then((res) => {
+        const data = res.data?.data || res.data;
+        if (Array.isArray(data)) {
+          const normalised = data.map((s) => ({
+            id: s.id,
+            learner_id: s.learnerId || userId,
+            creator_id: s.creatorId,
+            topic: s.topic,
+            scheduled_at: s.scheduledAt,
+            duration_minutes: s.durationMinutes,
+            session_price: s.sessionPrice,
+            booking_status: s.bookingStatus || "APPROVED",
+            payment_status: s.paymentStatus || "PAID",
+            transaction_id: s.transactionId,
+            jitsi_room_name: s.jitsiRoomName,
+            creator_name: s.creatorName,
+            learner_name: s.learnerName || "Learner"
+          }));
+          setDoubtSessions((prev) => {
+            const combined = [...normalised];
+            prev.forEach(s => {
+              if (!combined.some(c => c.id === s.id || (s.transaction_id && c.transaction_id === s.transaction_id))) {
+                combined.push(s);
+              }
+            });
+            return combined;
+          });
+        }
+      })
+      .catch((err) => console.error("Sessions fetch failed:", err));
+  }, []);
+
+  const fetchUploads = useCallback((userId) => {
+    const url = userId ? `/api/creator/content/${userId}` : `/api/creator/content`;
+    api.get(url)
+      .then((res) => {
+        const data = res.data?.data || res.data;
+        if (Array.isArray(data)) {
+          const normalised = data.map(item => ({
+            id: item.id,
+            title: item.title,
+            description: item.description,
+            price: item.price,
+            type: item.type || "PDF Guide",
+            status: item.status || "PUBLISHED",
+            creator_id: userId,
+            creatorId: userId,
+            creator_name: item.creatorName || item.creator_name,
+            category_name: item.categoryName || item.category_name || "General",
+            created_at: item.createdAt || item.created_at || new Date().toISOString(),
+            fileUrl: item.fileUrl || item.file_url,
+            file_url: item.fileUrl || item.file_url,
+            learners_count: item.learnersCount || item.learners_count || 1
+          }));
+
+          setUploadedContents((prev) => {
+            const combined = [...normalised];
+            prev.forEach(u => {
+              if ((String(u.creator_id) === String(userId) || String(u.creatorId) === String(userId)) && !combined.some(c => c.id === u.id || c.title === u.title)) {
+                combined.push(u);
+              }
+            });
+            return combined;
+          });
+        }
+      })
+      .catch((err) => console.error("Uploads fetch failed:", err));
+  }, []);
+
+  const normalizeProfile = (userObj) => {
+    if (!userObj) return null;
+    const avatar = userObj.avatarUrl || userObj.avatar_url || userObj.avatar || "";
+    return {
+      ...userObj,
+      avatarUrl: avatar,
+      avatar_url: avatar,
+      avatar: avatar
+    };
+  };
+
+  const fetchProfile = useCallback(async () => {
+    try {
+      const response = await api.get('/api/users/profile');
+      const data = response.data?.data || response.data;
+      if (data && data.id) {
+        setProfile((prev) => {
+          // Default to LEARNER UI mode on initial load unless user switched
+          const activeRole = prev?.role || 'LEARNER';
+          const merged = normalizeProfile({
+            ...prev,
+            ...data,
+            baseRole: data.role,
+            role: activeRole
+          });
+          localStorage.setItem('learnhub_user', JSON.stringify(merged));
+          return merged;
+        });
+      }
+    } catch (err) {
+      console.warn('Profile sync from database failed:', err);
+    }
+  }, []);
+
+  // ─── Initial Data Load on Login / Page Refresh ────────────────────────────
+  useEffect(() => {
+    fetchMarketplace();
+    if (isLoggedIn) {
+      fetchProfile();
+    }
+  }, [isLoggedIn, fetchProfile, fetchMarketplace]);
+
+  // Route protection guard for authenticated routes
+  useEffect(() => {
+    const publicPaths = ['/', '/login', '/register'];
+    const token = localStorage.getItem('learnhub_token');
+    if (!isLoggedIn && !token && !publicPaths.includes(location.pathname)) {
+      navigate('/login');
+    }
+  }, [isLoggedIn, location.pathname, navigate]);
+
+  useEffect(() => {
+    if (isLoggedIn && profile?.id) {
+      fetchPurchases(profile.id);
+      fetchSessions(profile.id, profile.role);
+      if (profile.role === 'CREATOR' || profile.baseRole === 'CREATOR' || profile.role === 'ADMIN') {
+        fetchUploads(profile.id);
+      }
+    }
+  }, [isLoggedIn, profile?.id, profile?.role, fetchPurchases, fetchSessions, fetchUploads]);
+
+  // Refetch creator uploads when visiting creator routes
+  useEffect(() => {
+    if (isLoggedIn && profile?.id && (location.pathname.startsWith('/creator'))) {
+      fetchUploads(profile.id);
+    }
+  }, [location.pathname, isLoggedIn, profile?.id, fetchUploads]);
+
+  // ─── Navigation & Business Callbacks ──────────────────────────────────────
+
+  const handleOpenCreatorProfile = (id = 202) => {
+    setSelectedCreatorId(id);
+    navigate(`/creator/profile/${id}`);
+  };
+
+  const handleUploadSuccess = (newContent) => {
+    const dbContent = {
+      ...newContent,
+      creator_name: profile?.name || "Creator",
+      creator_avatar: profile?.avatar || "",
+      rating: 5.0,
+      reviews_count: 0,
+      learners_count: 0,
+      type: newContent.type || "Article",
+      level: newContent.level || "Beginner",
+      tags: newContent.tags || "New",
+      preview_text: newContent.previewText || newContent.preview_text || "Newly published resource."
+    };
+    setMarketplaceContents((prev) => [dbContent, ...prev]);
+    setUploadedContents((prev) => [dbContent, ...prev]);
+    fetchMarketplace();
+    if (profile?.id) fetchUploads(profile.id);
+  };
+
+  const handleProfileUpdate = async (updatedProfile) => {
+    if (!profile?.id) return null;
+    const payload = {
+      name: updatedProfile.name,
+      headline: updatedProfile.headline,
+      location: updatedProfile.location,
+      avatarUrl: updatedProfile.avatarUrl || updatedProfile.avatar
+    };
+
+    try {
+      const response = await api.put(`/api/users/${profile.id}`, payload);
+      const savedProfile = response.data?.data || response.data;
+      const mergedProfile = normalizeProfile({
+        ...profile,
+        ...savedProfile
+      });
+      setProfile(mergedProfile);
+      localStorage.setItem('learnhub_user', JSON.stringify(mergedProfile));
+      return mergedProfile;
+    } catch (err) {
+      console.error('Profile update failed:', err);
+      throw err;
+    }
+  };
+
+  const handleDeleteContent = (id) => {
+    setUploadedContents((prev) => prev.filter((item) => item.id !== id));
+    setMarketplaceContents((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const handleSwitchRole = async () => {
+    if (!profile) return;
+    const targetRole = profile.role === 'LEARNER' ? 'CREATOR' : 'LEARNER';
+
+    // If user is LEARNER and wants to become CREATOR in DB, trigger become-creator API
+    if (targetRole === 'CREATOR' && profile.baseRole !== 'CREATOR' && profile.baseRole !== 'ADMIN') {
+      try {
+        const response = await api.patch(`/api/users/${profile.id}/become-creator`);
+        const updated = response.data?.data || response.data;
+        const normalized = normalizeProfile({
+          ...profile,
+          ...updated,
+          baseRole: 'CREATOR',
+          role: 'CREATOR'
+        });
+        setProfile(normalized);
+        localStorage.setItem('learnhub_user', JSON.stringify(normalized));
+        fetchUploads(profile.id);
+        navigate('/creator/dashboard');
+        return;
+      } catch (err) {
+        console.warn('Become creator DB call failed, proceeding with UI mode toggle:', err);
+      }
+    }
+
+    // Toggle active role mode locally for users with CREATOR or ADMIN capabilities
+    const updatedProfile = normalizeProfile({
+      ...profile,
+      role: targetRole
+    });
+    setProfile(updatedProfile);
+    localStorage.setItem("learnhub_user", JSON.stringify(updatedProfile));
+
+    if (targetRole === 'CREATOR' && updatedProfile.id) {
+      fetchUploads(updatedProfile.id);
+    }
+    navigate(targetRole === 'CREATOR' ? '/creator/dashboard' : '/learner/dashboard');
+  };
+
+  const handleLoginSuccess = (user) => {
+    const defaultActiveRole = user.role === 'ADMIN' ? 'ADMIN' : 'LEARNER';
+    const userWithActiveRole = normalizeProfile({
+      ...user,
+      baseRole: user.role,
+      role: defaultActiveRole
+    });
+    setProfile(userWithActiveRole);
+    setIsLoggedIn(true);
+    localStorage.setItem("learnhub_user", JSON.stringify(userWithActiveRole));
+    fetchPurchases(user.id);
+    fetchSessions(user.id, defaultActiveRole);
+    if (user.role === 'CREATOR' || user.role === 'ADMIN') fetchUploads(user.id);
+    navigate(defaultActiveRole === 'ADMIN' ? '/admin' : '/learner/dashboard');
+  };
+
+  const handleLogout = () => {
+    const refreshToken = localStorage.getItem("learnhub_refreshToken");
+    if (refreshToken) {
+      api.post("/api/auth/logout", { refreshToken }).catch((err) => {
+        console.warn("Backend logout notification error:", err);
+      });
+    }
+    localStorage.removeItem("learnhub_token");
+    localStorage.removeItem("learnhub_refreshToken");
+    localStorage.removeItem("learnhub_user");
+    localStorage.removeItem("learnhub_purchases");
+    localStorage.removeItem("learnhub_sessions");
+    setProfile(null);
+    setIsLoggedIn(false);
+    setPurchasedContents([]);
+    setDoubtSessions([]);
+    setUploadedContents([]);
+    navigate('/');
+  };
+
+  const handlePaymentSuccess = (transactionData) => {
+    if (transactionData.item?.isSession) {
+      const sd = transactionData.item.sessionData;
+      const scheduledDate = (sd.scheduled_at && !isNaN(Date.parse(sd.scheduled_at))) 
+        ? new Date(sd.scheduled_at).toISOString() 
+        : new Date(Date.now() + 86400000).toISOString();
+
+      const sessionPayload = {
+        learner_id: profile?.id || 101,
+        creator_id: sd.creator?.id || sd.creator_id,
+        topic: sd.topic,
+        scheduled_at: scheduledDate,
+        duration_minutes: sd.duration_minutes || 30,
+        session_price: sd.session_price || 0
+      };
+      api.post("/api/sessions", sessionPayload)
+        .then((res) => {
+          const saved = res.data?.data || res.data;
+          fetchSessions(profile?.id, profile?.role);
+          const newSession = {
+            id: saved?.id || Date.now(),
+            learner_id: profile?.id,
+            creator_id: sessionPayload.creator_id,
+            topic: sessionPayload.topic,
+            scheduled_at: sessionPayload.scheduled_at,
+            duration_minutes: sessionPayload.duration_minutes,
+            session_price: sessionPayload.session_price,
+            booking_status: "APPROVED",
+            payment_status: "PAID",
+            transaction_id: transactionData.transactionId,
+            jitsi_room_name: saved?.jitsiRoomName || `learnhub-doubt-${Math.random().toString(36).substr(2, 6)}`
+          };
+          setDoubtSessions((prev) => {
+            if (prev.find((s) => s.id === newSession.id)) return prev;
+            return [...prev, newSession];
+          });
+        })
+        .catch((err) => {
+          console.error("Session booking persist failed:", err);
+          const newSession = {
+            id: Date.now(),
+            learner_id: profile?.id,
+            creator_id: sd.creator?.id || sd.creator_id,
+            topic: sd.topic,
+            scheduled_at: sd.scheduled_at,
+            duration_minutes: sd.duration_minutes || 30,
+            session_price: sd.session_price || 0,
+            booking_status: "APPROVED",
+            payment_status: "PAID",
+            transaction_id: transactionData.transactionId,
+            jitsi_room_name: `learnhub-doubt-${Math.random().toString(36).substr(2, 6)}`
+          };
+          setDoubtSessions((prev) => [...prev, newSession]);
+        });
+    } else {
+      const item = transactionData.item;
+      const newPurchase = {
+        id: Date.now(),
+        user_id: profile?.id || 101,
+        content_id: item?.id,
+        amount_paid: transactionData.amountPaid || item?.price || 0,
+        payment_status: "SUCCESS",
+        transaction_id: transactionData.transactionId,
+        purchased_at: transactionData.paidAt || new Date().toISOString(),
+        content: {
+          id: item?.id,
+          title: item?.title || "Purchased Learning Resource",
+          description: item?.description || "",
+          price: item?.price || 0,
+          category_name: item?.category_name || item?.categoryName || "General",
+          creator_name: item?.creator_name || item?.creatorName || "Creator",
+          type: item?.type || "PDF Guide",
+          fileUrl: item?.fileUrl || item?.file_url,
+          file_url: item?.fileUrl || item?.file_url
+        }
+      };
+
+      setPurchasedContents((prev) => {
+        if (prev.some(p => p.content_id === newPurchase.content_id)) return prev;
+        return [newPurchase, ...prev];
+      });
+
+      const verifyPayload = {
+        razorpayOrderId: transactionData.transactionId,
+        razorpayPaymentId: transactionData.transactionId,
+        razorpaySignature: "mock_" + transactionData.transactionId,
+        userId: profile?.id || 101,
+        contentId: item?.id
+      };
+
+      api.post("/api/payment/verify", verifyPayload)
+        .then(() => {
+          fetchPurchases(profile?.id || 101);
+        })
+        .catch((err) => {
+          console.error("Purchase persist API warning:", err);
+        });
+    }
+    setLatestTransaction(transactionData);
+    navigate('/result');
+  };
+
+  const handlePaymentFailure = (transactionData) => {
+    setLatestTransaction(transactionData);
+    navigate('/result');
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+    <AppRoutes
+      isLoggedIn={isLoggedIn}
+      profile={profile}
+      purchasedContents={purchasedContents}
+      marketplaceContents={marketplaceContents}
+      uploadedContents={uploadedContents}
+      doubtSessions={doubtSessions}
+      selectedReaderItem={selectedReaderItem}
+      setSelectedReaderItem={(item) => {
+        setSelectedReaderItem(item);
+        if (item && item.id) {
+          try { localStorage.setItem("learnhub_last_reader_item", JSON.stringify(item)); } catch (e) {}
+          navigate(`/reader/${item.id}`);
+        } else {
+          navigate('/reader');
+        }
+      }}
+      selectedResourceItem={selectedResourceItem}
+      setSelectedResourceItem={(item) => {
+        setSelectedResourceItem(item);
+        navigate(`/resources/${item?.id || 1}`);
+      }}
+      selectedCheckoutItem={selectedCheckoutItem}
+      setSelectedCheckoutItem={(item) => {
+        setSelectedCheckoutItem(item);
+        navigate('/checkout');
+      }}
+      latestTransaction={latestTransaction}
+      selectedCallSession={selectedCallSession}
+      selectedCreatorId={selectedCreatorId}
+      handleLoginSuccess={handleLoginSuccess}
+      handleLogout={handleLogout}
+      handleSwitchRole={handleSwitchRole}
+      handleUploadSuccess={handleUploadSuccess}
+      handleDeleteContent={handleDeleteContent}
+      handleProfileUpdate={handleProfileUpdate}
+      handleOpenCreatorProfile={handleOpenCreatorProfile}
+      handlePaymentSuccess={handlePaymentSuccess}
+      handlePaymentFailure={handlePaymentFailure}
+      setSelectedCallSession={(session) => {
+        setSelectedCallSession(session);
+        navigate('/jitsi');
+      }}
+    />
+  );
 }
 
-export default App
+export default App;
