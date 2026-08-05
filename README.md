@@ -157,6 +157,22 @@ npm run build
 
 ---
 
+## 🐳 Docker Containerization Guide
+
+LearnHub Frontend includes a beginner-friendly `Dockerfile` running Vite on Node.js:
+
+### 1. Build Frontend Docker Image
+```bash
+docker build -t learnhub-frontend .
+```
+
+### 2. Run Frontend Container
+```bash
+docker run -p 5173:5173 --name learnhub-frontend-app learnhub-frontend
+```
+
+---
+
 ## 🔑 Demo Accounts for Testing
 
 | Role | Email Address | Password |

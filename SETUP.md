@@ -70,6 +70,19 @@ npm run build
 
 ---
 
+## 🐳 Running Frontend with Docker
+
+### Build & Run Docker Image
+```bash
+# Build Frontend Docker Image
+docker build -t learnhub-frontend .
+
+# Run Frontend Container
+docker run -p 5173:5173 --name learnhub-frontend learnhub-frontend
+```
+
+---
+
 ## 🔑 Step 6: Demo Accounts for Testing
 
 Log in at `http://localhost:5173/login` using any of these test credentials:
